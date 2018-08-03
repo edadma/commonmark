@@ -23,16 +23,21 @@ class CommonMarkParser {
   case class Ordered( c: Char ) extends BlockType
 
   trait Block
-  case class LeafBlock( var typ: BlockType, content: StringBuilder ) extends Block
-  case class ContainerBlock( var typ: BlockType, content: ArrayBuffer[Block] ) extends Block
+  case class LeafBlock( var typ: BlockType, content: StringBuilder, handler: BlockHandler ) extends Block
+  case class ContainerBlock( var typ: BlockType, content: ArrayBuffer[Block], handler: BlockHandler ) extends Block
+
+  val blockHandlers = new ArrayBuffer
 
   def parser( src: io.Source ) = {
 
     val doc = ContainerBlock( Doc, new ArrayBuffer[Block] )
 
-    for (line <- src.getLines) {
+    def next( s: Stream[String] ) =
+      if (s nonEmpty) {
 
-    }
+      }
+
+    next( src.getLines.toStream )
   }
 
 }
