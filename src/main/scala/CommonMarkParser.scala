@@ -5,7 +5,11 @@ import scala.collection.mutable.ArrayBuffer
 
 class CommonMarkParser {
 
-  val blockTypes = new ArrayBuffer[BlockType]
+  val blockTypes =
+    new ArrayBuffer[BlockType] {
+      append( ParagraphBlockType )
+      append( BlankBlockType )
+    }
 
   def parser( src: io.Source ) = {
 
@@ -21,18 +25,21 @@ class CommonMarkParser {
 //    }
 
     def next( s: Stream[String] ): Unit = {
-//      def matching( from: Int, b: Block ) = {
-//        b.accept( from, s ) match {
-//          case None => b.open
-//          case Some( newfrom ) =>
-//            b.open match {
-//              case None =>
-//            }
-//        }
-//      }
+      def matching( from: Int, prev: Block, blocks: List[Block] ): (Boolean, Int, Block) =
+        blocks match {
+          case Nil => (true, from, prev)
+          case b :: t =>
+            b.accept( from, s ) match {
+              case None => (false, from, prev)
+              case Some( newfrom ) => matching( newfrom, if (b.isInstanceOf[ContainerBlock]) b else prev, t )
+            }
+        }
 
       if (s nonEmpty) {
-        matching( 0, doc )
+        matching( 0, doc, trail.toList ) match {
+          case (false, from, prev) => trail.last.append( from, s )
+          case (true, from, prev) =>
+        }
       }
     }
 
