@@ -13,6 +13,8 @@ abstract class Block {
 
   def open: Option[Block]
 
+  def close {}
+
 }
 
 abstract class LeafBlock extends Block {

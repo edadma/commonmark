@@ -1,3 +1,4 @@
+//@
 package xyz.hyperreal.commonmark
 
 import scala.collection.mutable.ArrayBuffer
@@ -37,8 +38,37 @@ class CommonMarkParser {
 
       if (s nonEmpty) {
         matching( 0, doc, trail.toList ) match {
-          case (false, from, prev) => trail.last.append( from, s )
-          case (true, from, prev) =>
+          case (_, from, prev) =>
+            def start: Option[Block] = {
+              for (b <- blockTypes)
+                b.start( from, s ) match {
+                  case None =>
+                  case s => return s
+                }
+
+              None
+            }
+
+            start match {
+              case None =>
+              case Some( st ) =>
+                prev.open match {
+                  case None =>
+                  case Some( b ) =>
+                    b.close
+
+                    trail.reverseIterator indexWhere (_ == b) match {
+                      case -1 => sys.error( "problem" )
+                      case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                    }
+
+                }
+
+                prev.add( st )
+                trail += st
+            }
+
+            trail.last.append( from, s )
         }
       }
     }
