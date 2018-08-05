@@ -8,7 +8,11 @@ object Main extends App {
     """
       |this is a test
       |second line
-    """.trim.stripMargin
+      |
+      |
+      |asdf
+      |wret
+    """.stripMargin
 
   val doc = p.parse( input )
 

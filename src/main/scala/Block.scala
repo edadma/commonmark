@@ -15,8 +15,6 @@ abstract class Block {
 
   def open: Option[Block]
 
-  def close {}
-
   override def toString: String = s"<$name>"
 
 }
@@ -29,7 +27,9 @@ abstract class LeafBlock extends Block {
 
 }
 
-abstract class TextLeafBlock extends LeafBlock {
+trait Appendable
+
+abstract class TextLeafBlock extends LeafBlock with Appendable {
 
   val text = new StringBuilder
 
@@ -44,7 +44,7 @@ abstract class TextLeafBlock extends LeafBlock {
 
 }
 
-abstract class SpecialLeafBlock extends LeafBlock {
+abstract class SpecialLeafBlock extends LeafBlock with Appendable {
 
   def append( from: Int, stream: Stream[String] ) = {}
 

@@ -54,20 +54,23 @@ class CommonMarkParser {
             start match {
               case None =>
               case Some( st ) =>
-                prev.open match {
-                  case None =>
-                  case Some( b ) =>
-                    b.close
-
-                    trail.reverseIterator indexWhere (_ == b) match {
-                      case -1 => sys.error( "problem" )
-                      case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
-                    }
-
+                def add: Unit = {
+                  prev.add( st )
+                  trail += st
                 }
 
-                prev.add( st )
-                trail += st
+                prev.open match {
+                  case None => add
+                  case Some( b ) =>
+                    if (!(st.isInstanceOf[Appendable] && b.isInstanceOf[Appendable] && st.getClass == b.getClass)) {
+                      trail.reverseIterator indexWhere (_ == b) match {
+                        case -1 => sys.error( "problem" )
+                        case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                      }
+
+                      add
+                    }
+                }
             }
 
             trail.last.append( from, s )
