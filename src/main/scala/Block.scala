@@ -13,6 +13,8 @@ abstract class Block {
 
   def append( from: Int, stream: Stream[String] ): Unit
 
+  def isAppendable: Boolean
+
   def open: Option[Block]
 
   override def toString: String = s"<$name>"
@@ -27,7 +29,11 @@ abstract class LeafBlock extends Block {
 
 }
 
-trait Appendable
+trait Appendable {
+
+  val isAppendable = true
+
+}
 
 abstract class TextLeafBlock extends LeafBlock with Appendable {
 
@@ -53,6 +59,8 @@ abstract class SpecialLeafBlock extends LeafBlock with Appendable {
 trait NonAppendable {
 
   def append( from: Int, s: Stream[String] ): Unit = sys.error( "cannot append to" )
+
+  val isAppendable = false
 
 }
 

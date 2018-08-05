@@ -62,7 +62,7 @@ class CommonMarkParser {
                 prev.open match {
                   case None => add
                   case Some( b ) =>
-                    if (!(st.isInstanceOf[Appendable] && b.isInstanceOf[Appendable] && st.getClass == b.getClass)) {
+                    if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
                       trail.reverseIterator indexWhere (_ == b) match {
                         case -1 => sys.error( "problem" )
                         case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
@@ -73,7 +73,8 @@ class CommonMarkParser {
                 }
             }
 
-            trail.last.append( from, s )
+            if (trail.last.isAppendable)
+              trail.last.append( from, s )
         }
 
         next( s.tail )

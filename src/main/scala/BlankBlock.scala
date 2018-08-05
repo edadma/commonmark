@@ -5,13 +5,13 @@ object BlankBlockType extends BlockType {
 
   override def start( from: Int, s: Stream[String] ) =
     if (isBlank( from, s ))
-      Some( new BlankBlock )
+      Some( BlankBlock )
     else
       None
 
 }
 
-class BlankBlock extends SpecialLeafBlock {
+object BlankBlock extends SpecialLeafBlock {  // this is an object and not a class for efficiency
 
   val name = "blank"
 
