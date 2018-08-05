@@ -5,6 +5,8 @@ import scala.collection.mutable.ArrayBuffer
 
 abstract class Block {
 
+  val name: String
+
   def accept( from: Int, stream: Stream[String] ): Option[Int]
 
   def add( block: Block ): Unit
@@ -14,6 +16,8 @@ abstract class Block {
   def open: Option[Block]
 
   def close {}
+
+  override def toString: String = s"<$name>"
 
 }
 
@@ -30,9 +34,13 @@ abstract class TextLeafBlock extends LeafBlock {
   val text = new StringBuilder
 
   def append( from: Int, stream: Stream[String] ): Unit = {
-    text += '\n'
+    if (text nonEmpty)
+      text += '\n'
+
     text ++= stream.head substring from
   }
+
+  override def toString: String = super.toString + s"""["$text"]"""
 
 }
 
@@ -57,5 +65,7 @@ abstract class ContainerBlock extends Block with NonAppendable {
   def add( block: Block ): Unit = blocks += block
 
   def open = blocks lastOption
+
+  override def toString: String = super.toString + s"[${blocks mkString ", "}]"
 
 }

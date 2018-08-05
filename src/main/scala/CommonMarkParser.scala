@@ -12,7 +12,9 @@ class CommonMarkParser {
       append( BlankBlockType )
     }
 
-  def parser( src: io.Source ) = {
+  def parse( src: String ): DocumentBlock = parse( io.Source.fromString(src) )
+
+  def parse( src: io.Source ) = {
 
     val doc = new DocumentBlock
     val trail = new ArrayBuffer[Block]
@@ -70,10 +72,13 @@ class CommonMarkParser {
 
             trail.last.append( from, s )
         }
+
+        next( s.tail )
       }
     }
 
     next( src.getLines.toStream )
+    doc
   }
 
 }

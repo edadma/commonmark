@@ -13,6 +13,8 @@ object BlankBlockType extends BlockType {
 
 class BlankBlock extends SpecialLeafBlock {
 
+  val name = "blank"
+
   def accept( from: Int, stream: Stream[String] ) =
     if (isBlank( from, stream))
       Some( from )

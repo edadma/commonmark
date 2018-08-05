@@ -13,6 +13,8 @@ object ParagraphBlockType extends BlockType {
 
 class ParagraphBlock extends TextLeafBlock {
 
+  val name = "paragraph"
+
   def accept( from: Int, stream: Stream[String] ) =
     if (nonBlank( from, stream))
       Some( from )
