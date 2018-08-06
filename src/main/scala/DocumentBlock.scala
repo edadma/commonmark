@@ -5,6 +5,6 @@ class DocumentBlock extends ContainerBlock {
 
   val name = "document"
 
-  def accept( from: Int, stream: Stream[String] ) = Some( from )
+  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = Some( (from, text) )
 
 }

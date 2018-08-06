@@ -8,11 +8,11 @@ abstract class Block {
   val name: String
   var keep = true
 
-  def accept( from: Int, stream: Stream[String] ): Option[Int]
+  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)]
 
   def add( block: Block ): Unit
 
-  def append( from: Int, stream: Stream[String] ): Unit
+  def append(from: Int, text: String, stream: Stream[String]): Unit
 
   def isAppendable: Boolean
 
@@ -38,28 +38,28 @@ trait Appendable {
 
 abstract class TextLeafBlock extends LeafBlock with Appendable {
 
-  val text = new StringBuilder
+  val buf = new StringBuilder
 
-  def append( from: Int, stream: Stream[String] ): Unit = {
-    if (text nonEmpty)
-      text += '\n'
+  def append(from: Int, text: String, stream: Stream[String]): Unit = {
+    if (buf nonEmpty)
+      buf += '\n'
 
-    text ++= stream.head substring from
+    buf ++= text
   }
 
-  override def toString: String = super.toString + s"""["$text"]"""
+  override def toString: String = super.toString + s"""["$buf"]"""
 
 }
 
 abstract class SpecialLeafBlock extends LeafBlock with Appendable {
 
-  def append( from: Int, stream: Stream[String] ) = {}
+  def append(from: Int, text: String, stream: Stream[String]): Unit = {}
 
 }
 
 trait NonAppendable {
 
-  def append( from: Int, s: Stream[String] ): Unit = sys.error( "cannot append to" )
+  def append( from: Int, text: String, s: Stream[String] ): Unit = sys.error( "cannot append to" )
 
   val isAppendable = false
 
