@@ -11,6 +11,7 @@ class CommonMarkParser {
       append( AHeadingBlockType )
       append( SHeadingBlockType )
       append( BreakBlockType )
+      append( IndentedBlockType )
       append( ParagraphBlockType )
       append( BlankBlockType )
     }
@@ -23,12 +24,6 @@ class CommonMarkParser {
     val trail = new ArrayBuffer[Block]
 
     trail += doc
-
-//    def opens = {
-//      def opens( b: Block ): Stream[Block] = Stream.cons( b, b.open.map(opens).getOrElse(Stream.empty) )
-//
-//      opens( doc )
-//    }
 
     def next( s: Stream[String] ): Unit = {
       def matching( from: Int, prev: ContainerBlock, blocks: List[Block] ): (Boolean, Int, ContainerBlock) =
