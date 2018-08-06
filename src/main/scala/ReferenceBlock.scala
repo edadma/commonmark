@@ -5,9 +5,9 @@ object ReferenceBlockType extends BlockType {
 
   val linkRegex = """[ ]{0,3}\[([^\]]+)\]:\s*.+?\s*(?:"(.*?)")"""r
 
-  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[Block] =
+  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int)] =
     if (isBlank( from, s ))
-      Some( ReferenceBlock )
+      Some( (ReferenceBlock, from) )
     else
       None
 

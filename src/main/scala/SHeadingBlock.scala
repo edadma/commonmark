@@ -5,13 +5,13 @@ object SHeadingBlockType extends BlockType {
 
   val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*"""r
 
-  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[Block] = {
+  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int)] = {
     s.head substring from match {
       case sHeadingRegex( underline ) =>
         prev.open match {
           case Some( p: ParagraphBlock ) =>
             p.keep = false
-            Some( new SHeadingBlock(if (underline.head == '=') 1 else 2, p.text.toString) )
+            Some( (new SHeadingBlock(if (underline.head == '=') 1 else 2, p.text.toString), from) )
           case _ => None
         }
       case _ => None

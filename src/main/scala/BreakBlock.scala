@@ -5,9 +5,9 @@ object BreakBlockType extends BlockType {
 
   val breakRegex = """[ ]{0,3}([-_*])\s*(?:\1\s*){2,}"""r
 
-  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[Block] =
+  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int)] =
     if (breakRegex.pattern.matcher( s.head.subSequence(from, s.head.length) ).matches)
-      Some( new BreakBlock )
+      Some( (new BreakBlock, from) )
     else
       None
 

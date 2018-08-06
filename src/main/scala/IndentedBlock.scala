@@ -8,7 +8,7 @@ object IndentedBlockType extends BlockType {
 
   override def start( from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser ) =
     if (indentedRegex.pattern.matcher( s.head.substring(from) ).matches && nonBlank(from, s))
-      Some( new IndentedBlock )
+      Some( (new IndentedBlock, from + 4) )
     else
       None
 
@@ -19,7 +19,6 @@ class IndentedBlock extends TextLeafBlock {
   val name = "indented"
 
   def accept( from: Int, stream: Stream[String] ) = {
-    println( s"indented: $from, $stream")
     if (IndentedBlockType.indentedRegex.pattern.matcher( stream.head.substring(from) ).matches)
       Some( from + 4 )
     else

@@ -35,7 +35,6 @@ class CommonMarkParser {
         blocks match {
           case Nil => (true, from, prev)
           case b :: t =>
-            println( b, from, s, b.accept( from, s ))
             b.accept( from, s ) match {
               case None => (false, from, prev)
               case Some( newfrom ) =>
@@ -46,40 +45,43 @@ class CommonMarkParser {
       if (s nonEmpty) {
         matching( 0, doc, trail.toList ) match {
           case (_, from, prev) =>
-            def start: Option[Block] = {
+            def start: Option[(Block, Int)] = {
               for (b <- blockTypes)
                 b.start( from, s, prev, this ) match {
                   case None =>
-                  case s => return s
+                  case st => return st
                 }
 
               None
             }
 
-            start match {
-              case None =>
-              case Some( st ) =>
-                def add: Unit = {
-                  prev.add( st )
-                  trail += st
-                }
+            val newfrom =
+              start match {
+                case None => from
+                case Some( (st, fr) ) =>
+                  def add: Unit = {
+                    prev.add( st )
+                    trail += st
+                  }
 
-                prev.open match {
-                  case None => add
-                  case Some( b ) =>
-                    if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
-                      trail.reverseIterator indexWhere (_ == b) match {
-                        case -1 => sys.error( "problem" )
-                        case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                  prev.open match {
+                    case None => add
+                    case Some( b ) =>
+                      if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
+                        trail.reverseIterator indexWhere (_ == b) match {
+                          case -1 => sys.error( "problem" )
+                          case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                        }
+
+                        add
                       }
+                  }
 
-                      add
-                    }
-                }
-            }
+                  fr
+              }
 
             if (trail.last.isAppendable)
-              trail.last.append( from, s )
+              trail.last.append( newfrom, s )
         }
 
         next( s.tail )

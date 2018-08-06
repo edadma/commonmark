@@ -3,11 +3,11 @@ package xyz.hyperreal.commonmark
 
 object AHeadingBlockType extends BlockType {
 
-  val aHeadingRegex = """[ ]{0,3}(#{1,6})\s+([^#\n]*?)(?:\s+#+)?"""r
+  val aHeadingRegex = """[ ]{0,3}(#{1,6})(\s+)([^#\n]*?)(?:\s+#+)?"""r
 
-  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[Block] =
+  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int)] =
     s.head substring from match {
-      case aHeadingRegex( level, heading ) => Some( new AHeadingBlock(level.length, heading) )
+      case aHeadingRegex( level, space, heading ) => Some( (new AHeadingBlock(level.length, heading), level.length + space.length) )
       case _ => None
     }
 

@@ -3,9 +3,9 @@ package xyz.hyperreal.commonmark
 
 object BlankBlockType extends BlockType {
 
-  override def start( from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser ): Option[Block] =
+  override def start( from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser ): Option[(Block, Int)] =
     if (isBlank( from, s ))
-      Some( BlankBlock )
+      Some( (BlankBlock, from) )
     else
       None
 
