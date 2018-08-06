@@ -30,13 +30,14 @@ class CommonMarkParser {
 //    }
 
     def next( s: Stream[String] ): Unit = {
-      def matching( from: Int, prev: Block, blocks: List[Block] ): (Boolean, Int, Block) =
+      def matching( from: Int, prev: ContainerBlock, blocks: List[Block] ): (Boolean, Int, ContainerBlock) =
         blocks match {
           case Nil => (true, from, prev)
           case b :: t =>
             b.accept( from, s ) match {
               case None => (false, from, prev)
-              case Some( newfrom ) => matching( newfrom, if (b.isInstanceOf[ContainerBlock]) b else prev, t )
+              case Some( newfrom ) =>
+                matching( newfrom, if (b.isInstanceOf[ContainerBlock]) b.asInstanceOf[ContainerBlock] else prev, t )
             }
         }
 
@@ -45,7 +46,7 @@ class CommonMarkParser {
           case (_, from, prev) =>
             def start: Option[Block] = {
               for (b <- blockTypes)
-                b.start( from, s ) match {
+                b.start( from, s, prev ) match {
                   case None =>
                   case s => return s
                 }

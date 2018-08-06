@@ -3,7 +3,7 @@ package xyz.hyperreal.commonmark
 
 object BlankBlockType extends BlockType {
 
-  override def start( from: Int, s: Stream[String] ) =
+  override def start( from: Int, s: Stream[String], prev: ContainerBlock ) =
     if (isBlank( from, s ))
       Some( BlankBlock )
     else
