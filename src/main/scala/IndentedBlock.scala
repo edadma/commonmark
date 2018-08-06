@@ -7,7 +7,7 @@ object IndentedBlockType extends BlockType {
   val indentedRegex = """    (.+)"""r
 
   override def start( from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser ) =
-    if (indentedRegex.pattern.matcher( s.head.substring(from) ).matches && nonBlank(from, s))
+    if (indentedRegex.pattern.matcher( s.head.substring(from) ).matches && nonBlank(from, s) && !prev.open.exists( _.isInstanceOf[ParagraphBlock]))
       Some( (new IndentedBlock, from + 4) )
     else
       None

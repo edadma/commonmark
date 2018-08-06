@@ -4,7 +4,7 @@ package xyz.hyperreal.commonmark
 object ParagraphBlockType extends BlockType {
 
   override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int)] =
-    if (nonBlank( from, s ))
+    if (nonBlank( from, s )/* && (s.head.substring(from).length < 4 || !s.head.substring(from)(3).isWhitespace)*/)
       Some( (new ParagraphBlock, from) )
     else
       None
