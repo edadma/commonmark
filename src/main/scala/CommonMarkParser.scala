@@ -9,6 +9,7 @@ class CommonMarkParser {
   val blockTypes =
     new ArrayBuffer[BlockType] {
       append( AHeadingBlockType )
+      append( SHeadingBlockType )
       append( BreakBlockType )
       append( ParagraphBlockType )
       append( BlankBlockType )

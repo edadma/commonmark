@@ -3,14 +3,15 @@ package xyz.hyperreal.commonmark
 
 object SHeadingBlockType extends BlockType {
 
-  val sHeadingRegex = """[ ]{0,3}(?:-+|=+)\s*"""r
+  val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*"""r
 
-  override def start( from: Int, s: Stream[String], prev: ContainerBlock ) =
-    if (sHeadingRegex.pattern.matcher( s.head substring from ).matches) {
-
-      new SHeadingBlock()
-    } else
-      false
+  override def start( from: Int, s: Stream[String], prev: ContainerBlock ) = {
+    s.head substring from match {
+      case sHeadingRegex(level) =>
+        Some(new SHeadingBlock(level.length, "asdf"))
+      case _ => None
+    }
+  }
 
 }
 
