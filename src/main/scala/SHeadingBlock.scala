@@ -7,8 +7,13 @@ object SHeadingBlockType extends BlockType {
 
   override def start( from: Int, s: Stream[String], prev: ContainerBlock ) = {
     s.head substring from match {
-      case sHeadingRegex(level) =>
-        Some(new SHeadingBlock(level.length, "asdf"))
+      case sHeadingRegex( underline ) =>
+        prev.open match {
+          case Some( p: ParagraphBlock ) =>
+            p.keep = false
+            Some( new SHeadingBlock(if (underline.head == '=') 1 else 2, p.text.toString) )
+          case _ => None
+        }
       case _ => None
     }
   }
@@ -17,7 +22,7 @@ object SHeadingBlockType extends BlockType {
 
 class SHeadingBlock( level: Int, heading: String ) extends SimpleLeafBlock {
 
-  val name = "aheading"
+  val name = "sheading"
 
   def accept( from: Int, s: Stream[String] ) =
     if (SHeadingBlockType.sHeadingRegex.pattern.matcher( s.head.subSequence(from, s.head.length) ).matches)

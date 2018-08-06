@@ -15,6 +15,8 @@ object BlankBlock extends SpecialLeafBlock {  // this is an object and not a cla
 
   val name = "blank"
 
+  keep = false
+
   def accept( from: Int, stream: Stream[String] ) =
     if (isBlank( from, stream))
       Some( from )

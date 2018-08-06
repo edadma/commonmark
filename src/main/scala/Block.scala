@@ -6,6 +6,7 @@ import scala.collection.mutable.ArrayBuffer
 abstract class Block {
 
   val name: String
+  var keep = true
 
   def accept( from: Int, stream: Stream[String] ): Option[Int]
 
@@ -17,7 +18,7 @@ abstract class Block {
 
   def open: Option[Block]
 
-  override def toString: String = s"<$name>"
+  override def toString: String = s"<${if (!keep) "*" else ""}$name>"
 
 }
 
