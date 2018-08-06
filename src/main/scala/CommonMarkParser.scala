@@ -1,10 +1,15 @@
 //@
 package xyz.hyperreal.commonmark
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 
 class CommonMarkParser {
+
+  private [commonmark] val refs = new mutable.HashMap[String, Link]
+
+  case class Link( url: String, title: Option[String] )
 
   val blockTypes =
     new ArrayBuffer[BlockType] {
@@ -30,6 +35,7 @@ class CommonMarkParser {
         blocks match {
           case Nil => (true, from, prev)
           case b :: t =>
+            println( b, from, s, b.accept( from, s ))
             b.accept( from, s ) match {
               case None => (false, from, prev)
               case Some( newfrom ) =>
@@ -42,7 +48,7 @@ class CommonMarkParser {
           case (_, from, prev) =>
             def start: Option[Block] = {
               for (b <- blockTypes)
-                b.start( from, s, prev ) match {
+                b.start( from, s, prev, this ) match {
                   case None =>
                   case s => return s
                 }

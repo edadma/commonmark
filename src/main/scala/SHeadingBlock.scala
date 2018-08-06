@@ -5,7 +5,7 @@ object SHeadingBlockType extends BlockType {
 
   val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*"""r
 
-  override def start( from: Int, s: Stream[String], prev: ContainerBlock ) = {
+  override def start(from: Int, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[Block] = {
     s.head substring from match {
       case sHeadingRegex( underline ) =>
         prev.open match {
