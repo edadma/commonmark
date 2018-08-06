@@ -3,9 +3,9 @@ package xyz.hyperreal.commonmark
 
 object BlankBlockType extends BlockType {
 
-  protected override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int, String)] =
+  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int, String)] =
     if (isBlank( from, s ))
-      Some( (BlankBlock, from) )
+      Some( (BlankBlock, from, text) )
     else
       None
 
@@ -19,7 +19,7 @@ object BlankBlock extends SpecialLeafBlock {  // this is an object and not a cla
 
   def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] =
     if (isBlank( from, stream))
-      Some( from )
+      Some( (from, text) )
     else
       None
 
