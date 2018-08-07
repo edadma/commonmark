@@ -33,7 +33,7 @@ class CommonMarkParser {
     def next( s: Stream[String] ): Unit = {
       def matching( from: Int, text: String, prev: ContainerBlock, blocks: List[Block] ): (Boolean, Int, String, ContainerBlock) =
         blocks match {
-          case Nil => (true, from, text, prev)
+          case Nil => Right( (from, text, prev) )
           case b :: t =>
             b.accept(from, text, s) match {
               case None => (false, from, text, prev)

@@ -8,9 +8,9 @@ object Main extends App {
     """
       |    a
       |
-      |asdf
-      |
       |    b
+      |
+      |adsf
     """.stripMargin
 
   val doc = p.parse( input )

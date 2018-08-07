@@ -6,7 +6,7 @@ object AHeadingBlockType extends BlockType {
   val aHeadingRegex = """[ ]{0,3}(#{1,6})(\s+)([^#\n]*?)(?:\s+#+)?"""r
 
   override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int, String)] =
-    s.head substring from match {
+    text match {
       case aHeadingRegex( level, space, heading ) => Some( (new AHeadingBlock(level.length, heading), level.length + space.length, heading) )
       case _ => None
     }
