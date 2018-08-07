@@ -31,12 +31,12 @@ class CommonMarkParser {
     trail += doc
 
     def next( s: Stream[String] ): Unit = {
-      def matching( from: Int, text: String, prev: ContainerBlock, blocks: List[Block] ): (Boolean, Int, String, ContainerBlock) =
+      def matching( from: Int, text: String, prev: ContainerBlock, blocks: List[Block] ): (Block, Int, String, ContainerBlock) =
         blocks match {
-          case Nil => Right( (from, text, prev) )
+          case Nil => (null, from, text, prev)
           case b :: t =>
             b.accept(from, text, s) match {
-              case None => (false, from, text, prev)
+              case None => (b, from, text, prev)
               case Some( (newfrom, newtext) ) =>
                 matching( newfrom, newtext, if (b.isInstanceOf[ContainerBlock]) b.asInstanceOf[ContainerBlock] else prev, t )
             }
@@ -44,7 +44,7 @@ class CommonMarkParser {
 
       if (s nonEmpty) {
         matching( 0, s.head, doc, trail.toList ) match {
-          case (_, from, text, prev) =>
+          case (block, from, text, prev) =>
             def start: Option[(Block, Int, String)] = {
               for (b <- blockTypes)
                 b.start(from, text, s, prev, this) match {
@@ -55,33 +55,38 @@ class CommonMarkParser {
               None
             }
 
-            val (newfrom, newtext) =
-              start match {
-                case None => (from, text)
-                case Some( (st, fr, tx) ) =>
-                  def add: Unit = {
-                    prev.add( st )
-                    trail += st
-                  }
+            if (block != null) {
+              val (newfrom, newtext) =
+                start match {
+                  case None => (from, text)
+                  case Some( (st, fr, tx) ) =>
+                    def add: Unit = {
+                      prev.add( st )
+                      trail += st
+                    }
 
-                  prev.open match {
-                    case None => add
-                    case Some( b ) =>
-                      if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
-                        trail.reverseIterator indexWhere (_ == b) match {
-                          case -1 => sys.error( "problem" )
-                          case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                    prev.open match {
+                      case None => add
+                      case Some( b ) =>
+                        if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
+                          trail.reverseIterator indexWhere (_ == b) match {
+                            case -1 => sys.error( "problem" )
+                            case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                          }
+
+                          add
                         }
+                    }
 
-                        add
-                      }
-                  }
+                    (fr, tx)
+                }
 
-                  (fr, tx)
-              }
-
-            if (trail.last.isAppendable)
-              trail.last.append(newfrom, newtext, s)
+              if (trail.last.isAppendable)
+                trail.last.append(newfrom, newtext, s)
+            } else {
+              if (trail.last.isAppendable)
+                trail.last.append(from, text, s)
+            }
         }
 
         next( s.tail )
