@@ -11,7 +11,7 @@ object BlankBlockType extends BlockType {
 
 }
 
-object BlankBlock extends SpecialLeafBlock {  // this is an object and not a class for efficiency
+object BlankBlock extends SimpleLeafBlock {  // this is an object and not a class for efficiency
 
   val name = "blank"
 

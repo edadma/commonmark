@@ -8,7 +8,23 @@ object Main extends App {
     """
       |heading
       |=======
+      |asdf
+      |- --
+      |# lkjh
+      |    asdf
+      |
+      |    # qwer
     """.stripMargin
+//    """
+//      |poiu
+//      |====
+//      |asdf
+//      |    zxcv
+//      |
+//      |    qewr
+//      |
+//      |    lkjh
+//    """.stripMargin
 
   val doc = p.parse( input )
 

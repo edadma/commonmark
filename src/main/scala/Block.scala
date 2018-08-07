@@ -16,6 +16,8 @@ abstract class Block {
 
   def isAppendable: Boolean
 
+  val isInterruptible = true
+
   def open: Option[Block]
 
   override def toString: String = s"<${if (!keep) "*" else ""}$name>"
@@ -48,12 +50,6 @@ abstract class TextLeafBlock extends LeafBlock with Appendable {
   }
 
   override def toString: String = super.toString + s"""["$buf"]"""
-
-}
-
-abstract class SpecialLeafBlock extends LeafBlock with Appendable {
-
-  def append(from: Int, text: String, stream: Stream[String]): Unit = {}
 
 }
 

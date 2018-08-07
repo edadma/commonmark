@@ -18,6 +18,8 @@ class IndentedBlock extends TextLeafBlock {
 
   val name = "indented"
 
+  override val isInterruptible = false
+
   def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = {
     if (IndentedBlockType.indentedRegex.pattern.matcher( stream.head.substring(from) ).matches || isBlank( text ))
       Some( (from + 4, if (text.length < 4) "" else text.substring( 4 )) )

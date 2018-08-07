@@ -55,7 +55,7 @@ class CommonMarkParser {
               None
             }
 
-            if (block != null) {
+//            if (block != null) {
               val (newfrom, newtext) =
                 start match {
                   case None => (from, text)
@@ -65,10 +65,12 @@ class CommonMarkParser {
                       trail += st
                     }
 
+//                    println( prev.open, st, block)
                     prev.open match {
                       case None => add
                       case Some( b ) =>
-                        if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
+                        if (!(st.isAppendable && b.isAppendable && (b ne block)) && b.isInterruptible/* && st.getClass == b.getClass*/) {
+                          println( st, b.isInterruptible)
                           trail.reverseIterator indexWhere (_ == b) match {
                             case -1 => sys.error( "problem" )
                             case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
@@ -83,10 +85,10 @@ class CommonMarkParser {
 
               if (trail.last.isAppendable)
                 trail.last.append(newfrom, newtext, s)
-            } else {
-              if (trail.last.isAppendable)
-                trail.last.append(from, text, s)
-            }
+//            } else {
+//              if (trail.last.isAppendable)
+//                trail.last.append(from, text, s)
+//            }
         }
 
         next( s.tail )
