@@ -57,30 +57,33 @@ class CommonMarkParser {
 
 //            if (block != null) {
               val (newfrom, newtext) =
-                start match {
-                  case None => (from, text)
-                  case Some( (st, fr, tx) ) =>
-                    def add: Unit = {
-                      prev.add( st )
-                      trail += st
-                    }
-
-//                    println( prev.open, st, block)
-                    prev.open match {
-                      case None => add
-                      case Some( b ) =>
-                        if (!(st.isAppendable && b.isAppendable && (b ne block)) && b.isInterruptible/* && st.getClass == b.getClass*/) {
-                          println( st, b.isInterruptible)
-                          trail.reverseIterator indexWhere (_ == b) match {
-                            case -1 => sys.error( "problem" )
-                            case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
-                          }
-
-                          add
+                prev.open match {
+                  case Some( b ) if !b.isInterruptible => (from, text)
+                  case _ =>
+                    start match {
+                      case None => (from, text)
+                      case Some( (st, fr, tx) ) =>
+                        def add: Unit = {
+                          prev.add( st )
+                          trail += st
                         }
-                    }
 
-                    (fr, tx)
+    //                    println( prev.open, st, block)
+                        prev.open match {
+                          case None => add
+                          case Some( b ) =>
+                            if (!(st.isAppendable && b.isAppendable && (b ne block))/* && st.getClass == b.getClass*/) {
+                              trail.reverseIterator indexWhere (_ == b) match {
+                                case -1 => sys.error( "problem" )
+                                case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                              }
+
+                              add
+                            }
+                        }
+
+                        (fr, tx)
+                    }
                 }
 
               if (trail.last.isAppendable)
