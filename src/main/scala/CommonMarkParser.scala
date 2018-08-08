@@ -18,6 +18,7 @@ class CommonMarkParser {
       append( BreakBlockType )
       append( IndentedBlockType )
       append( FencedBlockType )
+      append( QuoteBlockType )
       append( ParagraphBlockType )
       append( BlankBlockType )
     }
