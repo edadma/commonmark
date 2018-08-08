@@ -8,9 +8,16 @@ object Main extends App {
     """
       |```
       |asdf
+      |
+      |qwer
       |```
+      |poiu
       |zxcv
     """.stripMargin
+//    """
+//      |    zxcv
+//      |asdf
+//    """.stripMargin
 //    """
 //      |poiu
 //      |====
