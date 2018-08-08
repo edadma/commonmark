@@ -17,6 +17,7 @@ class CommonMarkParser {
       append( SHeadingBlockType )
       append( BreakBlockType )
       append( IndentedBlockType )
+      append( FencedBlockType )
       append( ParagraphBlockType )
       append( BlankBlockType )
     }
@@ -55,43 +56,38 @@ class CommonMarkParser {
               None
             }
 
-//            if (block != null) {
-              val (newfrom, newtext) =
-                prev.open match {
-                  case Some( b ) if !b.isInterruptible => (from, text)
-                  case _ =>
-                    start match {
-                      case None => (from, text)
-                      case Some( (st, fr, tx) ) =>
-                        def add: Unit = {
-                          prev.add( st )
-                          trail += st
-                        }
+      println( block, text, prev)
+            val (newfrom, newtext) =
+              prev.open match {
+                case Some( b ) if !b.isInterruptible => (from, text)
+                case _ =>
+                  start match {
+                    case None => (from, text)
+                    case Some( (st, fr, tx) ) =>
+                      def add: Unit = {
+                        prev.add( st )
+                        trail += st
+                      }
 
-    //                    println( prev.open, st, block)
-                        prev.open match {
-                          case None => add
-                          case Some( b ) =>
-                            if (!(st.isAppendable && b.isAppendable && (b ne block))/* && st.getClass == b.getClass*/) {
-                              trail.reverseIterator indexWhere (_ == b) match {
-                                case -1 => sys.error( "problem" )
-                                case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
-                              }
-
-                              add
+                      prev.open match {
+                        case None => add
+                        case Some( b ) =>
+                          if (!(st.isAppendable && b.isAppendable && (b ne block))/* && st.getClass == b.getClass*/) {
+                            trail.reverseIterator indexWhere (_ == b) match {
+                              case -1 => sys.error( "problem" )
+                              case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
                             }
-                        }
 
-                        (fr, tx)
-                    }
-                }
+                            add
+                          }
+                      }
+
+                      (fr, tx)
+                  }
+              }
 
               if (trail.last.isAppendable)
                 trail.last.append(newfrom, newtext, s)
-//            } else {
-//              if (trail.last.isAppendable)
-//                trail.last.append(from, text, s)
-//            }
         }
 
         next( s.tail )

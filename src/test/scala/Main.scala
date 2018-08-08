@@ -6,14 +6,10 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |heading
-      |=======
+      |```
       |asdf
-      |- --
-      |# lkjh
-      |    asdf
-      |
-      |    # qwer
+      |```
+      |zxcv
     """.stripMargin
 //    """
 //      |poiu
