@@ -6,15 +6,17 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |poiu
-      |====
-      |asdf
-      |    zxcv
-      |
-      |    qewr
-      |
-      |    lkjh
-      |- --
+      |wow
+      |> poiu
+      |> ====
+      |> asdf
+      |>     zxcv
+      |>
+      |>     qewr
+      |>
+      |>     lkjh
+      |> - --
+      |wee
     """.stripMargin
 
   val doc = p.parse( input )

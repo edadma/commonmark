@@ -22,6 +22,21 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |zxcv
       """.stripMargin
     ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer]], paragraph[zxcv], *blank]"
+    test(
+      """
+        |wow
+        |> poiu
+        |> ====
+        |> asdf
+        |>     zxcv
+        |>
+        |>     qewr
+        |>
+        |>     lkjh
+        |> - --
+        |wee
+      """.stripMargin
+    ) shouldBe "document[*blank, paragraph[wow], quote[*paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break], paragraph[wee], *blank]"
   }
 
   "fenced code" in {
