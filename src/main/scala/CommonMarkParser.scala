@@ -62,7 +62,7 @@ class CommonMarkParser {
               prev.open match {
                 case Some( b ) if b != block && !b.isInterruptible => (from, text)
                 case _ =>
-                  def starts( from: Int, text: String ): (Int, String) = {
+                  def starts( from: Int, text: String, prev: ContainerBlock ): (Int, String) = {
                     start( from, text, prev ) match {
                       case None => (from, text)
                       case Some( (st, fr, tx) ) =>
@@ -85,13 +85,13 @@ class CommonMarkParser {
                         }
 
                         if (st.isInstanceOf[ContainerBlock])
-                          starts( fr, tx )
+                          starts( fr, tx, st.asInstanceOf[ContainerBlock] )
                         else
                           (fr, tx)
                     }
                   }
 
-                  starts( from, text )
+                  starts( from, text, prev )
               }
 
               if (trail.last.isAppendable)
