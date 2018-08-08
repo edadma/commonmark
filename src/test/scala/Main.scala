@@ -11,8 +11,8 @@ object Main extends App {
       |
       |qwer
       |```
-      |poiu
-      |zxcv
+      |
+      |eryt
     """.stripMargin
 //    """
 //      |    zxcv
@@ -27,6 +27,7 @@ object Main extends App {
 //      |    qewr
 //      |
 //      |    lkjh
+//      |- --
 //    """.stripMargin
 
   val doc = p.parse( input )
