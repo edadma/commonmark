@@ -20,7 +20,7 @@ abstract class Block {
 
   def open: Option[Block]
 
-  override def toString: String = s"<${if (!keep) "*" else ""}$name>"
+  override def toString: String = s"${if (!keep) "*" else ""}$name"
 
 }
 
@@ -49,7 +49,7 @@ abstract class TextLeafBlock extends LeafBlock with Appendable {
     buf ++= text
   }
 
-  override def toString: String = super.toString + s"""["$buf"]"""
+  override def toString: String = super.toString + s"[$buf]"
 
 }
 
