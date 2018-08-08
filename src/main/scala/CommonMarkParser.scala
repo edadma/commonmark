@@ -43,13 +43,14 @@ class CommonMarkParser {
                 matching( newfrom, newtext, if (b.isInstanceOf[ContainerBlock]) b.asInstanceOf[ContainerBlock] else prev, t )
             }
         }
+//      println( st )
 
       if (s nonEmpty) {
         matching( 0, s.head, doc, trail.toList ) match {
           case (block, from, text, prev) =>
-            def start: Option[(Block, Int, String)] = {
+            def start( f: Int, t: String, p: ContainerBlock ): Option[(Block, Int, String)] = {
               for (b <- blockTypes)
-                b.start(from, text, s, prev, this) match {
+                b.start(f, t, s, p, this) match {
                   case None =>
                   case st => return st
                 }
@@ -61,31 +62,36 @@ class CommonMarkParser {
               prev.open match {
                 case Some( b ) if b != block && !b.isInterruptible => (from, text)
                 case _ =>
-//      println( block, text, prev)
-                  start match {
-                    case None => (from, text)
-                    case Some( (st, fr, tx) ) =>
-                      def add: Unit = {
-                        prev.add( st )
-                        trail += st
-                      }
+                  def starts( from: Int, text: String ): (Int, String) = {
+                    start( from, text, prev ) match {
+                      case None => (from, text)
+                      case Some( (st, fr, tx) ) =>
+                        def add: Unit = {
+                          prev.add( st )
+                          trail += st
+                        }
 
-//      println( st )
-                      prev.open match {
-                        case None => add
-                        case Some( b ) =>
-                          if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
-                            trail.reverseIterator indexWhere (_ == b) match {
-                              case -1 => sys.error( "problem" )
-                              case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                        prev.open match {
+                          case None => add
+                          case Some( b ) =>
+                            if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
+                              trail.reverseIterator indexWhere (_ == b) match {
+                                case -1 => sys.error( "problem" )
+                                case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                              }
+
+                              add
                             }
+                        }
 
-                            add
-                          }
-                      }
-
-                      (fr, tx)
+                        if (st.isInstanceOf[ContainerBlock])
+                          starts( fr, tx )
+                        else
+                          (fr, tx)
+                    }
                   }
+
+                  starts( from, text )
               }
 
               if (trail.last.isAppendable)
