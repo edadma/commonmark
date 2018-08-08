@@ -12,7 +12,6 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
 			  |asdf
 		  """.stripMargin
     ) shouldBe "document[*blank, paragraph[asdf], *blank]"
-
 	}
 
   "blockquotes" in {
@@ -23,7 +22,44 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |zxcv
       """.stripMargin
     ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer]], paragraph[zxcv], *blank]"
+  }
 
+  "fenced code" in {
+    test(
+      """
+        |```
+        |asdf
+        |
+        |qwer
+        |```
+        |eryt
+      """.stripMargin
+    ) shouldBe "document[*blank, fenced[asdf\n\nqwer], paragraph[eryt], *blank]"
+  }
+
+  "indented code" in {
+    test(
+      """
+        |    zxcv
+        |asdf
+      """.stripMargin
+    ) shouldBe "document[*blank, indented[zxcv], paragraph[asdf], *blank]"
+  }
+
+  "setext headings" in {
+    test(
+      """
+        |poiu
+        |====
+        |asdf
+        |    zxcv
+        |
+        |    qewr
+        |
+        |    lkjh
+        |- --
+      """.stripMargin
+    ) shouldBe "document[*blank, *paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break, *blank]"
   }
 
 }

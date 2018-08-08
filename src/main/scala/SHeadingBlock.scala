@@ -30,5 +30,6 @@ class SHeadingBlock( level: Int, heading: String ) extends SimpleLeafBlock {
     else
       None
 
-  override def toString: String = super.toString + s"""[$level, "$heading"]"""
+  override def toString: String = super.toString + s"[$level, $heading]"
+
 }
