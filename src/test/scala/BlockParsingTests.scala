@@ -21,14 +21,14 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |> qwer
         |zxcv
       """.stripMargin
-    ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer]], paragraph[zxcv], *blank]"
+    ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer\nzxcv]], *blank]"
     test(
       """
         |> asdf
         |> > qwer
         |zxcv
       """.stripMargin
-    ) shouldBe "document[*blank, quote[paragraph[asdf], quote[paragraph[qwer]]], paragraph[zxcv], *blank]"
+    ) shouldBe "document[*blank, quote[paragraph[asdf], quote[paragraph[qwer\nzxcv]]], *blank]"
     test(
       """
         |wow

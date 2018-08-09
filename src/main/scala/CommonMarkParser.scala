@@ -71,18 +71,19 @@ class CommonMarkParser {
                           trail += st
                         }
 
-                        prev.open match {
-                          case None => add
-                          case Some( b ) =>
-                            if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
-                              trail.reverseIterator indexWhere (_ == b) match {
-                                case -1 => sys.error( "problem" )
-                                case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
-                              }
+                        if (!(st.isInstanceOf[ParagraphBlock] && trail.last.isInstanceOf[ParagraphBlock]))
+                          prev.open match {
+                            case None => add
+                            case Some( b ) =>
+                              if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
+                                trail.reverseIterator indexWhere (_ == b) match {
+                                  case -1 => sys.error( "problem" )
+                                  case idx => trail.remove( trail.length - 1 - idx, idx + 1 )
+                                }
 
-                              add
-                            }
-                        }
+                                add
+                              }
+                          }
 
                         if (st.isInstanceOf[ContainerBlock])
                           starts( fr, tx, st.asInstanceOf[ContainerBlock] )
