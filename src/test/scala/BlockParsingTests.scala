@@ -24,6 +24,13 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
     ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer]], paragraph[zxcv], *blank]"
     test(
       """
+        |> asdf
+        |> > qwer
+        |zxcv
+      """.stripMargin
+    ) shouldBe "document[*blank, quote[paragraph[asdf], quote[paragraph[qwer]]], paragraph[zxcv], *blank]"
+    test(
+      """
         |wow
         |> poiu
         |> ====
