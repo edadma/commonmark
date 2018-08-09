@@ -3,7 +3,7 @@ package xyz.hyperreal.commonmark
 
 object ParagraphBlockType extends BlockType {
 
-  override def start( from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser ): Option[(Block, Int, String)] =
+  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
     if (nonBlank( text )/* && !prev.open.exists( _.isInstanceOf[IndentedBlock])*/)
       Some( (new ParagraphBlock, from, text) )
     else

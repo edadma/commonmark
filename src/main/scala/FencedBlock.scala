@@ -6,7 +6,7 @@ object FencedBlockType extends BlockType {
   val startFenceRegex = """[ ]{0,3}(`{3,}|~{3,})([^`\n]*)"""r
   val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*"""r
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser): Option[(Block, Int, String)] =
+  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
       case startFenceRegex( fence, info ) => Some( (new FencedBlock(fence, info.trim), from, "") )
       case _ => None

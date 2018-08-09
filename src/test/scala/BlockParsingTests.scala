@@ -11,7 +11,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
       """
 			  |asdf
 		  """.stripMargin
-    ) shouldBe "document[*blank, paragraph[asdf], *blank]"
+    ) shouldBe "document[*blank, paragraph[asdf], *blank],Map()"
 	}
 
   "blockquotes" in {
@@ -21,14 +21,14 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |> qwer
         |zxcv
       """.stripMargin
-    ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer\nzxcv]], *blank]"
+    ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer\nzxcv]], *blank],Map()"
     test(
       """
         |> asdf
         |> > qwer
         |zxcv
       """.stripMargin
-    ) shouldBe "document[*blank, quote[paragraph[asdf], quote[paragraph[qwer\nzxcv]]], *blank]"
+    ) shouldBe "document[*blank, quote[paragraph[asdf], quote[paragraph[qwer\nzxcv]]], *blank],Map()"
     test(
       """
         |wow
@@ -43,7 +43,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |> - --
         |wee
       """.stripMargin
-    ) shouldBe "document[*blank, paragraph[wow], quote[*paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break], paragraph[wee], *blank]"
+    ) shouldBe "document[*blank, paragraph[wow], quote[*paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break], paragraph[wee], *blank],Map()"
   }
 
   "fenced code" in {
@@ -56,7 +56,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |```
         |eryt
       """.stripMargin
-    ) shouldBe "document[*blank, fenced[asdf\n\nqwer], paragraph[eryt], *blank]"
+    ) shouldBe "document[*blank, fenced[asdf\n\nqwer], paragraph[eryt], *blank],Map()"
   }
 
   "indented code" in {
@@ -65,7 +65,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |    zxcv
         |asdf
       """.stripMargin
-    ) shouldBe "document[*blank, indented[zxcv], paragraph[asdf], *blank]"
+    ) shouldBe "document[*blank, indented[zxcv], paragraph[asdf], *blank],Map()"
   }
 
   "setext headings" in {
@@ -81,7 +81,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |    lkjh
         |- --
       """.stripMargin
-    ) shouldBe "document[*blank, *paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break, *blank]"
+    ) shouldBe "document[*blank, *paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break, *blank],Map()"
   }
 
 }

@@ -7,12 +7,9 @@ import scala.collection.mutable.ArrayBuffer
 
 class CommonMarkParser {
 
-  private [commonmark] val refs = new mutable.HashMap[String, Link]
-
-  case class Link( url: String, title: Option[String] )
-
   val blockTypes =
     new ArrayBuffer[BlockType] {
+      append( ReferenceBlockType )
       append( AHeadingBlockType )
       append( SHeadingBlockType )
       append( BreakBlockType )
@@ -50,7 +47,7 @@ class CommonMarkParser {
           case (block, from, text, prev) =>
             def start( f: Int, t: String, p: ContainerBlock ): Option[(Block, Int, String)] = {
               for (b <- blockTypes)
-                b.start(f, t, s, p, this) match {
+                b.start(f, t, s, p, this, doc ) match {
                   case None =>
                   case st => return st
                 }

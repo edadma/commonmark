@@ -11,7 +11,7 @@ object QuoteBlockType extends BlockType {
       case _ => None
     }
 
-  def start( from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser ):
+  def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock):
     Option[(Block, Int, String)] =
     accept( from, text ) match {
       case Some( (marker, newtext) ) => Some( (new QuoteBlock, from + marker, newtext) )
