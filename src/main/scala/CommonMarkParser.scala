@@ -12,6 +12,7 @@ class CommonMarkParser {
       append( AHeadingBlockType )
       append( SHeadingBlockType )
       append( BreakBlockType )
+      append( ListBlockType )
       append( IndentedBlockType )
       append( FencedBlockType )
       append( QuoteBlockType )
