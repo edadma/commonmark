@@ -7,9 +7,7 @@ object Main extends App {
   val input =
     """
       |- asdf
-      |  qwer
-      |
-      |- zxcv
+      |zxcv
     """.stripMargin
 
   val doc = p.parse( input )

@@ -15,12 +15,14 @@ object ListBlockType extends BlockType {
     else
       text match {
         case listRegex( marker, newtext ) if marker.length >= list.typ.indent => Some( (from + marker.length, newtext) )
-        case bulletListRegex( marker, newtext ) =>
-          list.typ match {
-            case BulletList( m, _ ) if marker.head == m =>
-            case _ => None
-          }
-          Some( (new ListBlock(BulletList(marker.head, marker.length)), from + marker.length, newtext) )
+//        case bulletListRegex( marker, newtext ) =>
+//          list.typ match {
+//            case BulletList( m, _ ) if marker.head == m =>
+//              list.items += list.blocks.toList
+//              list.blocks.clear
+//              Some( (from + marker.length, newtext) )
+//            case _ => None
+//          }
 //        case orderedListRegex( marker, newtext ) =>
 //          Some( (new ListBlock(OrderedList(marker dropRight 1 toInt, marker.length)), from + marker.length, newtext) )
         case _ => None
