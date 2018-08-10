@@ -20,7 +20,7 @@ class CommonMarkParser {
       append( BlankBlockType )
     }
 
-  def parse( src: String ): DocumentBlock = parse( io.Source.fromString(src) )
+  def parse( src: String ): CommonMarkAST = parse( io.Source.fromString(src) )
 
   def parse( src: io.Source ) = {
 
@@ -101,7 +101,19 @@ class CommonMarkParser {
     }
 
     next( src.getLines.toStream )
-    doc
+    SeqAST( transform(doc.blocks.toStream) )
   }
+
+  def transform( s: Stream[Block] ): List[CommonMarkAST] =
+    s match {
+      case n if n isEmpty => Nil
+      case h #:: t =>
+          h match {
+            case b: Block if !b.keep => ()
+            case p: ParagraphBlock => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t )
+
+          }
+
+    }
 
 }
