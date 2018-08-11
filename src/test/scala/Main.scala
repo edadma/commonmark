@@ -14,5 +14,5 @@ object Main extends App {
 
   val doc = p.parse( input )
 
-  print( prettyPrint(doc) )
+  println( Util.html(doc, 2) )
 }
