@@ -111,6 +111,7 @@ class CommonMarkParser {
           h match {
             case b: Block if !b.keep => transform( t )
             case p: ParagraphBlock => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t )
+            case b: IndentedBlock => CodeBlockAST( b.buf.toString, None, None ) :: transform( t )
             case l: ListBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
               val list = l +: items.asInstanceOf[Stream[ListBlock]]

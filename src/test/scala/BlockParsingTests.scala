@@ -5,7 +5,7 @@ import prop.PropertyChecks
 
 
 class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with Testing {
-	
+
 	"paragraphs" in {
 		test(
       """
