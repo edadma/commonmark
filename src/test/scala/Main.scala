@@ -1,5 +1,6 @@
 package xyz.hyperreal.commonmark
 
+import xyz.hyperreal.pretty.prettyPrint
 
 object Main extends App {
 
@@ -14,5 +15,5 @@ object Main extends App {
 
   val doc = p.parse( input )
 
-  print( doc )
+  print( prettyPrint(doc) )
 }

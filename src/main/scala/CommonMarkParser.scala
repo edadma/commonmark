@@ -113,9 +113,15 @@ class CommonMarkParser {
             case p: ParagraphBlock => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t )
             case l: ListBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
-              val list = l +: items
+              val list = l +: items.asInstanceOf[Stream[ListBlock]]
+              val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream)) )) toList
+              val hd =
+                if (l.typ.isInstanceOf[BulletList])
+                  BulletListAST( SeqAST(listitems) )
+                else
+                  OrderedListAST( SeqAST(listitems) )
 
-              list map
+              hd :: transform( rest )
           }
 
     }

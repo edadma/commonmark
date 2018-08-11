@@ -36,7 +36,7 @@ case class TextAST( text: String ) extends LeafAST
 case class RawAST( text: String ) extends LeafAST
 case class LinkAST( address: String, title: Option[String], contents: CommonMarkAST ) extends BranchAST
 case class ListItemAST( contents: CommonMarkAST ) extends BranchAST
-case class UnorderedListAST( contents: CommonMarkAST ) extends BranchAST
+case class BulletListAST( contents: CommonMarkAST ) extends BranchAST
 case class OrderedListAST( contents: CommonMarkAST ) extends BranchAST
 case class ImageAST( address: String, title: Option[String], text: String ) extends LeafAST
 case class EmphasisAST( contents: CommonMarkAST ) extends BranchAST

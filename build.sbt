@@ -57,6 +57,7 @@ libraryDependencies ++= {
 //}
 
 libraryDependencies ++= Seq(
+  "xyz.hyperreal" %% "pretty" % "0.1"
 )
 
 coverageExcludedPackages := ".*Main"
