@@ -27,6 +27,10 @@ trait LeafAST extends CommonMarkAST {
   val text: String
 }
 
+trait ListAST extends BranchAST {
+  val tight: Boolean
+}
+
 case class ParagraphAST( contents: CommonMarkAST ) extends BranchAST
 case class BlockquoteAST( contents: CommonMarkAST ) extends BranchAST
 case class HeadingAST( level: Int, contents: CommonMarkAST, var id: Option[String] = None ) extends BranchAST
@@ -36,8 +40,8 @@ case class TextAST( text: String ) extends LeafAST
 case class RawAST( text: String ) extends LeafAST
 case class LinkAST( address: String, title: Option[String], contents: CommonMarkAST ) extends BranchAST
 case class ListItemAST( contents: CommonMarkAST ) extends BranchAST
-case class BulletListAST( contents: CommonMarkAST ) extends BranchAST
-case class OrderedListAST( contents: CommonMarkAST ) extends BranchAST
+case class BulletListAST( contents: CommonMarkAST, tight: Boolean ) extends ListAST
+case class OrderedListAST( contents: CommonMarkAST, tight: Boolean ) extends ListAST
 case class ImageAST( address: String, title: Option[String], text: String ) extends LeafAST
 case class EmphasisAST( contents: CommonMarkAST ) extends BranchAST
 case class StrongAST( contents: CommonMarkAST ) extends BranchAST

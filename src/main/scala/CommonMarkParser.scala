@@ -101,6 +101,7 @@ class CommonMarkParser {
     }
 
     next( src.getLines.toStream )
+    println( doc )
     SeqAST( transform(doc.blocks.toStream) )
   }
 
@@ -112,15 +113,17 @@ class CommonMarkParser {
             case b: Block if !b.keep => transform( t )
             case p: ParagraphBlock => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t )
             case b: IndentedBlock => CodeBlockAST( b.buf.toString, None, None ) :: transform( t )
+            case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t )
             case l: ListBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
               val list = l +: items.asInstanceOf[Stream[ListBlock]]
               val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream)) )) toList
+              val loose = list dropRight 1 exists (_.blocks.last == BlankBlock)
               val hd =
                 if (l.typ.isInstanceOf[BulletList])
-                  BulletListAST( SeqAST(listitems) )
+                  BulletListAST( SeqAST(listitems), !loose )
                 else
-                  OrderedListAST( SeqAST(listitems) )
+                  OrderedListAST( SeqAST(listitems), !loose )
 
               hd :: transform( rest )
           }

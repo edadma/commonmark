@@ -5,14 +5,14 @@ object ListBlockType extends BlockType {
 
   val bulletListRegex = """([-+*])[ ]{1,4}(.*)"""r
   val orderedListRegex = """([0-9]{1,9})([.)])[ ]{1,4}(.*)"""r
-  val listRegex = """([ ]*)(.*)"""r
+  val listRegex = """  (.*)"""r
 
   def accept( list: ListBlock, from: Int, text: String ) =
     if (isBlank( text ))
       Some( (from, text) )
     else
       text match {
-        case listRegex( marker, newtext ) if marker.length >= 2 => Some( (from + marker.length, newtext) )
+        case listRegex( newtext ) => Some( (from + 2, newtext) )
         case _ => None
       }
 

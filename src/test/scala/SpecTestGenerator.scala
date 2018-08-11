@@ -5,8 +5,9 @@ import java.io.PrintWriter
 import xyz.hyperreal.json.DefaultJSONReader
 
 
-object SpecTestGenerator extends App {
+object SpecTestGenerator /*extends App*/ {
 
+  val args = List[String]()
   val src = args(0)
   val dst = args(1)
   val sections = if (args(2) == "*") null else args(2) split "," toSet
