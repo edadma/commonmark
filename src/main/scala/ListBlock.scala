@@ -14,7 +14,7 @@ object ListBlockType extends BlockType {
       Some( (from, text) )
     else
       text match {
-        case listRegex( marker, newtext ) if marker.length >= list.typ.indent => Some( (from + marker.length, newtext) )
+        case listRegex( marker, newtext ) if marker.length >= list.indent => Some( (from + marker.length, newtext) )
 //        case bulletListRegex( marker, newtext ) =>
 //          list.typ match {
 //            case BulletList( m, _ ) if marker.head == m =>
@@ -32,23 +32,22 @@ object ListBlockType extends BlockType {
   Option[(Block, Int, String)] =
     text match {
       case bulletListRegex( marker, newtext ) =>
-        Some( (new ListBlock(BulletList(marker.head, marker.length)), from + marker.length, newtext) )
+        Some( (new ListBlock(BulletList(marker.head), marker.length), from + marker.length, newtext) )
       case orderedListRegex( marker, newtext ) =>
-        Some( (new ListBlock(OrderedList(marker dropRight 1 toInt, marker.length)), from + marker.length, newtext) )
+        Some( (new ListBlock(OrderedList(marker dropRight 1 toInt), marker.length), from + marker.length, newtext) )
       case _ => None
     }
 
 }
 
-abstract class ListType { val indent: Int }
-case class BulletList( marker: Char, indent: Int ) extends ListType
-case class OrderedList( start: Int, indent: Int ) extends ListType
+abstract class ListType
+case class BulletList( marker: Char ) extends ListType
+case class OrderedList( start: Int ) extends ListType
 
-class ListBlock( val typ: ListType ) extends ContainerBlock {
+class ListBlock( val typ: ListType, val indent: Int ) extends ContainerBlock {
 
   val name = "list"
-  val items = new ListBuffer[List[Block]]
-  var loose = false
+  var tight = true
 
   def accept( from: Int, text: String, stream: Stream[String]) : Option[(Int, String)] =
     ListBlockType.accept( this, from, text )

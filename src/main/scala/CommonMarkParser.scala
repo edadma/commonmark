@@ -109,9 +109,13 @@ class CommonMarkParser {
       case n if n isEmpty => Nil
       case h #:: t =>
           h match {
-            case b: Block if !b.keep => ()
+            case b: Block if !b.keep => transform( t )
             case p: ParagraphBlock => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t )
+            case l: ListBlock =>
+              val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
+              val list = l +: items
 
+              list map
           }
 
     }
