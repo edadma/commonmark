@@ -46,7 +46,8 @@ case class ImageAST( address: String, title: Option[String], text: String ) exte
 case class EmphasisAST( contents: CommonMarkAST ) extends BranchAST
 case class StrongAST( contents: CommonMarkAST ) extends BranchAST
 case class StrikethroughAST( contents: CommonMarkAST ) extends BranchAST
-case object BreakAST extends LeafAST { val text = "\n" }
+case object HardBreakAST extends LeafAST { val text = "\n" }
+case object SoftBreakAST extends LeafAST { val text = "\n" }
 case object RuleAST extends LeafAST { val text = "" }
 case class TableHeadCellAST( align: String, contents: CommonMarkAST ) extends BranchAST
 case class TableBodyCellAST( align: String, contents: CommonMarkAST ) extends BranchAST
