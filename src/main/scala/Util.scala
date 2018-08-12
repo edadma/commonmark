@@ -72,8 +72,11 @@ object Util {
 
     def nl( newline: Boolean ) = if (newline) "\n" else ""
 
-    def containerTag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) =
-      s"\n<$tag${attributes( attr )}>\n${html( contents )}\n</$tag>\n"
+    def containerTag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) = {
+      val h = html( contents ).trim
+
+      s"\n<$tag${attributes( attr )}>\n$h${if (h isEmpty) "" else "\n"}</$tag>\n"
+    }
 
     def tag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) =
       s"${nl(newline)}<$tag${attributes( attr )}>${html( contents )}</$tag>${nl(newline)}"
@@ -98,9 +101,9 @@ object Util {
         case '<' => buf ++= "&lt;"
         case '>' => buf ++= "&gt;"
         case '"' => buf ++= "&quot;"
-        case '\\' => buf ++= "&bsol;"
-        case '{' => buf ++= "&lcub;"
-        case '}' => buf ++= "&rcub;"
+//        case '\\' => buf ++= "&bsol;"
+//        case '{' => buf ++= "&lcub;"
+//        case '}' => buf ++= "&rcub;"
         case c if c > '\u007F' => buf ++= s"&#${c.toInt};"
         case c => buf += c
       }
@@ -110,7 +113,13 @@ object Util {
 
     def html( doc: CommonMarkAST ): String =
       doc match {
-        case SeqAST( s ) => s map html mkString
+        case SeqAST( seq ) =>
+          val buf = new StringBuilder
+
+          for (s <- seq map html)
+            buf ++= (if (buf.nonEmpty && buf.last == '\n' && s.startsWith("\n")) (s drop 1) else s)
+
+          buf.toString
         case TextAST( t ) => escape( t )
         case RawAST( t ) => t
         case ParagraphAST( contents ) => optionalTag( "p", contents, true )
@@ -147,7 +156,7 @@ object Util {
         case EntityAST( entity, _ ) => s"&$entity;"
       }
 
-    html( doc ).replace( "\n\n", "\n" ).trim + "\n"
+    html( doc ).trim + "\n"
   }
 
 }

@@ -59,6 +59,7 @@ object SpecTestGenerator /*extends App*/ {
         .replace( "\\", "\\\\" )
         .replace( "\t", "\\t" )
         .replace( "\n", "\\n" )
+        .replace( "\"", "\\\"" )
  }
 
 }
