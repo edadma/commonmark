@@ -73,13 +73,13 @@ object Util {
     def nl( newline: Boolean ) = if (newline) "\n" else ""
 
     def tag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) =
-      s"<$tag${attributes( attr )}>${nl(newline)}${html( contents )}${nl(newline)}</$tag>"
+      s"${nl(newline)}<$tag${attributes( attr )}>${html( contents )}</$tag>${nl(newline)}"
 
-    def optionalTag( tag: String, contents: CommonMarkAST, attr: (String, String)* ) = {
+    def optionalTag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) = {
       val c = html( contents )
 
       if (c nonEmpty)
-        s"<$tag${attributes( attr )}>$c</$tag>"
+        s"${nl(newline)}<$tag${attributes( attr )}>$c</$tag>${nl(newline)}"
       else
         ""
     }
@@ -110,18 +110,18 @@ object Util {
         case SeqAST( s ) => s map html mkString
         case TextAST( t ) => escape( t )
         case RawAST( t ) => t
-        case ParagraphAST( contents ) => optionalTag( "p", contents )
-        case BlockquoteAST( contents ) => tag( "blockquote", contents, false )
-        case HeadingAST( level, contents, Some(id) ) => tag( s"h$level", contents, false, "id" -> id )
-        case HeadingAST( level, contents, None ) => tag( s"h$level", contents, false )
+        case ParagraphAST( contents ) => optionalTag( "p", contents, true )
+        case BlockquoteAST( contents ) => tag( "blockquote", contents, true )
+        case HeadingAST( level, contents, Some(id) ) => tag( s"h$level", contents, true, "id" -> id )
+        case HeadingAST( level, contents, None ) => tag( s"h$level", contents, true )
         case CodeInlineAST( c ) => leaf( "code", c )
         case CodeBlockAST( c, highlighted, caption ) =>
           val escaped = escape( c )
 
           if (codeblock eq null)
-            s"<pre><code>$escaped</code></pre>"
+            s"\n<pre><code>$escaped\n</code></pre>\n"
           else
-            codeblock( escaped, highlighted, caption )
+            "\n" + codeblock( escaped, highlighted, caption ) + "\n"
         case LinkAST( address, None, contents ) => tag( "a", contents, false, "href" -> address )
         case LinkAST( address, Some(title), contents ) => tag( "a", contents, false, "href" -> address, "title" -> title )
         case ListItemAST( contents ) => tag( "li", contents, true )
@@ -143,7 +143,7 @@ object Util {
         case EntityAST( entity, _ ) => s"&$entity;"
       }
 
-    html( doc )
+    html( doc ).replace( "\n\n", "\n" )
   }
 
 }
