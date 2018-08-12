@@ -43,7 +43,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |> - --
         |wee
       """.stripMargin
-    ) shouldBe "document[*blank, paragraph[wow], quote[*paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break], paragraph[wee], *blank],Map()"
+    ) shouldBe "document[*blank, paragraph[wow], quote[*paragraph[poiu], sheading[1, poiu], paragraph[asdf\nzxcv], *blank, indented[qewr\n\nlkjh], break], paragraph[wee], *blank],Map()"
   }
 
   "fenced code" in {
@@ -81,7 +81,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
         |    lkjh
         |- --
       """.stripMargin
-    ) shouldBe "document[*blank, *paragraph[poiu], sheading[1, poiu], paragraph[asdf\n    zxcv], *blank, indented[qewr\n\nlkjh], break, *blank],Map()"
+    ) shouldBe "document[*blank, *paragraph[poiu], sheading[1, poiu], paragraph[asdf\nzxcv], *blank, indented[qewr\n\nlkjh], break, *blank],Map()"
   }
 
 }

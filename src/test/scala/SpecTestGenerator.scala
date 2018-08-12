@@ -9,8 +9,7 @@ object SpecTestGenerator /*extends App*/ {
 
   val args = List[String]()
   val src = args(0)
-  val dst = args(1)
-  val sections = if (args(2) == "*") null else args(2) split "," toSet
+  val sections = if (args(1) == "*") null else args(1) split "," toSet
   val spec_tests = DefaultJSONReader.fromFile( src ).asInstanceOf[List[Map[String, Any]]]
 
   for (section <- sections) {

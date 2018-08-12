@@ -20,7 +20,7 @@ object SHeadingBlockType extends BlockType {
 
 }
 
-class SHeadingBlock( level: Int, heading: String ) extends SimpleLeafBlock {
+class SHeadingBlock( val level: Int, val heading: String ) extends SimpleLeafBlock {
 
   val name = "sheading"
 
