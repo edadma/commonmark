@@ -119,10 +119,10 @@ object Util {
         case HeadingAST( level, contents, None ) => tag( s"h$level", contents, true )
         case CodeInlineAST( c ) => leaf( "code", c )
         case CodeBlockAST( c, highlighted, caption ) =>
-          val escaped = escape( c )
+          val escaped = escape( c ) + (if (c isEmpty) "" else "\n")
 
           if (codeblock eq null)
-            s"\n<pre><code>$escaped\n</code></pre>\n"
+            s"\n<pre><code>$escaped</code></pre>\n"
           else
             "\n" + codeblock( escaped, highlighted, caption ) + "\n"
         case LinkAST( address, None, contents ) => tag( "a", contents, false, "href" -> address )

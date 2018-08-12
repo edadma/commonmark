@@ -3,7 +3,7 @@ package xyz.hyperreal.commonmark
 
 object QuoteBlockType extends BlockType {
 
-  val quoteRegex = """(> ?)(.*)"""r
+  val quoteRegex = """([ ]{0,3}> ?)(.*)"""r
 
   def accept( from: Int, text: String ) =
     text match {

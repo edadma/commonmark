@@ -1,15 +1,14 @@
 package xyz.hyperreal.commonmark
 
-import xyz.hyperreal.pretty.prettyPrint
-
 
 object Main extends App {
 
   val p = new CommonMarkParser
   val input =
     """
-      |> foo
-      |    - bar
+      |   > # Foo
+      |   > bar
+      | > baz
     """.stripMargin
 
   val doc = p.parse( input )

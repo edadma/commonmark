@@ -48,7 +48,7 @@ class CommonMarkParser {
           case (block, from, text, prev) =>
             def start( f: Int, t: String, p: ContainerBlock ): Option[(Block, Int, String)] = {
               for (b <- blockTypes)
-                b.start(f, t, s, p, this, doc ) match {
+                b.start( f, t, s, p, this, doc ) match {
                   case None =>
                   case st => return st
                 }
