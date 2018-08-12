@@ -72,6 +72,9 @@ object Util {
 
     def nl( newline: Boolean ) = if (newline) "\n" else ""
 
+    def containerTag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) =
+      s"\n<$tag${attributes( attr )}>\n${html( contents )}\n</$tag>\n"
+
     def tag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) =
       s"${nl(newline)}<$tag${attributes( attr )}>${html( contents )}</$tag>${nl(newline)}"
 
@@ -111,7 +114,7 @@ object Util {
         case TextAST( t ) => escape( t )
         case RawAST( t ) => t
         case ParagraphAST( contents ) => optionalTag( "p", contents, true )
-        case BlockquoteAST( contents ) => tag( "blockquote", contents, true )
+        case BlockquoteAST( contents ) => containerTag( "blockquote", contents, true )
         case HeadingAST( level, contents, Some(id) ) => tag( s"h$level", contents, true, "id" -> id )
         case HeadingAST( level, contents, None ) => tag( s"h$level", contents, true )
         case CodeInlineAST( c ) => leaf( "code", c )

@@ -12,16 +12,17 @@ object SpecTestGenerator /*extends App*/ {
   val src = args(0)
   val spec_tests = DefaultJSONReader.fromFile( src ).asInstanceOf[List[Map[String, Any]]]
 
-  if (args.length < 2)
+  if (args.length == 1)
     println(
       (spec_tests map (t => t("section").toString)).toSet.toList.sorted mkString "\n"
     )
   else {
-    val sections = if (args(1) == "*") null else args(1) split "," toSet
+    val dst = args(1)
+    val sections = if (args(2) == "*") null else args(2) split "," toSet
 
     for (section <- sections) {
-      val name = section.replace(' ', '_') + "SpecTests"
-      val out = new PrintWriter( name /*+ ".scala"*/ )
+      val name = s"${section.replace(' ', '_')}SpecTests.scala"
+      val out = new PrintWriter( s"$dst/$name" /*+ ".scala"*/ )
 
       out.println(
         s"""
