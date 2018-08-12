@@ -22,8 +22,9 @@ class CommonMarkParser {
 
   def parse( src: String ): CommonMarkAST = parse( io.Source.fromString(src) )
 
-  def parse( src: io.Source ) = {
+  def parse( src: io.Source ) = SeqAST( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
 
+  def parseBlocks( lines: Stream[String] ) = {
     val doc = new DocumentBlock
     val trail = new ArrayBuffer[Block]
 
@@ -100,9 +101,8 @@ class CommonMarkParser {
       }
     }
 
-    next( src.getLines.toStream )
-    println( doc )
-    SeqAST( transform(doc.blocks.toStream) )
+    next( lines )
+    doc
   }
 
   def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] =
