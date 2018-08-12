@@ -120,6 +120,8 @@ class CommonMarkParser {
     for (l <- lines.init)
       if (l endsWith "  ")
         add( inline(l.trim), HardBreakAST )
+      else if (l endsWith "\\")
+        add( inline(l.trim dropRight 1), HardBreakAST )
       else
         add( inline(l.trim), SoftBreakAST )
 
