@@ -3,25 +3,31 @@ package xyz.hyperreal.commonmark
 
 object AHeadingBlockType extends BlockType {
 
-  val aHeadingRegex = """[ ]{0,3}(#{1,6})(\s+)([^#\n]*?)(?:\s+#+)?"""r
+  val aHeadingRegex = """[ ]{0,3}(#{1,6})\s*?(?:( [^#]+?)?(?:\s+#+)?\s*| (.*))"""r
 
   override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
-      case aHeadingRegex( level, space, heading ) => Some( (new AHeadingBlock(level.length, heading), level.length + space.length, heading) )
+      case aHeadingRegex( level, heading, rest ) =>
+        val h =
+          if (heading eq null)
+            if (rest eq null)
+              ""
+            else
+              rest.trim
+          else
+            heading.trim
+
+        Some( (new AHeadingBlock(level.length, h), level.length, h) )
       case _ => None
     }
 
 }
 
-class AHeadingBlock( level: Int, heading: String ) extends SimpleLeafBlock {
+class AHeadingBlock( val level: Int, val heading: String ) extends SimpleLeafBlock {
 
   val name = "aheading"
 
-  def accept(from: Int, text: String, s: Stream[String]): Option[(Int, String)] =
-    if (AHeadingBlockType.aHeadingRegex.pattern.matcher( s.head.subSequence(from, s.head.length) ).matches)
-      Some( (from, text) )
-    else
-      None
+  def accept(from: Int, text: String, s: Stream[String]): Option[(Int, String)] = None
 
   override def toString: String = super.toString + s"""[$level, "$heading"]"""
 }

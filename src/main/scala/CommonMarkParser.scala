@@ -112,6 +112,7 @@ class CommonMarkParser {
           h match {
             case b: Block if !b.keep => transform( t )
             case _: BreakBlock => RuleAST :: transform( t )
+            case h: AHeadingBlock => HeadingAST( h.level, TextAST(h.heading), None ) :: transform( t )
             case h: SHeadingBlock => HeadingAST( h.level, TextAST(h.heading), None ) :: transform( t )
             case p: ParagraphBlock if loose => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t, loose )
             case p: ParagraphBlock => TextAST(p.buf.toString) :: transform( t )

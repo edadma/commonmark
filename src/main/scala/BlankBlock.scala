@@ -17,7 +17,7 @@ object BlankBlock extends SimpleLeafBlock {  // this is an object and not a clas
 
   keep = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = // todo: do non appendable block need to code accept()
     if (isBlank( text ))
       Some( (from, text) )
     else
