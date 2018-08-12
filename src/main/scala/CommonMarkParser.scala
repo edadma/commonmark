@@ -105,27 +105,28 @@ class CommonMarkParser {
     SeqAST( transform(doc.blocks.toStream) )
   }
 
-  def transform( s: Stream[Block] ): List[CommonMarkAST] =
+  def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] =
     s match {
       case n if n isEmpty => Nil
       case h #:: t =>
           h match {
             case b: Block if !b.keep => transform( t )
-            case p: ParagraphBlock => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t )
-            case b: IndentedBlock => CodeBlockAST( b.buf.toString, None, None ) :: transform( t )
-            case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t )
+            case p: ParagraphBlock if loose => ParagraphAST( TextAST(p.buf.toString) ) :: transform( t, loose )
+            case p: ParagraphBlock => TextAST(p.buf.toString) :: transform( t )
+            case b: IndentedBlock => CodeBlockAST( b.buf.toString, None, None ) :: transform( t, loose )
+            case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
             case l: ListBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
               val list = l +: items.asInstanceOf[Stream[ListBlock]]
-              val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream)) )) toList
-              val loose = list dropRight 1 exists (_.blocks.last == BlankBlock)
+              val loose1 = list dropRight 1 exists (_.blocks.last == BlankBlock)
+              val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
               val hd =
                 if (l.typ.isInstanceOf[BulletList])
-                  BulletListAST( SeqAST(listitems), !loose )
+                  BulletListAST( SeqAST(listitems), !loose1 )
                 else
-                  OrderedListAST( SeqAST(listitems), !loose )
+                  OrderedListAST( SeqAST(listitems), !loose1 )
 
-              hd :: transform( rest )
+              hd :: transform( rest, loose )
           }
 
     }

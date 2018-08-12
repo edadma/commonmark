@@ -7,9 +7,9 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |- item
-      |
-      |      zxcv
+      |-     item
+      |  asdf
+      |- zxcv
     """.stripMargin
 
   val doc = p.parse( input )

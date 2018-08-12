@@ -132,8 +132,8 @@ object Util {
         case EmphasisAST( contents ) => tag( "em", contents, false )
         case StrongAST( contents ) => tag( "strong", contents, false )
         case StrikethroughAST( contents ) => tag( "del", contents, false )
-        case BreakAST => "<br/>"
-        case RuleAST => "<hr/>"
+        case BreakAST => "<br />"
+        case RuleAST => "<hr />"
         case TableHeadCellAST( align, contents ) => tag( "th", contents, true, "align" -> align )
         case TableBodyCellAST( align, contents ) => tag( "td", contents, false, "align" -> align )
         case TableRowAST( contents ) => tag( "tr", contents, true )

@@ -3,8 +3,8 @@ package xyz.hyperreal.commonmark
 
 object ListBlockType extends BlockType {
 
-  val bulletListRegex = """([-+*])[ ]{1,4}(.*)"""r
-  val orderedListRegex = """([0-9]{1,9})([.)])[ ]{1,4}(.*)"""r
+  val bulletListRegex = """([-+*])[ ](.*)"""r
+  val orderedListRegex = """([0-9]{1,9})([.)])[ ](.*)"""r
   val listRegex = """  (.*)"""r
 
   def accept( list: ListBlock, from: Int, text: String ) =
