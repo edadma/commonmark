@@ -7,7 +7,7 @@ import prop.PropertyChecks
 class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with Testing {
 
 	"paragraphs" in {
-		test(
+		testBlockParsing(
       """
 			  |asdf
 		  """.stripMargin
@@ -15,21 +15,21 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
 	}
 
   "blockquotes" in {
-    test(
+    testBlockParsing(
       """
         |>     asdf
         |> qwer
         |zxcv
       """.stripMargin
     ) shouldBe "document[*blank, quote[indented[asdf], paragraph[qwer\nzxcv]], *blank],Map()"
-    test(
+    testBlockParsing(
       """
         |> asdf
         |> > qwer
         |zxcv
       """.stripMargin
     ) shouldBe "document[*blank, quote[paragraph[asdf], quote[paragraph[qwer\nzxcv]]], *blank],Map()"
-    test(
+    testBlockParsing(
       """
         |wow
         |> poiu
@@ -47,7 +47,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
   }
 
   "fenced code" in {
-    test(
+    testBlockParsing(
       """
         |```
         |asdf
@@ -60,7 +60,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
   }
 
   "indented code" in {
-    test(
+    testBlockParsing(
       """
         |    zxcv
         |asdf
@@ -69,7 +69,7 @@ class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with 
   }
 
   "setext headings" in {
-    test(
+    testBlockParsing(
       """
         |poiu
         |====
