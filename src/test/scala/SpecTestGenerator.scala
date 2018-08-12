@@ -14,7 +14,7 @@ object SpecTestGenerator /*extends App*/ {
 
   if (args.length == 1)
     println(
-      (spec_tests map (t => t("section").toString)).toSet.toList.sorted mkString "\n"
+      (spec_tests map (t => t("section").toString)).distinct.sorted mkString "\n"
     )
   else {
     val dst = args(1)

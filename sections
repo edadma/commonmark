@@ -7,7 +7,7 @@ Emphasis and strong emphasis
 Entity and numeric character references
 Fenced code blocks
 HTML blocks
-Hard line breaks
+-Hard line breaks
 Images
 Indented code blocks
 Inlines
@@ -18,7 +18,6 @@ Lists
 Precedence
 Raw HTML
 -Setext headings
-Soft line breaks
 Tabs
 Textual content
 -Thematic breaks

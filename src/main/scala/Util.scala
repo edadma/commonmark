@@ -131,7 +131,12 @@ object Util {
           val escaped = escape( c ) + (if (c isEmpty) "" else "\n")
 
           if (codeblock eq null)
-            s"\n<pre><code>$escaped</code></pre>\n"
+            if (highlighted isDefined) {
+              val clas = '"' + s"language-${highlighted.get}" + '"'
+
+              s"\n<pre><code class=$clas>$escaped</code></pre>\n"
+            } else
+              s"\n<pre><code>$escaped</code></pre>\n"
           else
             "\n" + codeblock( escaped, highlighted, caption ) + "\n"
         case LinkAST( address, None, contents ) => tag( "a", contents, false, "href" -> address )

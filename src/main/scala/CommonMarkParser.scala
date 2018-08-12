@@ -145,7 +145,7 @@ class CommonMarkParser {
             case p: ParagraphBlock if loose => ParagraphAST( inlineWithHardBreaks(p.buf.toString) ) :: transform( t, loose )
             case p: ParagraphBlock => inlineWithHardBreaks(p.buf.toString) :: transform( t )
             case b: IndentedBlock => CodeBlockAST( b.buf.toString, None, None ) :: transform( t, loose )
-            case f: FencedBlock => CodeBlockAST( f.buf.toString, None, None ) :: transform( t, loose )
+            case f: FencedBlock => CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(f.info) else None, None ) :: transform( t, loose )
             case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
             case l: ListBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)

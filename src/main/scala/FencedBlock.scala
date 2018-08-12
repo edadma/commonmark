@@ -20,7 +20,7 @@ object FencedBlockType extends BlockType {
 
 }
 
-class FencedBlock( fence: String, info: String ) extends TextLeafBlock {
+class FencedBlock( fence: String, val info: String ) extends TextLeafBlock {
 
   val name = "fenced"
   var start = false
