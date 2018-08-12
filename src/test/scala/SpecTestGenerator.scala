@@ -21,8 +21,8 @@ object SpecTestGenerator /*extends App*/ {
     val sections = if (args(2) == "*") null else args(2) split "," toSet
 
     for (section <- sections) {
-      val name = s"${section.replace(' ', '_')}SpecTests.scala"
-      val out = new PrintWriter( s"$dst/$name" /*+ ".scala"*/ )
+      val name = s"${section.replace(' ', '_')}SpecTests"
+      val out = new PrintWriter( s"$dst/$name.scala" )
 
       out.println(
         s"""

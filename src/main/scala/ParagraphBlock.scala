@@ -22,6 +22,6 @@ class ParagraphBlock extends TextLeafBlock {
       None
 
   override def append( from: Int, text: String, stream: Stream[String] ): Unit =
-    super.append( from, text.trim, stream )
+    super.append( from, text dropWhile (_.isWhitespace), stream )
 
 }

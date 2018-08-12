@@ -1,7 +1,7 @@
 //@
 package xyz.hyperreal.commonmark
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 
 class CommonMarkParser {
@@ -103,6 +103,32 @@ class CommonMarkParser {
 
     next( lines )
     doc
+  }
+
+  def inline( s: String ) = TextAST( s )
+
+  def inlineWithHardBreaks( s: String ) = {
+    val seq = new ListBuffer[CommonMarkAST]
+    val lines = s.lines.toArray
+
+    def add( ast: CommonMarkAST* ) =
+      ast foreach {
+        case SeqAST( seq ) => seq ++= seq
+        case a => seq += a
+      }
+
+    for (l <- lines.init)
+      if (l endsWith "  ")
+        add( inline(l.trim), BreakAST )
+      else
+        add( inline(l.trim) )
+
+    add( inline(lines.last) )
+
+    if (seq.length == 1)
+      seq.head
+    else
+      SeqAST( seq.toList )
   }
 
   def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] =
