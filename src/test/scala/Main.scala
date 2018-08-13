@@ -6,14 +6,13 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |```
+      |  - foo
       |
-      |a
-      |```
+      |    bar
     """.stripMargin
 
   val doc = p.parse( input )
 
-//  println( p.parseBlocks( input.lines.toStream ))
+  println( p.parseBlocks( input.lines.toStream ))
   println( Util.html(doc, 2) )
 }

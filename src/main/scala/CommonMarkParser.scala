@@ -144,13 +144,14 @@ class CommonMarkParser {
             case h: SHeadingBlock => HeadingAST( h.level, inlineWithHardBreaks(h.heading), None ) :: transform( t )
             case p: ParagraphBlock if loose => ParagraphAST( inlineWithHardBreaks(p.buf.toString) ) :: transform( t, loose )
             case p: ParagraphBlock => inlineWithHardBreaks(p.buf.toString) :: transform( t )
-            case b: IndentedBlock => CodeBlockAST( b.buf.toString, None, None ) :: transform( t, loose )
+            case b: IndentedBlock =>
+              CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
             case f: FencedBlock => CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(f.info) else None, None ) :: transform( t, loose )
             case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
             case l: ListBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
               val list = l +: items.asInstanceOf[Stream[ListBlock]]
-              val loose1 = list dropRight 1 exists (_.blocks.last == BlankBlock)
+              val loose1 = list exists (_.blocks.exists(_ == BlankBlock))
               val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
               val hd =
                 if (l.typ.isInstanceOf[BulletList])
