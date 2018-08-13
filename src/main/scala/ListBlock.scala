@@ -4,12 +4,12 @@ package xyz.hyperreal.commonmark
 
 object ListBlockType extends BlockType {
 
-  val bulletListRegex = """([ ]{0,3})([-+*])(?:([ ]+)(.*)|\s*)"""r
-  val orderedListRegex = """([ ]{0,3})([0-9]{1,9})([.)])(?:([ ]+)(.*)|\s*)"""r
+  val bulletListRegex = """([ ]{0,3})([-+*])(?:([ ]+)([^ ].*)|\s*)"""r
+  val orderedListRegex = """([ ]{0,3})([0-9]{1,9})([.)])(?:([ ]+)([^ ].*)|\s*)"""r
   val listRegex = """([ ]*)(.*)"""r
 
   def accept( list: ListBlock, from: Int, text: String ) =
-    if (isBlank( text ))
+    if (isBlank( text ) && list.blocks.exists( _ != BlankBlock ))
       Some( (from, text) )
     else
       text match {
