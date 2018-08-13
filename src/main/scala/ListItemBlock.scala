@@ -2,13 +2,13 @@
 package xyz.hyperreal.commonmark
 
 
-object ListBlockType extends BlockType {
+object ListItemBlockType extends BlockType {
 
   val bulletListRegex = """([ ]{0,3})([-+*])(?:([ ]+)([^ ].*)|\s*)"""r
   val orderedListRegex = """([ ]{0,3})([0-9]{1,9})([.)])(?:([ ]+)([^ ].*)|\s*)"""r
   val listRegex = """([ ]*)(.*)"""r
 
-  def accept( list: ListBlock, from: Int, text: String ) =
+  def accept( list: ListItemBlock, from: Int, text: String ) =
     if (isBlank( text ) && list.blocks.exists( _ != BlankBlock ))
       Some( (from, text) )
     else
@@ -31,13 +31,13 @@ object ListBlockType extends BlockType {
             case _ =>
               val width = 2 + indent.length
 
-              Some( (new ListBlock(width, BulletList(marker.head)), from + width, "") )
+              Some( (new ListItemBlock(width, BulletList(marker.head)), from + width, "") )
           }
         } else {
           val sep = if (spaces.length > 4) 1 else spaces.length
           val width = 1 + indent.length + sep
 
-          Some( (new ListBlock(width, BulletList(marker.head)), from + width, " "*(spaces.length - sep) + newtext) )
+          Some( (new ListItemBlock(width, BulletList(marker.head)), from + width, " "*(spaces.length - sep) + newtext) )
         }
       case orderedListRegex( indent, number, marker, spaces, newtext ) =>
         if (spaces eq null) {
@@ -46,13 +46,18 @@ object ListBlockType extends BlockType {
             case _ =>
               val width = 2 + number.length + indent.length
 
-              Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, "") )
+              Some( (new ListItemBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, "") )
           }
         } else {
-          val sep = if (spaces.length > 4) 1 else spaces.length
-          val width = 1 + number.length + indent.length + sep
+          prev.open match {
+            case Some( _: ParagraphBlock ) if number != "1" => None
+            case _ =>
+            val sep = if (spaces.length > 4) 1 else spaces.length
+            val width = 1 + number.length + indent.length + sep
 
-          Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, " "*(spaces.length - sep) + newtext) )
+            Some( (new ListItemBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt },
+              from + width, " "*(spaces.length - sep) + newtext) )
+          }
         }
       case _ => None
     }
@@ -63,12 +68,12 @@ abstract class ListType
 case class BulletList( marker: Char ) extends ListType
 case class OrderedList( marker: Char ) extends ListType { var start = 1 }
 
-class ListBlock( val indent: Int, val typ: ListType ) extends ContainerBlock {
+class ListItemBlock( val indent: Int, val typ: ListType ) extends ContainerBlock {
 
   val name = "list"
   var tight = true
 
   def accept( from: Int, text: String, stream: Stream[String]) : Option[(Int, String)] =
-    ListBlockType.accept( this, from, text )
+    ListItemBlockType.accept( this, from, text )
 
 }

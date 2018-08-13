@@ -12,7 +12,7 @@ class CommonMarkParser {
       append( AHeadingBlockType )
       append( SHeadingBlockType )
       append( BreakBlockType )
-      append( ListBlockType )
+      append( ListItemBlockType )
       append( IndentedBlockType )
       append( FencedBlockType )
       append( QuoteBlockType )
@@ -154,9 +154,9 @@ class CommonMarkParser {
               CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
             case f: FencedBlock => CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(f.info) else None, None ) :: transform( t, loose )
             case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
-            case l: ListBlock =>
-              val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
-              val list = l +: items.asInstanceOf[Stream[ListBlock]]
+            case l: ListItemBlock =>
+              val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
+              val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
               val loose1 =
                 list.init.exists (i => blankAfter(i.blocks)) ||
                   blankAfter(list.last.blocks.init)

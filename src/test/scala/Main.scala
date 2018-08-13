@@ -6,8 +6,8 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      | -   A paragraph
-      |    with two lines.
+      |   - a
+      |    - b
     """.trim.stripMargin
 
   val doc = p.parse( input )
