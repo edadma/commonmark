@@ -41,10 +41,13 @@ trait Appendable {
 abstract class TextLeafBlock extends LeafBlock with Appendable {
 
   val buf = new StringBuilder
+  var appended = false
 
   def append(from: Int, text: String, stream: Stream[String]): Unit = {
-    if (buf nonEmpty)
+    if (appended)
       buf += '\n'
+    else
+      appended = true
 
     buf ++= text
   }

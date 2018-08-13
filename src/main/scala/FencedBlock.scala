@@ -1,14 +1,15 @@
+//@
 package xyz.hyperreal.commonmark
 
 
 object FencedBlockType extends BlockType {
 
-  val startFenceRegex = """[ ]{0,3}(`{3,}|~{3,})([^`\n]*)"""r
+  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s]*).*"""r
   val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*"""r
 
   override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
-      case startFenceRegex( fence, info ) => Some( (new FencedBlock(fence, info.trim), from, "") )
+      case startFenceRegex( indent, fence, info ) => Some( (new FencedBlock(indent, fence, info.trim), from, "") )
       case _ => None
     }
 
@@ -20,7 +21,7 @@ object FencedBlockType extends BlockType {
 
 }
 
-class FencedBlock( fence: String, val info: String ) extends TextLeafBlock {
+class FencedBlock( indent: String, fence: String, val info: String ) extends TextLeafBlock {
 
   val name = "fenced"
   var start = false
@@ -29,20 +30,27 @@ class FencedBlock( fence: String, val info: String ) extends TextLeafBlock {
   override val isInterruptible = false
 
   def accept( from: Int, text: String, stream: Stream[String] ): Option[(Int, String)] =
-    if (!start) {
-      start = true
-      Some( (from, text) )
-    } else if (end) {
+    if (end)
       None
-    } else {
+    else {
       if (FencedBlockType.end( fence, text ))
         end = true
 
       Some( (from, text) )
     }
 
-  override def append( from: Int, text: String, stream: Stream[String] ): Unit =
-    if (start && !end)
-      super.append( from, text, stream )
+  override def append( from: Int, text: String, stream: Stream[String] ): Unit = {
+    if (start && !end) {
+      val t =
+        if (text startsWith indent)
+          text drop indent.length
+        else
+          text dropWhile (_ == ' ')
+
+      super.append( from, t, stream )
+    }
+
+    start = true
+  }
 
 }
