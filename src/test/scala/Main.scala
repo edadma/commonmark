@@ -6,11 +6,8 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |1.     indented code
-      |
-      |   paragraph
-      |
-      |       more code
+      |-
+      |  foo
     """.trim.stripMargin
 
   val doc = p.parse( input )

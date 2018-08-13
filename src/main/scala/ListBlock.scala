@@ -29,28 +29,30 @@ object ListBlockType extends BlockType {
           prev.open match {
             case Some( _: ParagraphBlock ) => None
             case _ =>
-              val width = 1 + indent.length
+              val width = 2 + indent.length
 
               Some( (new ListBlock(width, BulletList(marker.head)), from + width, "") )
           }
         } else {
-          val width = 1 + indent.length + spaces.length
+          val sep = if (spaces.length > 4) 1 else spaces.length
+          val width = 1 + indent.length + sep
 
-          Some( (new ListBlock(width, BulletList(marker.head)), from + width, newtext) )
+          Some( (new ListBlock(width, BulletList(marker.head)), from + width, " "*(spaces.length - sep) + newtext) )
         }
       case orderedListRegex( indent, number, marker, spaces, newtext ) =>
         if (spaces eq null) {
           prev.open match {
             case Some( _: ParagraphBlock ) => None
             case _ =>
-              val width = 1 + number.length + indent.length
+              val width = 2 + number.length + indent.length
 
               Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, "") )
           }
         } else {
-          val width = 1 + number.length + indent.length + spaces.length
+          val sep = if (spaces.length > 4) 1 else spaces.length
+          val width = 1 + number.length + indent.length + sep
 
-          Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, newtext) )
+          Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, " "*(spaces.length - sep) + newtext) )
         }
       case _ => None
     }

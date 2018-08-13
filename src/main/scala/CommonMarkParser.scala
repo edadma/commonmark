@@ -133,6 +133,12 @@ class CommonMarkParser {
       SeqAST( seq.toList )
   }
 
+  def blankAfter( s: Seq[Block] ) =
+    if (s.length < 2)
+      false
+    else
+      s.sliding( 2 ).exists( a => a.head != BlankBlock && a.tail.head == BlankBlock)
+
   def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] =
     s match {
       case n if n isEmpty => Nil
@@ -151,7 +157,11 @@ class CommonMarkParser {
             case l: ListBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListBlock] && b.asInstanceOf[ListBlock].typ == l.typ)
               val list = l +: items.asInstanceOf[Stream[ListBlock]]
-              val loose1 = list.init.exists (i => i.blocks.length > 1 && i.blocks.contains(BlankBlock)) || list.last.blocks.init.length > 1 && list.last.blocks.init.contains(BlankBlock)
+              val loose1 =
+                list.init.exists (i => blankAfter(i.blocks)) ||
+                  blankAfter(list.last.blocks.init)
+//                list.init.exists (i => i.blocks.length > 1 && i.blocks.contains(BlankBlock)) ||
+//                  list.last.blocks.init.length > 1 && list.last.blocks.init.contains(BlankBlock)
               val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
               val hd =
                 if (l.typ.isInstanceOf[BulletList])
