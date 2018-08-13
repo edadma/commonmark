@@ -6,28 +6,47 @@ object HTMLBlockType extends BlockType {
 
   val start1Regex = """(?i)(?:<script|<pre|<style)\s*>?"""r
   val end1Regex = """.*(?:</script>|</pre>|</style>).*"""r
-  val start2Regex = """<!--.*"""r
-  val end2Regex = """.*-->.*"""r
+  val starts =
+    List(
+      (from: Int, text: String, s: Stream[String]) => start1Regex.pattern.matcher( text ).matches,
+      (from: Int, text: String, s: Stream[String]) => text startsWith "<!--"
+    )
+  val ends =
+    Vector(
+      (from: Int, text: String, s: Stream[String]) => HTMLBlockType.end1Regex.pattern.matcher( text ).matches,
+      (from: Int, text: String, s: Stream[String]) => text contains "-->"
+    )
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
-    if (indentedRegex.pattern.matcher( text ).matches && nonBlank( text ) && !prev.open.exists( _.isInstanceOf[ParagraphBlock]))
-      Some( (new IndentedBlock, from + 4, text substring 4) )
-    else
-      None
+  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] = {
+    for ((st, i) <- starts zipWithIndex)
+      if (st( from, text, s ))
+        if (end(i, from, text, s ))
+          return Some( (new HTMLBlock(None), from, text) )
+        else
+          return Some( (new HTMLBlock(Some(i)), from, text) )
+
+    None
+  }
+
+  def end( ind: Int, from: Int, text: String, stream: Stream[String]) = ends(ind)( from, text, stream )
 
 }
 
-class HTMLBlock extends TextLeafBlock {
+class HTMLBlock( var cond: Option[Int] ) extends TextLeafBlock {
 
-  val name = "indented"
+  val name = "html"
 
   override val isInterruptible = false
 
   def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = {
-    if (IndentedBlockType.indentedRegex.pattern.matcher( stream.head.substring(from) ).matches || isBlank( text ))
-      Some( (from + 4, if (text.length < 4) "" else text.substring( 4 )) )
-    else
-      None
+    cond match {
+      case None => None
+      case Some( ind ) =>
+        if (HTMLBlockType.end( ind, from, text, stream ))
+          cond = None
+
+        Some( (from, text) )
+    }
   }
 
 }

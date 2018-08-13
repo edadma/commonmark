@@ -8,6 +8,7 @@ class CommonMarkParser {
 
   val blockTypes =
     new ArrayBuffer[BlockType] {
+      append( HTMLBlockType )
       append( ReferenceBlockType )
       append( AHeadingBlockType )
       append( SHeadingBlockType )
@@ -145,6 +146,7 @@ class CommonMarkParser {
       case h #:: t =>
           h match {
             case b: Block if !b.keep => transform( t, loose )
+            case h: HTMLBlock => RawAST( h.buf.toString ) :: transform( t, loose )
             case _: BreakBlock => RuleAST :: transform( t, loose )
             case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
             case h: SHeadingBlock => HeadingAST( h.level, inlineWithHardBreaks(h.heading), None ) :: transform( t, loose )
@@ -157,11 +159,7 @@ class CommonMarkParser {
             case l: ListItemBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
               val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
-              val loose1 =
-                list.init.exists (i => blankAfter(i.blocks)) ||
-                  blankAfter(list.last.blocks.init)
-//                list.init.exists (i => i.blocks.length > 1 && i.blocks.contains(BlankBlock)) ||
-//                  list.last.blocks.init.length > 1 && list.last.blocks.init.contains(BlankBlock)
+              val loose1 = list.init.exists (i => blankAfter(i.blocks)) || blankAfter(list.last.blocks.init)
               val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
               val hd =
                 if (l.typ.isInstanceOf[BulletList])

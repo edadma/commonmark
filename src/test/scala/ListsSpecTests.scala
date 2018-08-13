@@ -34,13 +34,13 @@ class ListsSpecTests extends FreeSpec with PropertyChecks with Matchers with Tes
     test( "- foo\n  - bar\n    - baz\n\n\n      bim\n" ) shouldBe "<ul>\n<li>foo\n<ul>\n<li>bar\n<ul>\n<li>\n<p>baz</p>\n<p>bim</p>\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
   }
 
-//  "example 271" in {//todo: html block
-//    test( "- foo\n- bar\n\n<!-- -->\n\n- baz\n- bim\n" ) shouldBe "<ul>\n<li>foo</li>\n<li>bar</li>\n</ul>\n<!-- -->\n<ul>\n<li>baz</li>\n<li>bim</li>\n</ul>\n"
-//  }
+  "example 271" in {
+    test( "- foo\n- bar\n\n<!-- -->\n\n- baz\n- bim\n" ) shouldBe "<ul>\n<li>foo</li>\n<li>bar</li>\n</ul>\n<!-- -->\n<ul>\n<li>baz</li>\n<li>bim</li>\n</ul>\n"
+  }
 
-//  "example 272" in {//todo: html block
-//    test( "-   foo\n\n    notcode\n\n-   foo\n\n<!-- -->\n\n    code\n" ) shouldBe "<ul>\n<li>\n<p>foo</p>\n<p>notcode</p>\n</li>\n<li>\n<p>foo</p>\n</li>\n</ul>\n<!-- -->\n<pre><code>code\n</code></pre>\n"
-//  }
+  "example 272" in {
+    test( "-   foo\n\n    notcode\n\n-   foo\n\n<!-- -->\n\n    code\n" ) shouldBe "<ul>\n<li>\n<p>foo</p>\n<p>notcode</p>\n</li>\n<li>\n<p>foo</p>\n</li>\n</ul>\n<!-- -->\n<pre><code>code\n</code></pre>\n"
+  }
 
   "example 273" in {
     test( "- a\n - b\n  - c\n   - d\n    - e\n   - f\n  - g\n - h\n- i\n" ) shouldBe "<ul>\n<li>a</li>\n<li>b</li>\n<li>c</li>\n<li>d</li>\n<li>e</li>\n<li>f</li>\n<li>g</li>\n<li>h</li>\n<li>i</li>\n</ul>\n"
