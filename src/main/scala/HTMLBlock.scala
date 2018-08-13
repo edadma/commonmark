@@ -4,7 +4,10 @@ package xyz.hyperreal.commonmark
 
 object HTMLBlockType extends BlockType {
 
-  val start1Regex = """(?i)<script|<pre|<style"""r
+  val start1Regex = """(?i)(?:<script|<pre|<style)\s*>?"""r
+  val end1Regex = """.*(?:</script>|</pre>|</style>).*"""r
+  val start2Regex = """<!--.*"""r
+  val end2Regex = """.*-->.*"""r
 
   override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
     if (indentedRegex.pattern.matcher( text ).matches && nonBlank( text ) && !prev.open.exists( _.isInstanceOf[ParagraphBlock]))
