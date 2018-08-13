@@ -6,10 +6,9 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |  - foo
-      |
-      |    bar
-    """.stripMargin
+      |10) foo
+      |   - bar
+    """.trim.stripMargin
 
   val doc = p.parse( input )
 

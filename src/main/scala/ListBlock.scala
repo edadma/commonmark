@@ -22,7 +22,7 @@ object ListBlockType extends BlockType {
       case bulletListRegex( marker, newtext ) =>
         Some( (new ListBlock(BulletList(marker.head)), from + 2, newtext) )
       case orderedListRegex( number, marker, newtext ) =>
-        Some( (new ListBlock(new OrderedList(marker.head) { override val start = number.toInt }), from + 2, newtext) )
+        Some( (new ListBlock(OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + 2, newtext) )
       case _ => None
     }
 
@@ -30,7 +30,7 @@ object ListBlockType extends BlockType {
 
 abstract class ListType
 case class BulletList( marker: Char ) extends ListType
-case class OrderedList( marker: Char ) extends ListType { val start = 1 }
+case class OrderedList( marker: Char ) extends ListType { var start = 1 }
 
 class ListBlock( val typ: ListType ) extends ContainerBlock {
 

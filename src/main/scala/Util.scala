@@ -117,7 +117,7 @@ object Util {
           val buf = new StringBuilder
 
           for (s <- seq map html)
-            buf ++= (if (buf.nonEmpty && buf.last == '\n' && s.startsWith("\n")) (s drop 1) else s)
+            buf ++= (if (buf.nonEmpty && buf.last == '\n' && s.startsWith("\n")) s drop 1 else s)
 
           buf.toString
         case TextAST( t ) => escape( t )
@@ -143,7 +143,8 @@ object Util {
         case LinkAST( address, Some(title), contents ) => tag( "a", contents, false, "href" -> address, "title" -> title )
         case ListItemAST( contents ) => tag( "li", contents, true )
         case BulletListAST( contents, tight ) => tag( "ul", contents, true )
-        case OrderedListAST( contents, tight ) => tag( "ol", contents, true )
+        case OrderedListAST( contents, tight, 1 ) => tag( "ol", contents, true )
+        case OrderedListAST( contents, tight, start ) => tag( "ol", contents, true, "start" -> start.toString )
         case ImageAST( address, None, text ) => leaf( "img", text, "src" -> address )
         case ImageAST( address, Some(title), text ) => leaf( "img", text, "src" -> address, "title" -> title )
         case EmphasisAST( contents ) => tag( "em", contents, false )

@@ -138,12 +138,12 @@ class CommonMarkParser {
       case n if n isEmpty => Nil
       case h #:: t =>
           h match {
-            case b: Block if !b.keep => transform( t )
-            case _: BreakBlock => RuleAST :: transform( t )
-            case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t )
-            case h: SHeadingBlock => HeadingAST( h.level, inlineWithHardBreaks(h.heading), None ) :: transform( t )
+            case b: Block if !b.keep => transform( t, loose )
+            case _: BreakBlock => RuleAST :: transform( t, loose )
+            case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
+            case h: SHeadingBlock => HeadingAST( h.level, inlineWithHardBreaks(h.heading), None ) :: transform( t, loose )
             case p: ParagraphBlock if loose => ParagraphAST( inlineWithHardBreaks(p.buf.toString) ) :: transform( t, loose )
-            case p: ParagraphBlock => inlineWithHardBreaks(p.buf.toString) :: transform( t )
+            case p: ParagraphBlock => inlineWithHardBreaks(p.buf.toString) :: transform( t, loose )
             case b: IndentedBlock =>
               CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
             case f: FencedBlock => CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(f.info) else None, None ) :: transform( t, loose )
@@ -157,7 +157,7 @@ class CommonMarkParser {
                 if (l.typ.isInstanceOf[BulletList])
                   BulletListAST( SeqAST(listitems), !loose1 )
                 else
-                  OrderedListAST( SeqAST(listitems), !loose1 )
+                  OrderedListAST( SeqAST(listitems), !loose1, l.typ.asInstanceOf[OrderedList].start )
 
               hd :: transform( rest, loose )
           }
