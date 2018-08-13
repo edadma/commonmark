@@ -1,10 +1,11 @@
+//@
 package xyz.hyperreal.commonmark
 
 
 object ListBlockType extends BlockType {
 
-  val bulletListRegex = """([ ]{0,3})([-+*])([ ]+)(.*)"""r
-  val orderedListRegex = """([ ]{0,3})([0-9]{1,9})([.)])([ ]+)(.*)"""r
+  val bulletListRegex = """([ ]{0,3})([-+*])(?:([ ]+)(.*)|\s*)"""r
+  val orderedListRegex = """([ ]{0,3})([0-9]{1,9})([.)])(?:([ ]+)(.*)|\s*)"""r
   val listRegex = """([ ]*)(.*)"""r
 
   def accept( list: ListBlock, from: Int, text: String ) =
@@ -24,13 +25,33 @@ object ListBlockType extends BlockType {
   Option[(Block, Int, String)] =
     text match {
       case bulletListRegex( indent, marker, spaces, newtext ) =>
-        val width = 1 + indent.length + spaces.length
+        if (spaces eq null) {
+          prev.open match {
+            case Some( _: ParagraphBlock ) => None
+            case _ =>
+              val width = 1 + indent.length
 
-        Some( (new ListBlock(width, BulletList(marker.head)), from + width, newtext) )
+              Some( (new ListBlock(width, BulletList(marker.head)), from + width, "") )
+          }
+        } else {
+          val width = 1 + indent.length + spaces.length
+
+          Some( (new ListBlock(width, BulletList(marker.head)), from + width, newtext) )
+        }
       case orderedListRegex( indent, number, marker, spaces, newtext ) =>
-        val width = 1 + number.length + indent.length + spaces.length
+        if (spaces eq null) {
+          prev.open match {
+            case Some( _: ParagraphBlock ) => None
+            case _ =>
+              val width = 1 + number.length + indent.length
 
-        Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, newtext) )
+              Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, "") )
+          }
+        } else {
+          val width = 1 + number.length + indent.length + spaces.length
+
+          Some( (new ListBlock(width, OrderedList(marker.head)) { typ.asInstanceOf[OrderedList].start = number.toInt }, from + width, newtext) )
+        }
       case _ => None
     }
 

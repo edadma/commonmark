@@ -6,16 +6,15 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |1.  A paragraph
-      |    with two lines.
+      |1.     indented code
       |
-      |        indented code
+      |   paragraph
       |
-      |    > A block quote.
+      |       more code
     """.trim.stripMargin
 
   val doc = p.parse( input )
 
-//  println( p.parseBlocks( input.lines.toStream ))
+  println( p.parseBlocks( input.lines.toStream ))
   println( Util.html(doc, 2) )
 }
