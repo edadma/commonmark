@@ -104,7 +104,7 @@ object Util {
 //        case '\\' => buf ++= "&bsol;"
 //        case '{' => buf ++= "&lcub;"
 //        case '}' => buf ++= "&rcub;"
-        case c if c > '\u007F' => buf ++= s"&#${c.toInt};"
+//        case c if c > '\u007F' => buf ++= s"&#${c.toInt};"
         case c => buf += c
       }
 

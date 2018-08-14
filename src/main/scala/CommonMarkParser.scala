@@ -2,6 +2,7 @@
 package xyz.hyperreal.commonmark
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.util.matching.Regex
 
 
 object CommonMarkParser {
@@ -113,7 +114,7 @@ class CommonMarkParser {
   }
 
   def entities( s: String ) = {
-    CommonMarkParser.entityReferenceRegex.
+    CommonMarkParser.entityReferenceRegex.replaceSomeIn( s, m => Entities(m group 1) )
   }
 
   def inline( s: String ) = TextAST( entities(s) )
