@@ -121,6 +121,7 @@ object Util {
 
           buf.toString
         case TextAST( t ) => escape( t )
+        case HTMLAST( t ) => s"\n$t"
         case RawAST( t ) => t
         case ParagraphAST( contents ) => optionalTag( "p", contents, true )
         case BlockquoteAST( contents ) => containerTag( "blockquote", contents, true )

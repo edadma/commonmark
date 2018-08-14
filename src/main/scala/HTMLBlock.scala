@@ -5,11 +5,11 @@ package xyz.hyperreal.commonmark
 object HTMLBlockType extends BlockType {
 
   val start1Regex = """(?i)[ ]{0,3}(?:<script|<pre|<style)\s*>?"""r
-  val start2Regex = """[ ]{0,3}<!--"""r
-  val start3Regex = """[ ]{0,3}<\?"""r
+  val start2Regex = """[ ]{0,3}<!--.*"""r
+  val start3Regex = """[ ]{0,3}<\?.*"""r
   val end1Regex = """.*(?:</script>|</pre>|</style>).*"""r
-  val start4Regex = """[ ]{0,3}<![A-Z]"""r
-  val start5Regex = """[ ]{0,3}<!\[CDATA\["""r
+  val start4Regex = """[ ]{0,3}<![A-Z].*"""r
+  val start5Regex = """[ ]{0,3}<!\[CDATA\[.*"""r
   val start6Regex = """(?i)[ ]{0,3}</?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)\s*(?:/?>)?"""r
   val starts =
     List(

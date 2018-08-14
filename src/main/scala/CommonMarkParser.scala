@@ -146,7 +146,7 @@ class CommonMarkParser {
       case h #:: t =>
           h match {
             case b: Block if !b.keep => transform( t, loose )
-            case h: HTMLBlock => RawAST( h.buf.toString ) :: transform( t, loose )
+            case h: HTMLBlock => HTMLAST( h.buf.toString ) :: transform( t, loose )
             case _: BreakBlock => RuleAST :: transform( t, loose )
             case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
             case h: SHeadingBlock => HeadingAST( h.level, inlineWithHardBreaks(h.heading), None ) :: transform( t, loose )
