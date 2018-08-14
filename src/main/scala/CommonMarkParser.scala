@@ -6,7 +6,7 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 object CommonMarkParser {
 
-  val entityReferenceRegex = "&[a-zA-Z][a-zA-Z0-9]*;"r
+  val entityReferenceRegex = "&([a-zA-Z][a-zA-Z0-9]*);"r
 
 }
 
@@ -112,7 +112,9 @@ class CommonMarkParser {
     doc
   }
 
-  def entities( s: String ) =
+  def entities( s: String ) = {
+    CommonMarkParser.entityReferenceRegex.
+  }
 
   def inline( s: String ) = TextAST( entities(s) )
 
