@@ -11,6 +11,8 @@ object HTMLBlockType extends BlockType {
   val start4Regex = """[ ]{0,3}<![A-Z].*"""r
   val start5Regex = """[ ]{0,3}<!\[CDATA\[.*"""r
   val start6Regex = """(?i)[ ]{0,3}</?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)\s*(?:/?>)?"""r
+  val start7Regex = """(?i)<[a-z][a-z0-9-]*(?:\s+"""r
+
   val starts =
     List(
       (from: Int, text: String, s: Stream[String]) => start1Regex.pattern.matcher( text ).matches,
@@ -27,7 +29,7 @@ object HTMLBlockType extends BlockType {
       (from: Int, text: String, s: Stream[String]) => text contains "?>",
       (from: Int, text: String, s: Stream[String]) => text contains ">",
       (from: Int, text: String, s: Stream[String]) => text contains "]]>",
-      (from: Int, text: String, s: Stream[String]) => s.isEmpty || s.tail.isEmpty || isBlank( s.tail.head substring from )
+      (from: Int, text: String, s: Stream[String]) => s.isEmpty || s.tail.isEmpty || s.tail.head.length <= from || isBlank( s.tail.head substring from )
     )
 
   override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] = {
