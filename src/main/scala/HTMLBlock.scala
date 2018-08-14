@@ -27,7 +27,7 @@ object HTMLBlockType extends BlockType {
       (from: Int, text: String, s: Stream[String]) => text contains "?>",
       (from: Int, text: String, s: Stream[String]) => text contains ">",
       (from: Int, text: String, s: Stream[String]) => text contains "]]>",
-      (from: Int, text: String, s: Stream[String]) => s.isEmpty || s.tail.isEmpty || isBlank( s.tail.head substring from )
+      (from: Int, text: String, s: Stream[String]) => s.isEmpty || s.tail.isEmpty || s.tail.head.length >= from && isBlank( s.tail.head substring from )
     )
 
   override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] = {
