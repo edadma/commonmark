@@ -4,6 +4,12 @@ package xyz.hyperreal.commonmark
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 
+object CommonMarkParser {
+
+  val entityReferenceRegex = "&[a-zA-Z][a-zA-Z0-9]*;"r
+
+}
+
 class CommonMarkParser {
 
   val blockTypes =
@@ -106,7 +112,9 @@ class CommonMarkParser {
     doc
   }
 
-  def inline( s: String ) = TextAST( s )
+  def entities( s: String ) =
+
+  def inline( s: String ) = TextAST( entities(s) )
 
   def inlineWithHardBreaks( s: String ) = {
     val seq = new ListBuffer[CommonMarkAST]
