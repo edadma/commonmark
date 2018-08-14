@@ -20,7 +20,8 @@ object HTMLBlockType extends BlockType {
       (from: Int, text: String, s: Stream[String]) => start3Regex.pattern.matcher( text ).matches,
       (from: Int, text: String, s: Stream[String]) => start4Regex.pattern.matcher( text ).matches,
       (from: Int, text: String, s: Stream[String]) => start5Regex.pattern.matcher( text ).matches,
-      (from: Int, text: String, s: Stream[String]) => start6Regex.pattern.matcher( text ).matches
+      (from: Int, text: String, s: Stream[String]) => start6Regex.pattern.matcher( text ).matches,
+      (from: Int, text: String, s: Stream[String]) => start7Regex.pattern.matcher( text ).matches
     )
   val ends =
     Vector(
@@ -29,6 +30,7 @@ object HTMLBlockType extends BlockType {
       (from: Int, text: String, s: Stream[String]) => text contains "?>",
       (from: Int, text: String, s: Stream[String]) => text contains ">",
       (from: Int, text: String, s: Stream[String]) => text contains "]]>",
+      (from: Int, text: String, s: Stream[String]) => s.isEmpty || s.tail.isEmpty || s.tail.head.length <= from || isBlank( s.tail.head substring from ),
       (from: Int, text: String, s: Stream[String]) => s.isEmpty || s.tail.isEmpty || s.tail.head.length <= from || isBlank( s.tail.head substring from )
     )
 
