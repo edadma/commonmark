@@ -6,17 +6,15 @@ Code spans
 Emphasis and strong emphasis
 Entity and numeric character references
 -Fenced code blocks
-HTML blocks
+-HTML blocks
 -Hard line breaks
 Images
 Inlines
 Link reference definitions
 Links
 -List items
-Lists
-Precedence
+-Lists
 Raw HTML
 -Setext headings
 Tabs
-Textual content
 -Thematic breaks
