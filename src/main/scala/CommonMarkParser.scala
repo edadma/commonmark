@@ -117,7 +117,20 @@ class CommonMarkParser {
     CommonMarkParser.entityReferenceRegex.replaceSomeIn( s, m => Entities(m group 1) )
   }
 
-  def inline( s: String ) = TextAST( entities(s) )
+  case class C( c: Char, escaped: Boolean = false )
+
+  def inline( s: String ) = {
+    def backslash( l: List[Char] ): List[C] =
+      l match {
+        case Nil => Nil
+        case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p => C( p, true ) :: backslash( t )
+        case c :: t => C( c ) :: backslash( t )
+      }
+
+    val cs = backslash( s.toList )
+
+    TextAST( entities(s) )
+  }
 
   def inlineWithHardBreaks( s: String ) = {
     val seq = new ListBuffer[CommonMarkAST]
