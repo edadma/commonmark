@@ -121,7 +121,7 @@ object Util {
 
           buf.toString
         case TextAST( t ) => escape( t )
-        case HTMLAST( t ) => s"\n$t"
+        case HTMLAST( t ) => s"\n$t\n"
         case RawAST( t ) => t
         case ParagraphAST( contents ) => optionalTag( "p", contents, true )
         case BlockquoteAST( contents ) => containerTag( "blockquote", contents, true )
@@ -163,7 +163,12 @@ object Util {
         case EntityAST( entity, _ ) => s"&$entity;"
       }
 
-    html( doc ).trim + "\n"
+    val h = html( doc ) dropWhile (_ == '\n')
+
+    if (h endsWith "\n")
+      h
+    else
+      h + "\n"
   }
 
 }
