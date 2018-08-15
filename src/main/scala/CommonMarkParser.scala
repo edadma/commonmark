@@ -117,20 +117,43 @@ class CommonMarkParser {
     CommonMarkParser.entityReferenceRegex.replaceSomeIn( s, m => Entities(m group 1) )
   }
 
-  case class C( c: Char, escaped: Boolean = false )
+  case class C( c: Char, escaped: Boolean = false ) { override def toString = c.toString }
 
-  def inline( s: String ) = {
-    def backslash( l: List[Char] ): List[C] =
+  def backslash( l: List[Char] ): List[C] =
+    l match {
+      case Nil => Nil
+      case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p => C( p, true ) :: backslash( t )
+      case c :: t => C( c ) :: backslash( t )
+    }
+
+  def entity( l: List[C] ): List[C] = {
+    def parseName( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
       l match {
-        case Nil => Nil
-        case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p => C( p, true ) :: backslash( t )
-        case c :: t => C( c ) :: backslash( t )
+        case C( ';', false ) :: rest => Entities( buf.toString ) map ((_, rest))
+        case C( c, false ) :: t if buf.isEmpty && c.isLetter || buf.nonEmpty && c.isLetterOrDigit =>
+          buf += c
+          parseName( t, buf )
+        case _ => None
       }
 
-    val cs = backslash( s.toList )
-
-    TextAST( entities(s) )
+    l match {
+      case (c@C( '&', false )) :: t =>
+        parseName( t ) match {
+          case None => c :: entity( t )
+          case Some( (ent, rest) ) =>
+            if (ent.length == 1)
+              C( ent.head, false ) :: rest
+            else
+              C( ent.head, false ) :: C( ent(1), false ) :: rest
+        }
+      case c :: t => c :: entity( t )
+      case Nil => Nil
+    }
   }
+
+  def escapes( s: String ) = entity( backslash(s.toList) ) mkString
+
+  def inline( s: String ) = TextAST( escapes(s) )
 
   def inlineWithHardBreaks( s: String ) = {
     val seq = new ListBuffer[CommonMarkAST]
@@ -178,7 +201,7 @@ class CommonMarkParser {
             case p: ParagraphBlock => inlineWithHardBreaks(p.buf.toString) :: transform( t, loose )
             case b: IndentedBlock =>
               CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
-            case f: FencedBlock => CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(f.info) else None, None ) :: transform( t, loose )
+            case f: FencedBlock => CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapes(f.info)) else None, None ) :: transform( t, loose )
             case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
             case l: ListItemBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)

@@ -6,7 +6,7 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |<div><a href="bar">*foo*</a></div>
+      |&copy;
     """.trim.stripMargin
 
   val doc = p.parse( input )
