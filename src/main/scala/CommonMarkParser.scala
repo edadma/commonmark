@@ -136,7 +136,34 @@ class CommonMarkParser {
         case _ => None
       }
 
+    def parseHex( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(Int, List[C])] =
+      l match {
+        case C( ';', false ) :: rest => Some( (Integer.parseInt(buf.toString, 16), rest) )
+        case C( c, false ) :: t if "0123456789abcdefABCDEF" contains c =>
+          buf += c
+          parseHex( t, buf )
+        case _ => None
+      }
+
+    def parseDecimal( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(Int, List[C])] =
+      l match {
+        case C( ';', false ) :: rest => Some( (Integer.parseInt(buf.toString, 16), rest) )
+        case C( c, false ) :: t if "0123456789abcdefABCDEF" contains c =>
+          buf += c
+          parseDecimal( t, buf )
+        case _ => None
+      }
+
     l match {
+      case (c1@C( '&', false )) :: (c2@C( 'x'|'X', false )) :: t =>
+        parseHex( t ) match {
+          case None => c1 :: c2 :: entity( t )
+          case Some( (n, rest) ) =>
+            if (n < 0x10000)
+              C( n.toChar, false ) :: rest
+            else
+              C( n.toChar, false ) :: C( n.toChar, false ) :: rest
+        }
       case (c@C( '&', false )) :: t =>
         parseName( t ) match {
           case None => c :: entity( t )
