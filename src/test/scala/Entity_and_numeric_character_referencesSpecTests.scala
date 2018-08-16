@@ -5,7 +5,7 @@ import prop.PropertyChecks
 
 
 class Entity_and_numeric_character_referencesSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
-/*
+
   "example 302" in {
     test( "&nbsp; &amp; &copy; &AElig; &Dcaron;\n&frac34; &HilbertSpace; &DifferentialD;\n&ClockwiseContourIntegral; &ngE;\n" ) shouldBe "<p>  &amp; © Æ Ď\n¾ ℋ ⅆ\n∲ ≧̸</p>\n"
   }
@@ -13,7 +13,7 @@ class Entity_and_numeric_character_referencesSpecTests extends FreeSpec with Pro
   "example 303" in {
     test( "&#35; &#1234; &#992; &#98765432; &#0;\n" ) shouldBe "<p># Ӓ Ϡ � �</p>\n"
   }
-
+/*
   "example 304" in {
     test( "&#X22; &#XD06; &#xcab;\n" ) shouldBe "<p>&quot; ആ ಫ</p>\n"
   }

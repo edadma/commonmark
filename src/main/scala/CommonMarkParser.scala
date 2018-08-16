@@ -138,7 +138,8 @@ class CommonMarkParser {
 
     def parseHex( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(Int, List[C])] =
       l match {
-        case C( ';', false ) :: rest => Some( (Integer.parseInt(buf.toString, 16), rest) )
+        case C( ';', false ) :: rest =>
+          Some( (Integer.parseInt(buf.toString, 16), rest) )
         case C( c, false ) :: t if "0123456789abcdefABCDEF" contains c =>
           buf += c
           parseHex( t, buf )
@@ -147,31 +148,40 @@ class CommonMarkParser {
 
     def parseDecimal( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(Int, List[C])] =
       l match {
-        case C( ';', false ) :: rest => Some( (Integer.parseInt(buf.toString, 16), rest) )
-        case C( c, false ) :: t if "0123456789abcdefABCDEF" contains c =>
+        case C( ';', false ) :: rest => Some( (buf.toString.toInt, rest) )
+        case C( c, false ) :: t if c.isDigit =>
           buf += c
           parseDecimal( t, buf )
         case _ => None
       }
 
     l match {
-      case (c1@C( '&', false )) :: (c2@C( 'x'|'X', false )) :: t =>
+      case (c1@C( '&', false )) :: (c2@C( '#', false )) :: (c3@C( 'x'|'X', false )) :: t =>
         parseHex( t ) match {
+          case None => c1 :: c2 :: c3 :: entity( t )
+          case Some( (n, rest) ) =>
+            if (n < 0x10000)
+              C( n.toChar, false ) :: entity( rest )
+            else
+              C( n.toChar, false ) :: C( n.toChar, false ) :: entity( rest )
+        }
+      case (c1@C( '&', false )) :: (c2@C( '#', false )) :: t =>
+        parseDecimal( t ) match {
           case None => c1 :: c2 :: entity( t )
           case Some( (n, rest) ) =>
             if (n < 0x10000)
-              C( n.toChar, false ) :: rest
+              C( n.toChar, false ) :: entity( rest )
             else
-              C( n.toChar, false ) :: C( n.toChar, false ) :: rest
+              C( n.toChar, false ) :: C( n.toChar, false ) :: entity( rest )
         }
       case (c@C( '&', false )) :: t =>
         parseName( t ) match {
           case None => c :: entity( t )
           case Some( (ent, rest) ) =>
             if (ent.length == 1)
-              C( ent.head, false ) :: rest
+              C( ent.head, false ) :: entity( rest )
             else
-              C( ent.head, false ) :: C( ent(1), false ) :: rest
+              C( ent.head, false ) :: C( ent(1), false ) :: entity( rest )
         }
       case c :: t => c :: entity( t )
       case Nil => Nil
