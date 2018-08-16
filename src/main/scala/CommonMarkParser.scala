@@ -197,11 +197,13 @@ class CommonMarkParser {
             case _: BreakBlock => RuleAST :: transform( t, loose )
             case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
             case h: SHeadingBlock => HeadingAST( h.level, inlineWithHardBreaks(h.heading), None ) :: transform( t, loose )
-            case p: ParagraphBlock if loose => ParagraphAST( inlineWithHardBreaks(p.buf.toString) ) :: transform( t, loose )
+            case p: ParagraphBlock if loose =>
+              ParagraphAST( inlineWithHardBreaks(p.buf.toString) ) :: transform( t, loose )
             case p: ParagraphBlock => inlineWithHardBreaks(p.buf.toString) :: transform( t, loose )
             case b: IndentedBlock =>
               CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
-            case f: FencedBlock => CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapes(f.info)) else None, None ) :: transform( t, loose )
+            case f: FencedBlock =>
+              CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapes(f.info)) else None, None ) :: transform( t, loose )
             case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
             case l: ListItemBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
