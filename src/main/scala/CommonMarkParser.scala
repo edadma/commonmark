@@ -136,52 +136,50 @@ class CommonMarkParser {
         case _ => None
       }
 
-    def parseHex( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(Int, List[C])] =
+    def parseNumeric( l: List[C], digits: Char => Boolean, base: Int, buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
       l match {
         case C( ';', false ) :: rest =>
-          Some( (Integer.parseInt(buf.toString, 16), rest) )
-        case C( c, false ) :: t if "0123456789abcdefABCDEF" contains c =>
+          val ch =
+            try {
+              Integer.parseInt(buf.toString, base)
+            } catch {
+              case _: Exception => return None
+            }
+
+          Some( ((if (ch > 0xFFFF || ch <= 0) 0xFFFD else ch).toChar.toString, rest) )
+        case C( c, false ) :: t if digits( c ) =>
           buf += c
-          parseHex( t, buf )
+          parseNumeric( t, digits, base, buf )
         case _ => None
       }
 
-    def parseDecimal( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(Int, List[C])] =
-      l match {
-        case C( ';', false ) :: rest => Some( (buf.toString.toInt, rest) )
-        case C( c, false ) :: t if c.isDigit =>
-          buf += c
-          parseDecimal( t, buf )
-        case _ => None
-      }
+    def parseHex( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
+      parseNumeric( l, "0123456789abcdefABCDEF" contains _, 16 )
+
+    def parseDecimal( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
+      parseNumeric( l, Character.isDigit, 10 )
+
+    def _entity( ent: String, rest: List[C] ) =
+      if (ent.length == 1)
+        C( ent.head, false ) :: entity( rest )
+      else
+        C( ent.head, false ) :: C( ent(1), false ) :: entity( rest )
 
     l match {
       case (c1@C( '&', false )) :: (c2@C( '#', false )) :: (c3@C( 'x'|'X', false )) :: t =>
         parseHex( t ) match {
           case None => c1 :: c2 :: c3 :: entity( t )
-          case Some( (n, rest) ) =>
-            if (n < 0x10000)
-              C( n.toChar, false ) :: entity( rest )
-            else
-              C( n.toChar, false ) :: C( n.toChar, false ) :: entity( rest )
+          case Some( (ent, rest) ) => _entity( ent, rest )
         }
       case (c1@C( '&', false )) :: (c2@C( '#', false )) :: t =>
         parseDecimal( t ) match {
           case None => c1 :: c2 :: entity( t )
-          case Some( (n, rest) ) =>
-            if (n < 0x10000)
-              C( n.toChar, false ) :: entity( rest )
-            else
-              C( n.toChar, false ) :: C( n.toChar, false ) :: entity( rest )
+          case Some( (ent, rest) ) => _entity( ent, rest )
         }
       case (c@C( '&', false )) :: t =>
         parseName( t ) match {
           case None => c :: entity( t )
-          case Some( (ent, rest) ) =>
-            if (ent.length == 1)
-              C( ent.head, false ) :: entity( rest )
-            else
-              C( ent.head, false ) :: C( ent(1), false ) :: entity( rest )
+          case Some( (ent, rest) ) => _entity( ent, rest )
         }
       case c :: t => c :: entity( t )
       case Nil => Nil
