@@ -13,7 +13,7 @@ class Entity_and_numeric_character_referencesSpecTests extends FreeSpec with Pro
   "example 303" in {
     test( "&#35; &#1234; &#992; &#98765432; &#0;\n" ) shouldBe "<p># Ӓ Ϡ � �</p>\n"
   }
-/*
+
   "example 304" in {
     test( "&#X22; &#XD06; &#xcab;\n" ) shouldBe "<p>&quot; ആ ಫ</p>\n"
   }
@@ -53,5 +53,5 @@ class Entity_and_numeric_character_referencesSpecTests extends FreeSpec with Pro
   "example 313" in {
     test( "    f&ouml;f&ouml;\n" ) shouldBe "<pre><code>f&amp;ouml;f&amp;ouml;\n</code></pre>\n"
   }
-*/
+
 }
