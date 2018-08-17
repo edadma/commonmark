@@ -5,12 +5,6 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.util.matching.Regex
 
 
-object CommonMarkParser {
-
-  val entityReferenceRegex = "&([a-zA-Z][a-zA-Z0-9]*);"r
-
-}
-
 class CommonMarkParser {
 
   val blockTypes =
@@ -111,10 +105,6 @@ class CommonMarkParser {
 
     next( lines )
     doc
-  }
-
-  def entities( s: String ) = {
-    CommonMarkParser.entityReferenceRegex.replaceSomeIn( s, m => Entities(m group 1) )
   }
 
   case class C( c: Char, escaped: Boolean = false ) { override def toString = c.toString }
