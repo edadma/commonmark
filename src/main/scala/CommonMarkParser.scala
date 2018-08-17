@@ -107,13 +107,36 @@ class CommonMarkParser {
     doc
   }
 
-  case class C( c: Char, escaped: Boolean = false ) { override def toString = c.toString }
+  case class C( c: Char, escaped: Boolean = false ) extends InlineAST { override def toString = c.toString }
 
-  def backslash( l: List[Char] ): List[C] =
+  def chars( l: List[Char] ): List[CommonMarkAST] =
     l match {
       case Nil => Nil
-      case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p => C( p, true ) :: backslash( t )
-      case c :: t => C( c ) :: backslash( t )
+      case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p => C( p, true ) :: chars( t )
+      case '`' :: t =>
+        val (backticks, rest) = t.span( _ == '`' )
+
+        def span( l: List[Char], buf: StringBuilder = new StringBuilder ): (String, List[Char]) =
+          l match {
+            case Nil => (buf.toString, Nil)
+            case '`' :: t =>
+              val (b, r) = t.span( _ == '`' )
+
+              if (b.length == backticks.length)
+                (buf.toString, r)
+              else {
+                buf ++= "`"*(b.length + 1)
+                span( r, buf )
+              }
+            case c :: t =>
+              buf += c
+              span( t, buf )
+          }
+
+        val (code, r) = span( l )
+
+        CodeSpanAST( code ) :: chars( r )
+      case c :: t => C( c ) :: chars( t )
     }
 
   def entity( l: List[C] ): List[C] = {
@@ -176,7 +199,7 @@ class CommonMarkParser {
     }
   }
 
-  def escapes( s: String ) = entity( backslash(s.toList) ) mkString
+  def escapes( s: String ) = entity( chars(s.toList) ) mkString
 
   def inline( s: String ) = TextAST( escapes(s) )
 

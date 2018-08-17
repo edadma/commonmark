@@ -11,7 +11,7 @@ case class SeqAST( seq: Seq[CommonMarkAST] ) extends CommonMarkAST {
   override def elements = seq
 }
 
-trait BranchAST extends CommonMarkAST {
+abstract class BranchAST extends CommonMarkAST {
   val contents: CommonMarkAST
 
   def elements =
@@ -21,20 +21,24 @@ trait BranchAST extends CommonMarkAST {
     }
 }
 
-trait LeafAST extends CommonMarkAST {
+abstract class InlineAST extends CommonMarkAST {
+  def elements = Nil
+}
+
+abstract class LeafAST extends CommonMarkAST {
   def elements = Nil
 
   val text: String
 }
 
-trait ListAST extends BranchAST {
+abstract class ListAST extends BranchAST {
   val tight: Boolean
 }
 
 case class ParagraphAST( contents: CommonMarkAST ) extends BranchAST
 case class BlockquoteAST( contents: CommonMarkAST ) extends BranchAST
 case class HeadingAST( level: Int, contents: CommonMarkAST, var id: Option[String] = None ) extends BranchAST
-case class CodeInlineAST( text: String ) extends LeafAST
+case class CodeSpanAST( text: String ) extends LeafAST
 case class CodeBlockAST( text: String, highlighted: Option[String], caption: Option[String] ) extends LeafAST
 case class TextAST( text: String ) extends LeafAST
 case class RawAST( text: String ) extends LeafAST
