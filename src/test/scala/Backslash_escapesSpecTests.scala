@@ -26,9 +26,9 @@ class Backslash_escapesSpecTests extends FreeSpec with PropertyChecks with Match
     test( "foo\\\nbar\n" ) shouldBe "<p>foo<br />\nbar</p>\n"
   }
 
-//  "example 294" in {//todo: inline
-//    test( "`` \\[\\` ``\n" ) shouldBe "<p><code>\\[\\`</code></p>\n"
-//  }
+  "example 294" in {
+    test( "`` \\[\\` ``\n" ) shouldBe "<p><code>\\[\\`</code></p>\n"
+  }
 
   "example 295" in {
     test( "    \\[\\]\n" ) shouldBe "<pre><code>\\[\\]\n</code></pre>\n"

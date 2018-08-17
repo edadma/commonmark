@@ -4,7 +4,7 @@ package xyz.hyperreal.commonmark
 
 object FencedBlockType extends BlockType {
 
-  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s]*).*"""r
+  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s`]*)[^`]*"""r
   val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*"""r
 
   override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =

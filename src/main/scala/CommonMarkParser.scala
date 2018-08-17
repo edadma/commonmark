@@ -43,7 +43,6 @@ class CommonMarkParser {
                 matching( newfrom, newtext, if (b.isInstanceOf[ContainerBlock]) b.asInstanceOf[ContainerBlock] else prev, t )
             }
         }
-//      println( st )
 
       if (s nonEmpty) {
         matching( 0, s.head, doc, trail.toList ) match {
@@ -111,7 +110,7 @@ class CommonMarkParser {
   case class Ce( text: String ) extends Chr
   case class C( text: String ) extends Chr
 
-  def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
+  def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] = {
     l match {
       case Nil => buf.toList
       case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p =>
@@ -139,10 +138,10 @@ class CommonMarkParser {
 
         span( rest ) match {
           case None =>
-            buf += C( "`" )
-            chars( t, buf )
+            buf ++= List.fill( backticks.length + 1 )( C( "`" ) )
+            chars( rest, buf )
           case Some( (code, r) ) =>
-            buf += CodeSpanAST( code )
+            buf += CodeSpanAST( code.trim )
             chars( r, buf )
         }
       case c :: t =>
