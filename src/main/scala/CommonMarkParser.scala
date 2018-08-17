@@ -120,14 +120,14 @@ class CommonMarkParser {
       case '`' :: t =>
         val (backticks, rest) = t.span( _ == '`' )
 
-        def span( l: List[Char], buf: StringBuilder = new StringBuilder ): (String, List[Char]) =
+        def span( l: List[Char], buf: StringBuilder = new StringBuilder ): Option[(String, List[Char])] =
           l match {
-            case Nil => (buf.toString, Nil)
+            case Nil => None
             case '`' :: t =>
               val (b, r) = t.span( _ == '`' )
 
               if (b.length == backticks.length)
-                (buf.toString, r)
+                Some( (buf.toString, r) )
               else {
                 buf ++= "`"*(b.length + 1)
                 span( r, buf )
@@ -137,10 +137,14 @@ class CommonMarkParser {
               span( t, buf )
           }
 
-        val (code, r) = span( l )
-
-        buf += CodeSpanAST( code )
-        chars( r, buf )
+        span( rest ) match {
+          case None =>
+            buf += C( "`" )
+            chars( t, buf )
+          case Some( (code, r) ) =>
+            buf += CodeSpanAST( code )
+            chars( r, buf )
+        }
       case c :: t =>
         buf += C( c.toString )
         chars( t, buf )
@@ -214,10 +218,10 @@ class CommonMarkParser {
         val (cs, r) = l span (_.isInstanceOf[Chr])
 
         buf += TextAST( chars2string(cs) )
-        compact( r )
+        compact( r, buf )
       case e :: t =>
         buf += e
-        compact( t )
+        compact( t, buf )
     }
 
   def inline( s: String ) =
