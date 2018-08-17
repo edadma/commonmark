@@ -127,7 +127,7 @@ object Util {
         case BlockquoteAST( contents ) => containerTag( "blockquote", contents, true )
         case HeadingAST( level, contents, Some(id) ) => tag( s"h$level", contents, true, "id" -> id )
         case HeadingAST( level, contents, None ) => tag( s"h$level", contents, true )
-        case CodeInlineAST( c ) => leaf( "code", c )
+        case CodeSpanAST( c ) => leaf( "code", c )
         case CodeBlockAST( c, highlighted, caption ) =>
           val escaped = escape( c ) + (if (c isEmpty) "" else "\n")
 

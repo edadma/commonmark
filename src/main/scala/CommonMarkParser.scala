@@ -107,12 +107,16 @@ class CommonMarkParser {
     doc
   }
 
-  case class C( c: Char, escaped: Boolean = false ) extends InlineAST { override def toString = c.toString }
+  abstract class Chr extends LeafAST
+  case class Ce( text: String ) extends Chr
+  case class C( text: String ) extends Chr
 
-  def chars( l: List[Char] ): List[CommonMarkAST] =
+  def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
     l match {
-      case Nil => Nil
-      case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p => C( p, true ) :: chars( t )
+      case Nil => buf.toList
+      case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p =>
+        buf += Ce( p.toString )
+        chars( t, buf )
       case '`' :: t =>
         val (backticks, rest) = t.span( _ == '`' )
 
@@ -135,23 +139,26 @@ class CommonMarkParser {
 
         val (code, r) = span( l )
 
-        CodeSpanAST( code ) :: chars( r )
-      case c :: t => C( c ) :: chars( t )
+        buf += CodeSpanAST( code )
+        chars( r, buf )
+      case c :: t =>
+        buf += C( c.toString )
+        chars( t, buf )
     }
 
-  def entity( l: List[C] ): List[C] = {
-    def parseName( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
+  def entities( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
+    def parseName( l: List[CommonMarkAST], buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       l match {
-        case C( ';', false ) :: rest => Entities( buf.toString ) map ((_, rest))
-        case C( c, false ) :: t if buf.isEmpty && c.isLetter || buf.nonEmpty && c.isLetterOrDigit =>
-          buf += c
+        case C( ";" ) :: rest => Entities( buf.toString ) map ((_, rest))
+        case C( c ) :: t if buf.isEmpty && c.head.isLetter || buf.nonEmpty && c.head.isLetterOrDigit =>
+          buf ++= c
           parseName( t, buf )
         case _ => None
       }
 
-    def parseNumeric( l: List[C], digits: Char => Boolean, base: Int, buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
+    def parseNumeric( l: List[CommonMarkAST], digits: Char => Boolean, base: Int, buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       l match {
-        case C( ';', false ) :: rest =>
+        case C( ";" ) :: rest =>
           val ch =
             try {
               Integer.parseInt(buf.toString, base)
@@ -160,48 +167,64 @@ class CommonMarkParser {
             }
 
           Some( ((if (ch > 0xFFFF || ch <= 0) 0xFFFD else ch).toChar.toString, rest) )
-        case C( c, false ) :: t if digits( c ) =>
-          buf += c
+        case C( c ) :: t if digits( c.head ) =>
+          buf ++= c
           parseNumeric( t, digits, base, buf )
         case _ => None
       }
 
-    def parseHex( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
+    def parseHex( l: List[CommonMarkAST], buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       parseNumeric( l, "0123456789abcdefABCDEF" contains _, 16 )
 
-    def parseDecimal( l: List[C], buf: StringBuilder = new StringBuilder ): Option[(String, List[C])] =
+    def parseDecimal( l: List[CommonMarkAST], buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       parseNumeric( l, Character.isDigit, 10 )
 
-    def _entity( ent: String, rest: List[C] ) =
-      if (ent.length == 1)
-        C( ent.head, false ) :: entity( rest )
-      else
-        C( ent.head, false ) :: C( ent(1), false ) :: entity( rest )
-
     l match {
-      case (c1@C( '&', false )) :: (c2@C( '#', false )) :: (c3@C( 'x'|'X', false )) :: t =>
+      case (c1@C( "&" )) :: (c2@C( "#" )) :: (c3@C( "x"|"X" )) :: t =>
         parseHex( t ) match {
-          case None => c1 :: c2 :: c3 :: entity( t )
-          case Some( (ent, rest) ) => _entity( ent, rest )
+          case None => c1 :: c2 :: c3 :: entities( t )
+          case Some( (ent, rest) ) =>
+            C( ent ) :: entities( rest )
         }
-      case (c1@C( '&', false )) :: (c2@C( '#', false )) :: t =>
+      case (c1@C( "&" )) :: (c2@C( "#" )) :: t =>
         parseDecimal( t ) match {
-          case None => c1 :: c2 :: entity( t )
-          case Some( (ent, rest) ) => _entity( ent, rest )
+          case None => c1 :: c2 :: entities( t )
+          case Some( (ent, rest) ) => C( ent ) :: entities( rest )
         }
-      case (c@C( '&', false )) :: t =>
+      case (c@C( "&" )) :: t =>
         parseName( t ) match {
-          case None => c :: entity( t )
-          case Some( (ent, rest) ) => _entity( ent, rest )
+          case None => c :: entities( t )
+          case Some( (ent, rest) ) => C( ent ) :: entities( rest )
         }
-      case c :: t => c :: entity( t )
+      case c :: t => c :: entities( t )
       case Nil => Nil
     }
   }
 
-  def escapes( s: String ) = entity( chars(s.toList) ) mkString
+  def escapes( s: String ) = entities( chars(s.toList) )
 
-  def inline( s: String ) = TextAST( escapes(s) )
+  def escapedString( s: String ) = chars2string( escapes(s) )
+
+  def chars2string( cs: List[CommonMarkAST] ) = cs map (_.asInstanceOf[Chr].text) mkString
+
+  def compact( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
+    l match {
+      case Nil => buf.toList
+      case (c: Chr) :: _ =>
+        val (cs, r) = l span (_.isInstanceOf[Chr])
+
+        buf += TextAST( chars2string(cs) )
+        compact( r )
+      case e :: t =>
+        buf += e
+        compact( t )
+    }
+
+  def inline( s: String ) =
+    compact( escapes(s) ) match {
+      case List( e ) => e
+      case l => SeqAST( l )
+    }
 
   def inlineWithHardBreaks( s: String ) = {
     val seq = new ListBuffer[CommonMarkAST]
@@ -251,7 +274,8 @@ class CommonMarkParser {
             case b: IndentedBlock =>
               CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
             case f: FencedBlock =>
-              CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapes(f.info)) else None, None ) :: transform( t, loose )
+              CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
+                transform( t, loose )
             case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
             case l: ListItemBlock =>
               val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
