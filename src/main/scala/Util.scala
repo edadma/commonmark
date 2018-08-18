@@ -7,6 +7,8 @@ import scala.collection.mutable
 
 object Util {
 
+  val urlchar = ('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9') ++ "-._~:/?#@!$&'()*+,;=" toSet
+
   def text( n: CommonMarkAST ): String = {
     n match {
       case leaf: LeafAST => leaf.text
@@ -112,7 +114,17 @@ object Util {
       buf.toString
     }
 
-    def encode( s: String ) =
+    def encode( s: String ) = {
+      val buf = new StringBuilder
+
+      for (c <- s)
+        if (urlchar(c))
+          buf += c
+        else
+          buf ++= (io.Codec.toUTF8( c.toString ) map (n => f"%%$n%02x".toUpperCase) mkString)
+
+      buf.toString
+    }
 
     def html( doc: CommonMarkAST ): String =
       doc match {
@@ -124,10 +136,15 @@ object Util {
 
           buf.toString
         case URIAutolinkAST( addr ) =>
-          val escaped = encode( escape(addr), "UTF-8" )
+          val escaped = escape( addr )
+          val encoded = encode( escaped )
 
-          s"""<a href="$escaped">$escaped</a>"""
-        case EmailAutolinkAST( addr ) => s"""<a href="mailto:$addr">$addr</a>"""
+          s"""<a href="$encoded">$escaped</a>"""
+        case EmailAutolinkAST( addr ) =>
+          val escaped = escape( addr )
+          val encoded = encode( escaped )
+
+          s"""<a href="mailto:$encoded">$escaped</a>"""
         case TextAST( t ) => escape( t )
         case HTMLAST( t ) => s"\n$t\n"
         case RawAST( t ) => t
