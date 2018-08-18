@@ -146,8 +146,8 @@ object Util {
 
           s"""<a href="mailto:$encoded">$escaped</a>"""
         case TextAST( t ) => escape( t )
-        case HTMLAST( t ) => s"\n$t\n"
-        case RawAST( t ) => t
+        case HTMLBlockAST( t ) => s"\n$t\n"
+        case RawHTMLAST( t ) => t
         case ParagraphAST( contents ) => optionalTag( "p", contents, true )
         case BlockquoteAST( contents ) => containerTag( "blockquote", contents, true )
         case HeadingAST( level, contents, Some(id) ) => tag( s"h$level", contents, true, "id" -> id )

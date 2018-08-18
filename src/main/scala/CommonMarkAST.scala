@@ -41,8 +41,8 @@ case class HeadingAST( level: Int, contents: CommonMarkAST, var id: Option[Strin
 case class CodeSpanAST( text: String ) extends LeafAST
 case class CodeBlockAST( text: String, highlighted: Option[String], caption: Option[String] ) extends LeafAST
 case class TextAST( text: String ) extends LeafAST
-case class RawAST( text: String ) extends LeafAST
-case class HTMLAST( text: String ) extends LeafAST
+case class RawHTMLAST( text: String ) extends LeafAST
+case class HTMLBlockAST( text: String ) extends LeafAST
 case class URIAutolinkAST( text: String ) extends LeafAST
 case class EmailAutolinkAST( text: String ) extends LeafAST
 case class LinkAST( address: String, title: Option[String], contents: CommonMarkAST ) extends BranchAST

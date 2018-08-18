@@ -8,7 +8,7 @@ object CommonMarkParser{
 
   val emailRegex = """[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*"""r
   val uriRegex = """[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*"""r
-
+  val tagRegex = """(?i)<(?:[a-z][a-z0-9-]*(?:\s+[a-z_:][a-z90-9_.:-]*(?:\s*=\s*(?:[^ "'=<>`]+|'[^']*'|"[^"]*"))?)*\s*/?|/[a-z][a-z0-9-]*\s*)>"""r
 }
 
 class CommonMarkParser {
@@ -138,8 +138,16 @@ class CommonMarkParser {
               buf += EmailAutolinkAST( addr )
               chars( rest.tail, buf )
             } else {
-              buf += C( "<" )
-              chars( t, buf )
+              val s = l.mkString
+              val m = CommonMarkParser.tagRegex.pattern.matcher( s )
+
+              if (m.lookingAt) {
+                buf += RawHTMLAST( m group 0 )
+                chars( l drop m.end, buf )
+              } else {
+                buf += C( "<" )
+                chars( t, buf )
+              }
             }
         }
       case '`' :: t =>
@@ -311,7 +319,7 @@ class CommonMarkParser {
       case h #:: t =>
           h match {
             case b: Block if !b.keep => transform( t, loose )
-            case h: HTMLBlock => HTMLAST( h.buf.toString ) :: transform( t, loose )
+            case h: HTMLBlock => HTMLBlockAST( h.buf.toString ) :: transform( t, loose )
             case _: BreakBlock => RuleAST :: transform( t, loose )
             case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
             case h: SHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )

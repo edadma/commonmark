@@ -6,7 +6,7 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |<http://example.com/\[\>
+      |\<a><bab>
     """.trim.stripMargin
 
   val doc = p.parse( input )
