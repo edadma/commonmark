@@ -38,9 +38,9 @@ class Backslash_escapesSpecTests extends FreeSpec with PropertyChecks with Match
     test( "~~~\n\\[\\]\n~~~\n" ) shouldBe "<pre><code>\\[\\]\n</code></pre>\n"
   }
 
-//  "example 297" in {//todo: links
-//    test( "<http://example.com?find=\\*>\n" ) shouldBe "<p><a href=\"http://example.com?find=%5C*\">http://example.com?find=\\*</a></p>\n"
-//  }
+  "example 297" in {
+    test( "<http://example.com?find=\\*>\n" ) shouldBe "<p><a href=\"http://example.com?find=%5C*\">http://example.com?find=\\*</a></p>\n"
+  }
 
   "example 298" in {
     test( "<a href=\"/bar\\/)\">\n" ) shouldBe "<a href=\"/bar\\/)\">\n"
