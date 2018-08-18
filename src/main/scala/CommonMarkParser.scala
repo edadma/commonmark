@@ -110,7 +110,7 @@ class CommonMarkParser {
   case class Ce( text: String ) extends Chr
   case class C( text: String ) extends Chr
 
-  def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] = {
+  def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
       case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p =>
@@ -141,7 +141,7 @@ class CommonMarkParser {
             buf ++= List.fill( backticks.length + 1 )( C( "`" ) )
             chars( rest, buf )
           case Some( (code, r) ) =>
-            buf += CodeSpanAST( code.trim )
+            buf += CodeSpanAST( code.trim.replaceAll("""\s+""", " ") )
             chars( r, buf )
         }
       case c :: t =>
@@ -210,49 +210,62 @@ class CommonMarkParser {
 
   def chars2string( cs: List[CommonMarkAST] ) = cs map (_.asInstanceOf[Chr].text) mkString
 
-  def compact( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
+  def breaks( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
+    l match {
+      case Nil => buf.toList
+      case C( " " ) :: C( " " ) :: C( "\n" ) :: t =>
+        buf += HardBreakAST
+        breaks( t, buf )
+      case C( "\\" ) :: C( "\n" ) :: t =>
+        buf += HardBreakAST
+        breaks( t, buf )
+      case C( "\n" ) :: t =>
+        buf += SoftBreakAST
+        breaks( t, buf )
+      case e :: t =>
+        buf += e
+        breaks( t, buf )
+    }
+
+  def textual( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
       case (c: Chr) :: _ =>
         val (cs, r) = l span (_.isInstanceOf[Chr])
 
         buf += TextAST( chars2string(cs) )
-        compact( r, buf )
+        textual( r, buf )
       case e :: t =>
         buf += e
-        compact( t, buf )
+        textual( t, buf )
     }
 
-  def inline( s: String ) =
-    compact( escapes(s) ) match {
+  def inline( s: String ) = {
+    val s1 = {
+      if (s isEmpty)
+        s
+      else {
+        val lines = s.lines.toSeq
+        val init =
+          for (l <- lines.init)
+            yield {
+              if (l endsWith "  ")
+                l.trim + "  "
+              else
+                l.trim
+            }
+
+        if (init nonEmpty)
+          init.mkString( "\n" ) + "\n" + lines.last.trim
+        else
+          lines.head.trim
+      }
+    }
+
+    textual( breaks(escapes(s1)) ) match {
       case List( e ) => e
       case l => SeqAST( l )
-    }
-
-  def inlineWithHardBreaks( s: String ) = {
-    val seq = new ListBuffer[CommonMarkAST]
-    val lines = s.lines.toArray
-
-    def add( ast: CommonMarkAST* ) =
-      ast foreach {
-        case SeqAST( s ) => seq ++= s
-        case a => seq += a
       }
-
-    for (l <- lines.init)
-      if (l endsWith "  ")
-        add( inline(l.trim), HardBreakAST )
-      else if (l endsWith "\\")
-        add( inline(l.trim dropRight 1), HardBreakAST )
-      else
-        add( inline(l.trim), SoftBreakAST )
-
-    add( inline(lines.last.trim) )
-
-    if (seq.length == 1)
-      seq.head
-    else
-      SeqAST( seq.toList )
   }
 
   def blankAfter( s: Seq[Block] ) =
@@ -270,10 +283,10 @@ class CommonMarkParser {
             case h: HTMLBlock => HTMLAST( h.buf.toString ) :: transform( t, loose )
             case _: BreakBlock => RuleAST :: transform( t, loose )
             case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
-            case h: SHeadingBlock => HeadingAST( h.level, inlineWithHardBreaks(h.heading), None ) :: transform( t, loose )
+            case h: SHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
             case p: ParagraphBlock if loose =>
-              ParagraphAST( inlineWithHardBreaks(p.buf.toString) ) :: transform( t, loose )
-            case p: ParagraphBlock => inlineWithHardBreaks(p.buf.toString) :: transform( t, loose )
+              ParagraphAST( inline(p.buf.toString) ) :: transform( t, loose )
+            case p: ParagraphBlock => inline(p.buf.toString) :: transform( t, loose )
             case b: IndentedBlock =>
               CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
             case f: FencedBlock =>
