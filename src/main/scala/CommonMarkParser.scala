@@ -149,8 +149,9 @@ class CommonMarkParser {
         chars( t, buf )
     }
 
-  def entities( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
-    def parseName( l: List[CommonMarkAST], buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
+  def entities( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST], appends: CommonMarkAST* ): List[CommonMarkAST] = {
+    def parseName( l: List[CommonMarkAST],
+                   buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       l match {
         case C( ";" ) :: rest => Entities( buf.toString ) map ((_, rest))
         case C( c ) :: t if buf.isEmpty && c.head.isLetter || buf.nonEmpty && c.head.isLetterOrDigit =>
@@ -159,7 +160,8 @@ class CommonMarkParser {
         case _ => None
       }
 
-    def parseNumeric( l: List[CommonMarkAST], digits: Char => Boolean, base: Int, buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
+    def parseNumeric( l: List[CommonMarkAST], digits: Char => Boolean, base: Int,
+                      buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       l match {
         case C( ";" ) :: rest =>
           val ch =
@@ -176,35 +178,38 @@ class CommonMarkParser {
         case _ => None
       }
 
-    def parseHex( l: List[CommonMarkAST], buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
+    def parseHex( l: List[CommonMarkAST],
+                  buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       parseNumeric( l, "0123456789abcdefABCDEF" contains _, 16 )
 
-    def parseDecimal( l: List[CommonMarkAST], buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
+    def parseDecimal( l: List[CommonMarkAST],
+                      buf: StringBuilder = new StringBuilder ): Option[(String, List[CommonMarkAST])] =
       parseNumeric( l, Character.isDigit, 10 )
+
+    buf ++= appends
 
     l match {
       case (c1@C( "&" )) :: (c2@C( "#" )) :: (c3@C( "x"|"X" )) :: t =>
         parseHex( t ) match {
-          case None => c1 :: c2 :: c3 :: entities( t )
-          case Some( (ent, rest) ) =>
-            C( ent ) :: entities( rest )
+          case None => entities( t, buf, c1, c2, c3 )
+          case Some( (ent, rest) ) => entities( rest, buf, C(ent) )
         }
       case (c1@C( "&" )) :: (c2@C( "#" )) :: t =>
         parseDecimal( t ) match {
-          case None => c1 :: c2 :: entities( t )
-          case Some( (ent, rest) ) => C( ent ) :: entities( rest )
+          case None => entities( t, buf, c1, c2 )
+          case Some( (ent, rest) ) => entities( rest, buf, C(ent) )
         }
       case (c@C( "&" )) :: t =>
         parseName( t ) match {
-          case None => c :: entities( t )
-          case Some( (ent, rest) ) => C( ent ) :: entities( rest )
+          case None => entities( t, buf, c )
+          case Some( (ent, rest) ) => entities( rest, buf, C(ent) )
         }
-      case c :: t => c :: entities( t )
-      case Nil => Nil
+      case c :: t => entities( t, buf, c )
+      case Nil => buf.toList
     }
   }
 
-  def escapes( s: String ) = entities( chars(s.toList) )
+  def escapes( s: String ) = entities( chars(s.toList), new ListBuffer )
 
   def escapedString( s: String ) = chars2string( escapes(s) )
 
