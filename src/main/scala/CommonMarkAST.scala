@@ -43,6 +43,8 @@ case class CodeBlockAST( text: String, highlighted: Option[String], caption: Opt
 case class TextAST( text: String ) extends LeafAST
 case class RawAST( text: String ) extends LeafAST
 case class HTMLAST( text: String ) extends LeafAST
+case class URIAutolinkAST( text: String ) extends LeafAST
+case class EmailAutolinkAST( text: String ) extends LeafAST
 case class LinkAST( address: String, title: Option[String], contents: CommonMarkAST ) extends BranchAST
 case class ListItemAST( contents: CommonMarkAST ) extends BranchAST
 case class BulletListAST( contents: CommonMarkAST, tight: Boolean ) extends ListAST

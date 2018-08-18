@@ -2,8 +2,14 @@
 package xyz.hyperreal.commonmark
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-import scala.util.matching.Regex
 
+
+object CommonMarkParser{
+
+  val emailRegex = """[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*"""r
+  val uriRegex = """[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*"""r
+
+}
 
 class CommonMarkParser {
 
@@ -116,6 +122,26 @@ class CommonMarkParser {
       case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p =>
         buf += Ce( p.toString )
         chars( t, buf )
+      case '<' :: t =>
+        t indexOf '>' match {
+          case -1 =>
+            buf += C( "<" )
+            chars( t, buf )
+          case idx =>
+            val (link, rest) = t splitAt idx
+            val addr = link mkString
+
+            if (CommonMarkParser.uriRegex.pattern.matcher( addr ).matches) {
+              buf += URIAutolinkAST( addr )
+              chars( rest.tail, buf )
+            } else if (CommonMarkParser.emailRegex.pattern.matcher( addr ).matches) {
+              buf += EmailAutolinkAST( addr )
+              chars( rest.tail, buf )
+            } else {
+              buf += C( "<" )
+              chars( t, buf )
+            }
+        }
       case '`' :: t =>
         val (backticks, rest) = t.span( _ == '`' )
 

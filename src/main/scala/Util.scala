@@ -1,6 +1,7 @@
 //@
 package xyz.hyperreal.commonmark
 
+import java.net.URLEncoder
 import scala.collection.mutable
 
 
@@ -111,6 +112,8 @@ object Util {
       buf.toString
     }
 
+    def encode( s: String ) =
+
     def html( doc: CommonMarkAST ): String =
       doc match {
         case SeqAST( seq ) =>
@@ -120,6 +123,11 @@ object Util {
             buf ++= (if (buf.nonEmpty && buf.last == '\n' && s.startsWith("\n")) s drop 1 else s)
 
           buf.toString
+        case URIAutolinkAST( addr ) =>
+          val escaped = encode( escape(addr), "UTF-8" )
+
+          s"""<a href="$escaped">$escaped</a>"""
+        case EmailAutolinkAST( addr ) => s"""<a href="mailto:$addr">$addr</a>"""
         case TextAST( t ) => escape( t )
         case HTMLAST( t ) => s"\n$t\n"
         case RawAST( t ) => t
