@@ -90,9 +90,9 @@ class Setext_headingsSpecTests extends FreeSpec with PropertyChecks with Matcher
     test( "> foo\n-----\n" ) shouldBe "<blockquote>\n<p>foo</p>\n</blockquote>\n<hr />\n"
   }
 
-//  "example 71" in {//todo: backslash escape
-//    test( "\\> foo\n------\n" ) shouldBe "<h2>&gt; foo</h2>\n"
-//  }
+  "example 71" in {
+    test( "\\> foo\n------\n" ) shouldBe "<h2>&gt; foo</h2>\n"
+  }
 
   "example 72" in {
     test( "Foo\n\nbar\n---\nbaz\n" ) shouldBe "<p>Foo</p>\n<h2>bar</h2>\n<p>baz</p>\n"
@@ -106,8 +106,8 @@ class Setext_headingsSpecTests extends FreeSpec with PropertyChecks with Matcher
     test( "Foo\nbar\n* * *\nbaz\n" ) shouldBe "<p>Foo\nbar</p>\n<hr />\n<p>baz</p>\n"
   }
 
-//  "example 75" in {//todo: backslash escape
-//    test( "Foo\nbar\n\\---\nbaz\n" ) shouldBe "<p>Foo\nbar\n---\nbaz</p>\n"
-//  }
+  "example 75" in {
+    test( "Foo\nbar\n\\---\nbaz\n" ) shouldBe "<p>Foo\nbar\n---\nbaz</p>\n"
+  }
 
 }

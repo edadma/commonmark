@@ -14,9 +14,9 @@ class Fenced_code_blocksSpecTests extends FreeSpec with PropertyChecks with Matc
     test( "~~~\n<\n >\n~~~\n" ) shouldBe "<pre><code>&lt;\n &gt;\n</code></pre>\n"
   }
 
-//  "example 90" in {//todo: inline
-//    test( "``\nfoo\n``\n" ) shouldBe "<p><code>foo</code></p>\n"
-//  }
+  "example 90" in {
+    test( "``\nfoo\n``\n" ) shouldBe "<p><code>foo</code></p>\n"
+  }
 
   "example 91" in {
     test( "```\naaa\n~~~\n```\n" ) shouldBe "<pre><code>aaa\n~~~\n</code></pre>\n"
@@ -82,9 +82,9 @@ class Fenced_code_blocksSpecTests extends FreeSpec with PropertyChecks with Matc
     test( "```\naaa\n    ```\n" ) shouldBe "<pre><code>aaa\n    ```\n</code></pre>\n"
   }
 
-//  "example 107" in {
-//    test( "``` ```\naaa\n" ) shouldBe "<p><code></code>\naaa</p>\n"
-//  }
+  "example 107" in {
+    test( "``` ```\naaa\n" ) shouldBe "<p><code></code>\naaa</p>\n"
+  }
 
   "example 108" in {
     test( "~~~~~~\naaa\n~~~ ~~\n" ) shouldBe "<pre><code>aaa\n~~~ ~~\n</code></pre>\n"
@@ -110,9 +110,9 @@ class Fenced_code_blocksSpecTests extends FreeSpec with PropertyChecks with Matc
     test( "````;\n````\n" ) shouldBe "<pre><code class=\"language-;\"></code></pre>\n"
   }
 
-//  "example 114" in {
-//    test( "``` aa ```\nfoo\n" ) shouldBe "<p><code>aa</code>\nfoo</p>\n"
-//  }
+  "example 114" in {
+    test( "``` aa ```\nfoo\n" ) shouldBe "<p><code>aa</code>\nfoo</p>\n"
+  }
 
   "example 115" in {
     test( "```\n``` aaa\n```\n" ) shouldBe "<pre><code>``` aaa\n</code></pre>\n"

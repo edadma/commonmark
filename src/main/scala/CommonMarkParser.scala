@@ -138,7 +138,7 @@ class CommonMarkParser {
 
         span( rest ) match {
           case None =>
-            buf ++= List.fill( backticks.length + 1 )( C( "`" ) )
+            buf ++= List.fill( backticks.length + 1 )( C("`") )
             chars( rest, buf )
           case Some( (code, r) ) =>
             buf += CodeSpanAST( code.trim.replaceAll("""\s+""", " ") )

@@ -18,7 +18,7 @@ class Backslash_escapesSpecTests extends FreeSpec with PropertyChecks with Match
     test( "\\*not emphasized*\n\\<br/> not a tag\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a heading\n\\[foo]: /url \"not a reference\"\n" ) shouldBe "<p>*not emphasized*\n&lt;br/&gt; not a tag\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a heading\n[foo]: /url &quot;not a reference&quot;</p>\n"
   }
 
-//  "example 292" in {
+//  "example 292" in {//todo: em
 //    test( "\\\\*emphasis*\n" ) shouldBe "<p>\\<em>emphasis</em></p>\n"
 //  }
 
@@ -38,7 +38,7 @@ class Backslash_escapesSpecTests extends FreeSpec with PropertyChecks with Match
     test( "~~~\n\\[\\]\n~~~\n" ) shouldBe "<pre><code>\\[\\]\n</code></pre>\n"
   }
 
-//  "example 297" in {
+//  "example 297" in {//todo: links
 //    test( "<http://example.com?find=\\*>\n" ) shouldBe "<p><a href=\"http://example.com?find=%5C*\">http://example.com?find=\\*</a></p>\n"
 //  }
 
@@ -46,11 +46,11 @@ class Backslash_escapesSpecTests extends FreeSpec with PropertyChecks with Match
     test( "<a href=\"/bar\\/)\">\n" ) shouldBe "<a href=\"/bar\\/)\">\n"
   }
 
-//  "example 299" in {
+//  "example 299" in {//todo: links
 //    test( "[foo](/bar\\* \"ti\\*tle\")\n" ) shouldBe "<p><a href=\"/bar*\" title=\"ti*tle\">foo</a></p>\n"
 //  }
 
-//  "example 300" in {
+//  "example 300" in {//todo: links
 //    test( "[foo]\n\n[foo]: /bar\\* \"ti\\*tle\"\n" ) shouldBe "<p><a href=\"/bar*\" title=\"ti*tle\">foo</a></p>\n"
 //  }
 

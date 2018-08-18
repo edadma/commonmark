@@ -114,11 +114,11 @@ class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers wi
     test( "- <div>\n- foo\n" ) shouldBe "<ul>\n<li>\n<div>\n</li>\n<li>foo</li>\n</ul>\n"
   }
 
-//  "example 143" in {//todo: inline
+//  "example 143" in {//todo: em
 //    test( "<style>p{color:red;}</style>\n*foo*\n" ) shouldBe "<style>p{color:red;}</style>\n<p><em>foo</em></p>\n"
 //  }
 
-//  "example 144" in {//todo: inline
+//  "example 144" in {//todo: em
 //    test( "<!-- foo -->*bar*\n*baz*\n" ) shouldBe "<!-- foo -->*bar*\n<p><em>baz</em></p>\n"
 //  }
 

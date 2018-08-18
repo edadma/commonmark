@@ -18,11 +18,11 @@ class ATX_headingsSpecTests extends FreeSpec with PropertyChecks with Matchers w
     test( "#5 bolt\n\n#hashtag\n" ) shouldBe "<p>#5 bolt</p>\n<p>#hashtag</p>\n"
   }
 
-//  "example 35" in {
-//    test( "\\## foo\n" ) shouldBe "<p>## foo</p>\n"
-//  }
+  "example 35" in {
+    test( "\\## foo\n" ) shouldBe "<p>## foo</p>\n"
+  }
 
-//  "example 36" in {
+//  "example 36" in {//todo: em
 //    test( "# foo *bar* \\*baz\\*\n" ) shouldBe "<h1>foo <em>bar</em> *baz*</h1>\n"
 //  }
 
@@ -62,9 +62,9 @@ class ATX_headingsSpecTests extends FreeSpec with PropertyChecks with Matchers w
     test( "# foo#\n" ) shouldBe "<h1>foo#</h1>\n"
   }
 
-//  "example 46" in {//todo: backslash escape handling
-//    test( "### foo \\###\n## foo #\\##\n# foo \\#\n" ) shouldBe "<h3>foo ###</h3>\n<h2>foo ###</h2>\n<h1>foo #</h1>\n"
-//  }
+  "example 46" in {
+    test( "### foo \\###\n## foo #\\##\n# foo \\#\n" ) shouldBe "<h3>foo ###</h3>\n<h2>foo ###</h2>\n<h1>foo #</h1>\n"
+  }
 
   "example 47" in {
     test( "****\n## foo\n****\n" ) shouldBe "<hr />\n<h2>foo</h2>\n<hr />\n"

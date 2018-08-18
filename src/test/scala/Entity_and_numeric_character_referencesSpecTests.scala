@@ -30,15 +30,15 @@ class Entity_and_numeric_character_referencesSpecTests extends FreeSpec with Pro
     test( "&MadeUpEntity;\n" ) shouldBe "<p>&amp;MadeUpEntity;</p>\n"
   }
 
-//  "example 308" in {
-//    test( "<a href=\"&ouml;&ouml;.html\">\n" ) shouldBe "<a href=\"&ouml;&ouml;.html\">\n"
-//  }
+  "example 308" in {
+    test( "<a href=\"&ouml;&ouml;.html\">\n" ) shouldBe "<a href=\"&ouml;&ouml;.html\">\n"
+  }
 
-//  "example 309" in {
+//  "example 309" in {//todo: links
 //    test( "[foo](/f&ouml;&ouml; \"f&ouml;&ouml;\")\n" ) shouldBe "<p><a href=\"/f%C3%B6%C3%B6\" title=\"föö\">foo</a></p>\n"
 //  }
 
-//  "example 310" in {
+//  "example 310" in {//todo: links
 //    test( "[foo]\n\n[foo]: /f&ouml;&ouml; \"f&ouml;&ouml;\"\n" ) shouldBe "<p><a href=\"/f%C3%B6%C3%B6\" title=\"föö\">foo</a></p>\n"
 //  }
 
@@ -46,9 +46,9 @@ class Entity_and_numeric_character_referencesSpecTests extends FreeSpec with Pro
     test( "``` f&ouml;&ouml;\nfoo\n```\n" ) shouldBe "<pre><code class=\"language-föö\">foo\n</code></pre>\n"
   }
 
-//  "example 312" in {
-//    test( "`f&ouml;&ouml;`\n" ) shouldBe "<p><code>f&amp;ouml;&amp;ouml;</code></p>\n"
-//  }
+  "example 312" in {
+    test( "`f&ouml;&ouml;`\n" ) shouldBe "<p><code>f&amp;ouml;&amp;ouml;</code></p>\n"
+  }
 
   "example 313" in {
     test( "    f&ouml;f&ouml;\n" ) shouldBe "<pre><code>f&amp;ouml;f&amp;ouml;\n</code></pre>\n"
