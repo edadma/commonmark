@@ -8,7 +8,26 @@ object CommonMarkParser{
 
   val emailRegex = """[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*"""r
   val uriRegex = """[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*"""r
-  val tagRegex = """(?i)<(?:[a-z][a-z0-9-]*(?:\s+[a-z_:][a-z90-9_.:-]*(?:\s*=\s*(?:[^ "'=<>`]+|'[^']*'|"[^"]*"))?)*\s*/?|/[a-z][a-z0-9-]*\s*)>"""r
+  val htmlRegex =
+    """(?isx)
+      |# start tag
+      |<[a-z][a-z0-9-]*(?:\s+[a-z_:][a-z90-9_.:-]*(?:\s*=\s*(?:[^ "'=<>`]+|'[^']*'|"[^"]*"))?)*\s*/?>|
+      |
+      |# end tag
+      |</[a-z][a-z0-9-]*\s*>|
+      |
+      |# comment
+      |<!--[^>].*?-->|
+      |
+      |# instruction
+      |<\?.*?\?>|
+      |
+      |# declaration
+      |<![A-Z]\s*[^>]*>|
+      |
+      |# CDATA
+      |<!\[CDATA\[.*?]]>
+    """.stripMargin.r
 }
 
 class CommonMarkParser {
@@ -139,7 +158,7 @@ class CommonMarkParser {
               chars( rest.tail, buf )
             } else {
               val s = l.mkString
-              val m = CommonMarkParser.tagRegex.pattern.matcher( s )
+              val m = CommonMarkParser.htmlRegex.pattern.matcher( s )
 
               if (m.lookingAt) {
                 buf += RawHTMLAST( m group 0 )
