@@ -157,8 +157,8 @@ class DLList[T] extends AbstractBuffer[T] {
 
   override def last = lastNode.v
 
-  override def reverseIterator: Iterator[T] = reverseNodeIterator map (_.v)
+  override def reverseIterator = reverseNodeIterator map (_.v)
 
-  override def toString: String = iterator mkString ("DLList(", ", ", ")")
+  override def toString = iterator mkString ("DLList(", ", ", ")")
 
 }
