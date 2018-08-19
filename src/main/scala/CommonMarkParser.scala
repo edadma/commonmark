@@ -11,7 +11,7 @@ object CommonMarkParser{
   val htmlRegex =
     """(?isx)
       |# start tag
-      |<[a-z][a-z0-9-]*(?:\s+[a-z_:][a-z90-9_.:-]*(?:\s*=\s*(?:[^ "'=<>`]+|'[^']*'|"[^"]*"))?)*\s*/?>|
+      |<[a-z][a-z0-9-]*(?:\s+[a-z_:][a-z90-9_.:-]*(?:\s*=\s*(?:[^\s"'=<>`]+|'[^']*'|"[^"]*"))?)*\s*/?>|
       |
       |# end tag
       |</[a-z][a-z0-9-]*\s*>|
@@ -285,6 +285,20 @@ class CommonMarkParser {
         breaks( t, buf )
     }
 
+  def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
+    val buf = new ListBuffer[CommonMarkAST]
+    val delimiterStack = new DLList[String]
+
+    def phase2( l: List[CommonMarkAST] ): Unit =
+      l match {
+        case Nil =>
+
+      }
+
+    phase2( l )
+    buf.toList
+  }
+
   def textual( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
@@ -320,7 +334,7 @@ class CommonMarkParser {
       }
     }
 
-    textual( breaks(escapes(s1)) ) match {
+    textual( phase2(breaks(escapes(s1))) ) match {
       case List( e ) => e
       case l => SeqAST( l )
       }
