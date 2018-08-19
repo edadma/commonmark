@@ -6,8 +6,7 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |foo <!-- this is a
-      |comment - with hyphen -->
+      |foo <!-- not a comment -- two hyphens -->
     """.trim.stripMargin
 
   val doc = p.parse( input )
