@@ -133,6 +133,7 @@ class DLList[T] extends AbstractBuffer[T] {
   def clear: Unit = {
     startSentinel.next = endSentinel
     endSentinel.prev = startSentinel
+    count = 0
   }
 
   def iterator = nodeIterator map (_.v)
