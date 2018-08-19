@@ -14,13 +14,19 @@ object DLListTest extends App {
 
 class DLList[T] extends AbstractBuffer[T] {
 
-  class Node( private [DLList] var prev: Node, private [DLList] var next: Node, var v: T ) {
+  class Node( private [DLList] var prev: Node, private [DLList] var next: Node, init: T ) {
 
     private [DLList] def this() = this( null, null, null.asInstanceOf[T] )
 
-    def nextNode = next
+    private [DLList] var v = init
 
-    def prevNode = prev
+    def element = v
+
+    def element_=( value: T ) = v = value
+
+    def following = next
+
+    def preceding = prev
 
     def isBeforeStart = eq( startSentinel )
 
@@ -57,8 +63,17 @@ class DLList[T] extends AbstractBuffer[T] {
 
   }
 
-  private val startSentinel = new Node
-  private val endSentinel = new Node
+  class Sentinel extends Node {
+    private def novalue = sys.error( "sentinel has no value" )
+
+    override def element = novalue
+
+    override def element_=( v: T ) = novalue
+  }
+
+  val startSentinel = new Sentinel
+  val endSentinel = new Sentinel
+
   private var count = 0
 
   clear
@@ -86,7 +101,7 @@ class DLList[T] extends AbstractBuffer[T] {
 
   def nodeIterator =
     new Iterator[Node] {
-      private var node = startSentinel
+      private var node: Node = startSentinel
 
       def hasNext = node.next ne endSentinel
 
@@ -100,7 +115,7 @@ class DLList[T] extends AbstractBuffer[T] {
 
   def reverseNodeIterator =
     new Iterator[Node] {
-      private var node = endSentinel
+      private var node: Node = endSentinel
 
       def hasNext = node.prev ne startSentinel
 
