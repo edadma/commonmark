@@ -3,15 +3,6 @@ package xyz.hyperreal.commonmark
 import collection.mutable.AbstractBuffer
 
 
-object DLListTest extends App {
-
-  val list = new DLList[Int]
-
-  list ++= Seq( 3, 4, 5 )
-  println( list.reverseIterator mkString ", " )
-
-}
-
 class DLList[T] extends AbstractBuffer[T] {
 
   class Node( private [DLList] var prev: Node, private [DLList] var next: Node, init: T ) {
@@ -96,7 +87,15 @@ class DLList[T] extends AbstractBuffer[T] {
 
   def node( n: Int ) = {
     require( 0 <= n && n < count, s"node index out of range: $n" )
-    nodeIterator drop (n - 1) next
+
+    if (n == 0)
+      headNode
+    else if (n == count - 1)
+      lastNode
+    else if (n <= count/2)
+      nodeIterator drop (n - 1) next
+    else
+      reverseNodeIterator drop (count - n - 1) next
   }
 
   def nodeIterator =
