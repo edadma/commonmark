@@ -50,17 +50,17 @@ class Code_spansSpecTests extends FreeSpec with PropertyChecks with Matchers wit
     test( "`<a href=\"`\">`\n" ) shouldBe "<p><code>&lt;a href=&quot;</code>&quot;&gt;`</p>\n"
   }
 
-//  "example 325" in {//todo: inline html
-//    test( "<a href=\"`\">`\n" ) shouldBe "<p><a href=\"`\">`</p>\n"
-//  }
+  "example 325" in {
+    test( "<a href=\"`\">`\n" ) shouldBe "<p><a href=\"`\">`</p>\n"
+  }
 
   "example 326" in {
     test( "`<http://foo.bar.`baz>`\n" ) shouldBe "<p><code>&lt;http://foo.bar.</code>baz&gt;`</p>\n"
   }
 
-//  "example 327" in {
-//    test( "<http://foo.bar.`baz>`\n" ) shouldBe "<p><a href=\"http://foo.bar.%60baz\">http://foo.bar.`baz</a>`</p>\n"
-//  }
+  "example 327" in {
+    test( "<http://foo.bar.`baz>`\n" ) shouldBe "<p><a href=\"http://foo.bar.%60baz\">http://foo.bar.`baz</a>`</p>\n"
+  }
 
   "example 328" in {
     test( "```foo``\n" ) shouldBe "<p>```foo``</p>\n"
