@@ -3,6 +3,15 @@ package xyz.hyperreal.commonmark
 import collection.mutable.AbstractBuffer
 
 
+object DLList {
+
+  def apply[T]( elems: T* ) =
+    new DLList[T] {
+      appendAll( elems )
+    }
+
+}
+
 class DLList[T] extends AbstractBuffer[T] {
 
   class Node( private [DLList] var prev: Node, private [DLList] var next: Node, init: T ) {
@@ -52,18 +61,67 @@ class DLList[T] extends AbstractBuffer[T] {
       node
     }
 
+    def iterator =
+      new Iterator[Node] {
+        private var node = Node.this
+
+        def hasNext = node ne endSentinel
+
+        def next = {
+          if (isEmpty) throw new NoSuchElementException( "no more elements" )
+
+          val res = node
+
+          node = node.next
+          res
+        }
+      }
+
+    def reverseIterator =
+      new Iterator[Node] {
+        private var node = Node.this
+
+        def hasNext = node ne startSentinel
+
+        def next = {
+          if (isEmpty) throw new NoSuchElementException( "no more elements" )
+
+          val res = node
+
+          node = node.prev
+          res
+        }
+      }
+
+    override def toString: String = s"node[$v]"
   }
 
-  class Sentinel extends Node {
+  class Sentinel( name: String ) extends Node {
     private def novalue = sys.error( "sentinel has no value" )
 
     override def element = novalue
 
     override def element_=( v: T ) = novalue
+
+    private def noiterator = sys.error( "can't iterate from sentinel" )
+
+    override def iterator =
+      if (this eq startSentinel)
+        noiterator
+      else
+        super.iterator
+
+    override def reverseIterator =
+      if (this eq endSentinel)
+        noiterator
+      else
+        super.iterator
+
+    override def toString: String = name
   }
 
-  val startSentinel = new Sentinel
-  val endSentinel = new Sentinel
+  val startSentinel = new Sentinel( "start sentinel" )
+  val endSentinel = new Sentinel( "end sentinel" )
 
   private var count = 0
 
@@ -93,38 +151,14 @@ class DLList[T] extends AbstractBuffer[T] {
     else if (n == count - 1)
       lastNode
     else if (n <= count/2)
-      nodeIterator drop (n - 1) next
+      nodeIterator drop n next
     else
-      reverseNodeIterator drop (count - n - 1) next
+      reverseNodeIterator drop (count - 1 - n) next
   }
 
-  def nodeIterator =
-    new Iterator[Node] {
-      private var node: Node = startSentinel
+  def nodeIterator = startSentinel.next.iterator
 
-      def hasNext = node.next ne endSentinel
-
-      def next = {
-        if (!hasNext) throw new NoSuchElementException( "no more elements in list" )
-
-        node = node.next
-        node
-      }
-    }
-
-  def reverseNodeIterator =
-    new Iterator[Node] {
-      private var node: Node = endSentinel
-
-      def hasNext = node.prev ne startSentinel
-
-      def next = {
-        if (!hasNext) throw new NoSuchElementException( "no more elements in list" )
-
-        node = node.prev
-        node
-      }
-    }
+  def reverseNodeIterator = endSentinel.prev.reverseIterator
 
   def prependElement( elem: T ) = startSentinel follow elem
 

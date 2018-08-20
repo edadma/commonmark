@@ -3,6 +3,10 @@ package xyz.hyperreal.commonmark
 
 object Main extends App {
 
+  val l = new DLList
+
+  println( l.reverseNodeIterator.next, l.reverseIterator.next )
+
   val p = new CommonMarkParser
   val input =
     """
