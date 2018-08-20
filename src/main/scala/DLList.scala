@@ -115,7 +115,7 @@ class DLList[T] extends AbstractBuffer[T] {
       if (this eq endSentinel)
         noiterator
       else
-        super.iterator
+        super.reverseIterator
 
     override def toString: String = name
   }
