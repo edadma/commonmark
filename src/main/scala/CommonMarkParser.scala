@@ -286,14 +286,30 @@ class CommonMarkParser {
     }
 
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
+    case class Delimiter( s: String, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
+    case class TextNode( s: String )
+
     val buf = new ListBuffer[CommonMarkAST]
-    val delimiterStack = new DLList[String]
+    val stack = new DLList[Delimiter]
+    var stack_bottom: stack.Node = null
 
     def phase2( l: List[CommonMarkAST] ): Unit =
       l match {
-        case Nil =>
+        case Nil => processEmphsis
+        case (c@C( "*"|"_" )) :: t =>
+          val (cs, r) = t span (_ == c)
 
+          stack += Delimiter( c.text, cs.length + 1, true, true )
+          phase2( r )
       }
+
+    def processEmphsis: Unit = {
+      var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
+      var openers_bottom_star = stack_bottom
+      var openers_bottom_under = stack_bottom
+
+
+    }
 
     phase2( l )
     buf.toList
@@ -337,7 +353,7 @@ class CommonMarkParser {
     textual( /*phase2(*/breaks(escapes(s1)) ) match {
       case List( e ) => e
       case l => SeqAST( l )
-      }
+    }
   }
 
   def blankAfter( s: Seq[Block] ) =
@@ -350,35 +366,34 @@ class CommonMarkParser {
     s match {
       case n if n isEmpty => Nil
       case h #:: t =>
-          h match {
-            case b: Block if !b.keep => transform( t, loose )
-            case h: HTMLBlock => HTMLBlockAST( h.buf.toString ) :: transform( t, loose )
-            case _: BreakBlock => RuleAST :: transform( t, loose )
-            case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
-            case h: SHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
-            case p: ParagraphBlock if loose =>
-              ParagraphAST( inline(p.buf.toString) ) :: transform( t, loose )
-            case p: ParagraphBlock => inline(p.buf.toString) :: transform( t, loose )
-            case b: IndentedBlock =>
-              CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
-            case f: FencedBlock =>
-              CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
-                transform( t, loose )
-            case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
-            case l: ListItemBlock =>
-              val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
-              val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
-              val loose1 = list.init.exists (i => blankAfter(i.blocks)) || blankAfter(list.last.blocks.init)
-              val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
-              val hd =
-                if (l.typ.isInstanceOf[BulletList])
-                  BulletListAST( SeqAST(listitems), !loose1 )
-                else
-                  OrderedListAST( SeqAST(listitems), !loose1, l.typ.asInstanceOf[OrderedList].start )
+        h match {
+          case b: Block if !b.keep => transform( t, loose )
+          case h: HTMLBlock => HTMLBlockAST( h.buf.toString ) :: transform( t, loose )
+          case _: BreakBlock => RuleAST :: transform( t, loose )
+          case h: AHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
+          case h: SHeadingBlock => HeadingAST( h.level, inline(h.heading), None ) :: transform( t, loose )
+          case p: ParagraphBlock if loose =>
+            ParagraphAST( inline(p.buf.toString) ) :: transform( t, loose )
+          case p: ParagraphBlock => inline(p.buf.toString) :: transform( t, loose )
+          case b: IndentedBlock =>
+            CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
+          case f: FencedBlock =>
+            CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
+              transform( t, loose )
+          case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
+          case l: ListItemBlock =>
+            val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
+            val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
+            val loose1 = list.init.exists (i => blankAfter(i.blocks)) || blankAfter(list.last.blocks.init)
+            val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
+            val hd =
+              if (l.typ.isInstanceOf[BulletList])
+                BulletListAST( SeqAST(listitems), !loose1 )
+              else
+                OrderedListAST( SeqAST(listitems), !loose1, l.typ.asInstanceOf[OrderedList].start )
 
-              hd :: transform( rest, loose )
-          }
-
+            hd :: transform( rest, loose )
+        }
     }
 
 }
