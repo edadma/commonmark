@@ -133,7 +133,10 @@ class CommonMarkParser {
 
   abstract class Chr extends LeafAST
   case class Ce( text: String ) extends Chr
-  case class C( text: String ) extends Chr
+  case class C( text: String ) extends Chr {
+    var leftFlanking: Boolean = false
+    var rightFlanking: Boolean = false
+  }
 
   def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
     l match {
