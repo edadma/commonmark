@@ -359,13 +359,13 @@ class CommonMarkParser {
     }
   }
 
-  def blankAfter( s: Seq[Block] ) =
-    if (s.length < 2)
-      false
-    else
-      s.sliding( 2 ).exists( a => a.head != BlankBlock && a.tail.head == BlankBlock)
+  def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] = {
+    def blankAfter( s: Seq[Block] ) =
+      if (s.length < 2)
+        false
+      else
+        s.sliding( 2 ).exists( a => a.head != BlankBlock && a.tail.head == BlankBlock)
 
-  def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] =
     s match {
       case n if n isEmpty => Nil
       case h #:: t =>
@@ -398,5 +398,6 @@ class CommonMarkParser {
             hd :: transform( rest, loose )
         }
     }
+  }
 
 }
