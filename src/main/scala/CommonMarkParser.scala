@@ -141,7 +141,7 @@ class CommonMarkParser {
   def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
-      case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~\\" contains p =>
+      case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains p =>
         buf += Ce( p.toString )
         chars( t, buf )
       case '<' :: t =>
@@ -287,6 +287,20 @@ class CommonMarkParser {
         buf += e
         breaks( t, buf )
     }
+
+  val punctuationCategories =
+    Set(
+      Character.CONNECTOR_PUNCTUATION,
+      Character.DASH_PUNCTUATION,
+      Character.END_PUNCTUATION,
+      Character.FINAL_QUOTE_PUNCTUATION,
+      Character.INITIAL_QUOTE_PUNCTUATION,
+      Character.OTHER_PUNCTUATION,
+      Character.START_PUNCTUATION
+    )
+
+  def punct( c: Char ) =
+    ("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains c) || punctuationCategories( Character.getType(c).toByte )
 
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
     case class Delimiter( s: String, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
