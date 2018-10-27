@@ -30,7 +30,11 @@ class DLList[T] extends AbstractBuffer[T] {
 
     def isBeforeStart = eq( startSentinel )
 
+    def notBeforeStart = ne( startSentinel )
+
     def isAfterEnd = eq( endSentinel )
+
+    def notAfterEnd = ne( endSentinel )
 
     def unlink = {
       require( this ne startSentinel, "can't unlink the start sentinel" )

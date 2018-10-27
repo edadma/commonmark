@@ -326,46 +326,46 @@ class CommonMarkParser {
       }
 
     def mark( c: C, node: dllist.Node, f: C => Unit ): dllist.Node =
-      if (!node.isAfterEnd) {
-        if (node.v == c)
-          f( node.v )
+      if (node.notAfterEnd) {
+        if (node.element == c)
+          f( node.element.asInstanceOf[C] )
 
-        mark( c, node.next, f )
+        mark( c, node.following, f )
       } else
         node
 
     def skip( c: C, node: dllist.Node ): dllist.Node =
-      if (!node.isAfterEnd && node.v == c)
-        skip( c, node.next )
+      if (node.notAfterEnd && node.element == c)
+        skip( c, node.following )
       else
         node
 
-    def isFollowedByPunct( end: Int ) = end < array.length && punctuation( array(end) )
+    def isFollowedByPunct( end: dllist.Node ) = end.notAfterEnd && punctuation( end.element )
 
-    def isPrecededByPunct( idx: Int ) = idx > 0 && punctuation( array(idx - 1) )
+    def isPrecededByPunct( start: dllist.Node ) = !start.preceding.isBeforeStart && punctuation( start.preceding.element )
 
-    def isFollowedByWhitespace( end: Int )= end == array.length || whitespace( array(end) )
+    def isFollowedByWhitespace( end: dllist.Node )= end.isAfterEnd || whitespace( end.element )
 
-    def isPrecededByWhitespace( idx: Int ) = idx == 0 || whitespace( array(idx - 1) )
+    def isPrecededByWhitespace( start: dllist.Node ) = start.preceding.isBeforeStart || whitespace( start.preceding.element )
 
-    def flanking( idx: Int ): Unit = {
-      if (idx < array.length)
-        array(idx) match {
+    def flanking( node: dllist.Node ): Unit = {
+      if (node.notAfterEnd)
+        node.element match {
           case c@C( "*"|"_" ) =>
-            val end = skip( c, idx )
+            val end = skip( c, node )
             val followedByPunct = isFollowedByPunct( end )
-            val precededByPunct = isPrecededByPunct( idx )
+            val precededByPunct = isPrecededByPunct( node )
 
             if (!isFollowedByWhitespace( end ) &&
-              (!followedByPunct || isPrecededByWhitespace( idx ) || isPrecededByPunct( idx )))
-              mark( c, idx, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct} )
+              (!followedByPunct || isPrecededByWhitespace( node ) || isPrecededByPunct( node )))
+              mark( c, node, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct} )
 
             if (!isPrecededByWhitespace( end ) &&
-              (!precededByPunct || isFollowedByWhitespace( idx ) || isFollowedByPunct( end )))
-              mark( c, idx, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
+              (!precededByPunct || isFollowedByWhitespace( node ) || isFollowedByPunct( end )))
+              mark( c, node, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
 
             flanking( end )
-          case _ => flanking( idx + 1 )
+          case _ => flanking( node.following )
         }
     }
 
@@ -388,7 +388,7 @@ class CommonMarkParser {
         case _ :: t => delimiters( t, idx + 1 )
       }
 
-    flanking( 0 )
+    flanking( dllist.headNode )
     delimiters( l, 0 )
 
     var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
@@ -396,16 +396,16 @@ class CommonMarkParser {
 
     def processEmphsis: Unit = {
 
-      while (!current_position.isAfterEnd && !current_position.v.closer)
-        current_position = current_position.next
+      while (!current_position.isAfterEnd && !current_position.element.closer)
+        current_position = current_position.following
 
       if (!current_position.isAfterEnd) {
-        var opener = current_position.prev
+        var opener = current_position.preceding
 
-        while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s) && !opener.v.opener)
-          opener = opener.prev
+        while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && !opener.element.opener)
+          opener = opener.preceding
 
-        if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s)) {
+        if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
 
         }
       }
