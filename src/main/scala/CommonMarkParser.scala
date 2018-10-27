@@ -360,11 +360,11 @@ class CommonMarkParser {
 
             if (!isFollowedByWhitespace( end ) &&
               (!followedByPunct || isPrecededByWhitespace( idx ) || isPrecededByPunct( idx )))
-              mark( c, idx, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct})
+              mark( c, idx, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct} )
 
             if (!isPrecededByWhitespace( end ) &&
               (!precededByPunct || isFollowedByWhitespace( idx ) || isFollowedByPunct( end )))
-              mark( c, idx, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct})
+              mark( c, idx, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
 
             flanking( end )
           case _ => flanking( idx + 1 )
