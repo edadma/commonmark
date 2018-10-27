@@ -308,7 +308,7 @@ class CommonMarkParser {
     val buf = new ListBuffer[CommonMarkAST]
     val stack = new DLList[Delimiter]
     var stack_bottom: stack.Node = null
-    val array = ArrayBuffer( l: _* )
+    val dllist = DLList( l: _* )
 
     def punctuation( elem: CommonMarkAST ) =
       elem match {
@@ -325,22 +325,20 @@ class CommonMarkParser {
         case _ => false
       }
 
-    def mark( c: C, idx: Int, f: C => Unit ): Int =
-      if (idx < array.length) {
-        val o = array(idx)
+    def mark( c: C, node: dllist.Node, f: C => Unit ): dllist.Node =
+      if (!node.isAfterEnd) {
+        if (node.v == c)
+          f( node.v )
 
-        if (o == c)
-          f( o )
-
-        mark( c, idx, f )
+        mark( c, node.next, f )
       } else
-        idx
+        node
 
-    def skip( c: C, idx: Int ): Int =
-      if (idx < array.length && array(idx) == c)
-        skip( c, idx + 1 )
+    def skip( c: C, node: dllist.Node ): dllist.Node =
+      if (!node.isAfterEnd && node.v == c)
+        skip( c, node.next )
       else
-        idx
+        node
 
     def isFollowedByPunct( end: Int ) = end < array.length && punctuation( array(end) )
 
