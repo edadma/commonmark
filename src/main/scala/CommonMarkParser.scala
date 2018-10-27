@@ -1,7 +1,7 @@
 //@
 package xyz.hyperreal.commonmark
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.mutable.{ArrayBuffer, ListBuffer, HashMap}
 
 
 object CommonMarkParser{
@@ -302,7 +302,7 @@ class CommonMarkParser {
     )
 
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
-    case class Delimiter( s: String, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
+    case class Delimiter( s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
     case class TextNode( s: String )
 
     val buf = new ListBuffer[CommonMarkAST]
@@ -371,33 +371,48 @@ class CommonMarkParser {
         }
     }
 
-    def delimiters( l: List[CommonMarkAST] ): Unit =
+    def delimiters( l: List[CommonMarkAST], idx: Int ): Unit =
       l match {
-        case Nil => processEmphsis
+        case Nil =>
         case (c@C( "*" )) :: t if c.leftFlanking || c.rightFlanking =>
           val (cs, r) = t span (_ == c)
+          val len = cs.length + 1
 
-          stack += Delimiter( c.text, cs.length + 1, c.leftFlanking, c.rightFlanking )
-          delimiters( r )
+          stack += Delimiter( c.text, idx, len, c.leftFlanking, c.rightFlanking )
+          delimiters( r, idx + len )
         case (c@C( "_" )) :: t if c.leftFlanking || c.rightFlanking =>
           val (cs, r) = t span (_ == c)
+          val len = cs.length + 1
 
-          stack += Delimiter( c.text, cs.length + 1, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
+          stack += Delimiter( c.text, idx, len, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
             c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
-          delimiters( r )
-        case _ :: t => delimiters( t )
+          delimiters( r, idx + len )
+        case _ :: t => delimiters( t, idx + 1 )
       }
 
+    flanking( 0 )
+    delimiters( l, 0 )
+
+    var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
+    val openers_bottom = HashMap( "*" -> stack_bottom, "_" -> stack_bottom )
+
     def processEmphsis: Unit = {
-      var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
-      var openers_bottom_star = stack_bottom
-      var openers_bottom_under = stack_bottom
 
+      while (!current_position.isAfterEnd && !current_position.v.closer)
+        current_position = current_position.next
 
+      if (!current_position.isAfterEnd) {
+        var opener = current_position.prev
+
+        while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s) && !opener.v.opener)
+          opener = opener.prev
+
+        if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s)) {
+
+        }
+      }
     }
 
-    flanking( 0 )
-    delimiters( l )
     processEmphsis
     buf.toList
   }
