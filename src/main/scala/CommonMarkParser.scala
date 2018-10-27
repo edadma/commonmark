@@ -350,46 +350,42 @@ class CommonMarkParser {
 
     def isPrecededByWhitespace( idx: Int ) = idx == 0 || whitespace( array(idx - 1) )
 
-    def leftFlanking( idx: Int ): Unit = {
+    def flanking( idx: Int ): Unit = {
       if (idx < array.length)
         array(idx) match {
           case c@C( "*"|"_" ) =>
             val end = skip( c, idx )
             val followedByPunct = isFollowedByPunct( end )
+            val precededByPunct = isPrecededByPunct( idx )
 
             if (!isFollowedByWhitespace( end ) &&
               (!followedByPunct || isPrecededByWhitespace( idx ) || isPrecededByPunct( idx )))
               mark( c, idx, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct})
 
-            leftFlanking( end )
-          case _ => leftFlanking( idx + 1 )
-        }
-    }
-
-    def rightFlanking( idx: Int ): Unit = {
-      if (idx < array.length)
-        array(idx) match {
-          case c@C( "*"|"_" ) =>
-            val end = skip( c, idx )
-            val precededByPunct = isPrecededByPunct( idx )
-
             if (!isPrecededByWhitespace( end ) &&
               (!precededByPunct || isFollowedByWhitespace( idx ) || isFollowedByPunct( end )))
               mark( c, idx, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct})
 
-            rightFlanking( end )
-          case _ => rightFlanking( idx + 1 )
+            flanking( end )
+          case _ => flanking( idx + 1 )
         }
     }
 
-    def phase2( l: List[CommonMarkAST] ): Unit =
+    def delimiters( l: List[CommonMarkAST] ): Unit =
       l match {
         case Nil => processEmphsis
-        case (c@C( "*"|"_" )) :: t =>
+        case (c@C( "*" )) :: t if c.leftFlanking || c.rightFlanking =>
           val (cs, r) = t span (_ == c)
 
-          stack += Delimiter( c.text, cs.length + 1, true, true )
-          phase2( r )
+          stack += Delimiter( c.text, cs.length + 1, c.leftFlanking, c.rightFlanking )
+          delimiters( r )
+        case (c@C( "_" )) :: t if c.leftFlanking || c.rightFlanking =>
+          val (cs, r) = t span (_ == c)
+
+          stack += Delimiter( c.text, cs.length + 1, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
+            c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
+          delimiters( r )
+        case _ :: t => delimiters( t )
       }
 
     def processEmphsis: Unit = {
@@ -400,9 +396,9 @@ class CommonMarkParser {
 
     }
 
-    leftFlanking( 0 )
-    rightFlanking( 0 )
-    phase2( l )
+    flanking( 0 )
+    delimiters( l )
+    processEmphsis
     buf.toList
   }
 
