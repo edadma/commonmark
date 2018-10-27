@@ -134,8 +134,10 @@ class CommonMarkParser {
   abstract class Chr extends LeafAST
   case class Ce( text: String ) extends Chr
   case class C( text: String ) extends Chr {
-    var leftFlanking: Boolean = false
-    var rightFlanking: Boolean = false
+    var leftFlanking = false
+    var rightFlanking = false
+    var followedByPunct = false
+    var precededByPunct = false
   }
 
   def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
@@ -288,7 +290,7 @@ class CommonMarkParser {
         breaks( t, buf )
     }
 
-  val punctuationCategories =
+  private val punctuationCategories =
     Set(
       Character.CONNECTOR_PUNCTUATION,
       Character.DASH_PUNCTUATION,
@@ -299,9 +301,6 @@ class CommonMarkParser {
       Character.START_PUNCTUATION
     )
 
-  def punct( c: Char ) =
-    ("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains c) || punctuationCategories( Character.getType(c).toByte )
-
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
     case class Delimiter( s: String, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
     case class TextNode( s: String )
@@ -309,6 +308,79 @@ class CommonMarkParser {
     val buf = new ListBuffer[CommonMarkAST]
     val stack = new DLList[Delimiter]
     var stack_bottom: stack.Node = null
+    val array = ArrayBuffer( l: _* )
+
+    def punctuation( elem: CommonMarkAST ) =
+      elem match {
+        case c: Chr =>
+          val ch = c.text.head
+
+          ("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains ch) || punctuationCategories( Character.getType(ch).toByte )
+        case _ => false
+      }
+
+    def whitespace( elem: CommonMarkAST ) =
+      elem match {
+        case c: Chr => c.text.head.isWhitespace
+        case _ => false
+      }
+
+    def mark( c: C, idx: Int, f: C => Unit ): Int =
+      if (idx < array.length) {
+        val o = array(idx)
+
+        if (o == c)
+          f( o )
+
+        mark( c, idx, f )
+      } else
+        idx
+
+    def skip( c: C, idx: Int ): Int =
+      if (idx < array.length && array(idx) == c)
+        skip( c, idx + 1 )
+      else
+        idx
+
+    def isFollowedByPunct( end: Int ) = end < array.length && punctuation( array(end) )
+
+    def isPrecededByPunct( idx: Int ) = idx > 0 && punctuation( array(idx - 1) )
+
+    def isFollowedByWhitespace( end: Int )= end == array.length || whitespace( array(end) )
+
+    def isPrecededByWhitespace( idx: Int ) = idx == 0 || whitespace( array(idx - 1) )
+
+    def leftFlanking( idx: Int ): Unit = {
+      if (idx < array.length)
+        array(idx) match {
+          case c@C( "*"|"_" ) =>
+            val end = skip( c, idx )
+            val followedByPunct = isFollowedByPunct( end )
+
+            if (!isFollowedByWhitespace( end ) &&
+              (!followedByPunct || isPrecededByWhitespace( idx ) || isPrecededByPunct( idx )))
+              mark( c, idx, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct})
+
+            leftFlanking( end )
+          case _ => leftFlanking( idx + 1 )
+        }
+    }
+
+    def rightFlanking( idx: Int ): Unit = {
+      if (idx < array.length)
+        array(idx) match {
+          case c@C( "*"|"_" ) =>
+            val end = skip( c, idx )
+            val precededByPunct = isPrecededByPunct( idx )
+
+            if (!isPrecededByWhitespace( end ) &&
+              (!precededByPunct || isFollowedByWhitespace( idx ) || isFollowedByPunct( end )))
+              mark( c, idx, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct})
+
+            rightFlanking( end )
+          case _ => rightFlanking( idx + 1 )
+        }
+    }
 
     def phase2( l: List[CommonMarkAST] ): Unit =
       l match {
@@ -328,6 +400,8 @@ class CommonMarkParser {
 
     }
 
+    leftFlanking( 0 )
+    rightFlanking( 0 )
     phase2( l )
     buf.toList
   }
