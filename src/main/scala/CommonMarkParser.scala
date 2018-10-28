@@ -417,8 +417,9 @@ class CommonMarkParser {
 
         if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
           val strong = opener.element.count >= 2 && current_position.element.count >= 2
+          val list: List[CommonMarkAST] = opener.element.node.following unlinkUntil current_position.element.node.preceding
 
-          opener.element opener.following unlinkUntil current_position.preceding
+          opener.element.node.follow( EmphasisAST(list) )
         }
       }
     }
