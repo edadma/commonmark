@@ -1,6 +1,6 @@
 package xyz.hyperreal.commonmark
 
-import collection.mutable.AbstractBuffer
+import collection.mutable.{AbstractBuffer, ListBuffer}
 
 
 object DLList {
@@ -37,8 +37,7 @@ class DLList[T] extends AbstractBuffer[T] {
     def notAfterEnd = ne( endSentinel )
 
     def unlink = {
-      require( this ne startSentinel, "can't unlink the start sentinel" )
-      require( this ne endSentinel, "can't unlink the end sentinel" )
+      checkUnlink
       next.prev = prev
       prev.next = next
       prev = null
@@ -65,11 +64,51 @@ class DLList[T] extends AbstractBuffer[T] {
       node
     }
 
-    def iterator =
+    private def checkUnlink: Unit = {
+      require( this ne startSentinel, "can't unlink the start sentinel" )
+      require( this ne endSentinel, "can't unlink the end sentinel" )
+    }
+
+    def unlinkUntil( node: Node ) = {
+      checkUnlink
+      require( isBefore(node), "node to unlink up to must come after current node" )
+
+      var cur = this
+      val buf = new ListBuffer[T]
+
+      node.prev = prev
+      prev.next = node
+
+      while (cur ne node) {
+        val curnext = cur.next
+
+        buf += cur.element
+        cur.prev = null
+        cur.next = null
+        count -= 1
+        cur = curnext
+      }
+
+      buf.toList
+    }
+
+    def isBefore( node: Node ) =
+      if ((this eq node) || isAfterEnd)
+        false
+      else {
+        var cur = this
+
+        while (cur.notAfterEnd && (cur ne node))
+          cur = cur.following
+
+        node.isAfterEnd || cur.notAfterEnd
+      }
+
+    def iteratorUntil(last: Node ) =
       new Iterator[Node] {
         private var node = Node.this
 
-        def hasNext = node ne endSentinel
+        def hasNext = (node ne last) && (node ne endSentinel)
 
         def next = {
           if (isEmpty) throw new NoSuchElementException( "no more elements" )
@@ -80,6 +119,8 @@ class DLList[T] extends AbstractBuffer[T] {
           res
         }
       }
+
+    def iterator = iteratorUntil( endSentinel )
 
     def reverseIterator =
       new Iterator[Node] {

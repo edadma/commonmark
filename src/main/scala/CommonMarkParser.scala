@@ -302,13 +302,14 @@ class CommonMarkParser {
     )
 
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
-    case class Delimiter( s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
-    case class TextNode( s: String )
-
     val buf = new ListBuffer[CommonMarkAST]
-    val stack = new DLList[Delimiter]
     var stack_bottom: stack.Node = null
     val dllist = DLList( l: _* )
+
+    case class Delimiter( s: String, node: dllist.Node, count: Int, opener: Boolean, closer: Boolean,
+                          var active: Boolean = true )
+
+    val stack = new DLList[Delimiter]
 
     def punctuation( elem: CommonMarkAST ) =
       elem match {
@@ -348,7 +349,7 @@ class CommonMarkParser {
 
     def isPrecededByWhitespace( start: dllist.Node ) = start.preceding.isBeforeStart || whitespace( start.preceding.element )
 
-    def flanking( node: dllist.Node ): Unit = {
+    def flanking( node: dllist.Node ): Unit =
       if (node.notAfterEnd)
         node.element match {
           case c@C( "*"|"_" ) =>
@@ -367,46 +368,57 @@ class CommonMarkParser {
             flanking( end )
           case _ => flanking( node.following )
         }
-    }
 
-    def delimiters( l: List[CommonMarkAST], idx: Int ): Unit =
-      l match {
-        case Nil =>
-        case (c@C( "*" )) :: t if c.leftFlanking || c.rightFlanking =>
-          val (cs, r) = t span (_ == c)
-          val len = cs.length + 1
+    def span( c: C, node: dllist.Node ) = {
+      var cur = node
+      var count = 0
 
-          stack += Delimiter( c.text, idx, len, c.leftFlanking, c.rightFlanking )
-          delimiters( r, idx + len )
-        case (c@C( "_" )) :: t if c.leftFlanking || c.rightFlanking =>
-          val (cs, r) = t span (_ == c)
-          val len = cs.length + 1
-
-          stack += Delimiter( c.text, idx, len, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
-            c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
-          delimiters( r, idx + len )
-        case _ :: t => delimiters( t, idx + 1 )
+      while (cur.element == c) {
+        cur = cur.following
+        count += 1
       }
 
+      (count, cur)
+    }
+
+    def delimiters( node: dllist.Node ): Unit =
+      if (node.notAfterEnd)
+        node.element match {
+          case c@C( "*" ) if c.leftFlanking || c.rightFlanking =>
+            val (len, r) = span( c, node )
+
+            stack += Delimiter( c.text, node, len, c.leftFlanking, c.rightFlanking )
+            delimiters( r )
+          case c@C( "_" ) if c.leftFlanking || c.rightFlanking =>
+            val (len, r) = span( c, node )
+
+            stack += Delimiter( c.text, node, len, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
+              c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
+            delimiters( r )
+          case _ => delimiters( node.following )
+        }
+
     flanking( dllist.headNode )
-    delimiters( l, 0 )
+    delimiters( dllist.headNode )
 
     var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
     val openers_bottom = HashMap( "*" -> stack_bottom, "_" -> stack_bottom )
 
     def processEmphsis: Unit = {
-
       while (!current_position.isAfterEnd && !current_position.element.closer)
         current_position = current_position.following
 
       if (!current_position.isAfterEnd) {
         var opener = current_position.preceding
 
-        while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && !opener.element.opener)
+        while (!opener.isBeforeStart && opener != stack_bottom &&
+          opener != openers_bottom(current_position.element.s) && !opener.element.opener)
           opener = opener.preceding
 
         if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
+          val strong = opener.element.count >= 2 && current_position.element.count >= 2
 
+          opener.element opener.following unlinkUntil current_position.preceding
         }
       }
     }
