@@ -6,13 +6,13 @@ import prop.PropertyChecks
 
 class Setext_headingsSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
 
-//  "example 50" in {
-//    test( "Foo *bar*\n=========\n\nFoo *bar*\n---------\n" ) shouldBe "<h1>Foo <em>bar</em></h1>\n<h2>Foo <em>bar</em></h2>\n"
-//  }
+  "example 50" in {
+    test( "Foo *bar*\n=========\n\nFoo *bar*\n---------\n" ) shouldBe "<h1>Foo <em>bar</em></h1>\n<h2>Foo <em>bar</em></h2>\n"
+  }
 
-//  "example 51" in {
-//    test( "Foo *bar\nbaz*\n====\n" ) shouldBe "<h1>Foo <em>bar\nbaz</em></h1>\n"
-//  }
+  "example 51" in {
+    test( "Foo *bar\nbaz*\n====\n" ) shouldBe "<h1>Foo <em>bar\nbaz</em></h1>\n"
+  }
 
   "example 52" in {
     test( "Foo\n-------------------------\n\nFoo\n=\n" ) shouldBe "<h2>Foo</h2>\n<h1>Foo</h1>\n"

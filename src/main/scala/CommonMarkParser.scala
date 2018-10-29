@@ -473,6 +473,9 @@ class CommonMarkParser {
       case StrongAST( contents ) :: t =>
         buf += StrongAST( textual(toList(contents)) )
         textual( t, buf )
+      case StrikethroughAST( contents ) :: t =>
+        buf += StrikethroughAST( textual(toList(contents)) )
+        textual( t, buf )
       case e :: t =>
         buf += e
         textual( t, buf )

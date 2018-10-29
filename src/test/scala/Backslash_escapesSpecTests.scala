@@ -18,9 +18,9 @@ class Backslash_escapesSpecTests extends FreeSpec with PropertyChecks with Match
     test( "\\*not emphasized*\n\\<br/> not a tag\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a heading\n\\[foo]: /url \"not a reference\"\n" ) shouldBe "<p>*not emphasized*\n&lt;br/&gt; not a tag\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a heading\n[foo]: /url &quot;not a reference&quot;</p>\n"
   }
 
-//  "example 292" in {//todo: em
-//    test( "\\\\*emphasis*\n" ) shouldBe "<p>\\<em>emphasis</em></p>\n"
-//  }
+  "example 292" in {//todo: em
+    test( "\\\\*emphasis*\n" ) shouldBe "<p>\\<em>emphasis</em></p>\n"
+  }
 
   "example 293" in {
     test( "foo\\\nbar\n" ) shouldBe "<p>foo<br />\nbar</p>\n"

@@ -22,9 +22,9 @@ class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers wi
     test( "</div>\n*foo*\n" ) shouldBe "</div>\n*foo*\n"
   }
 
-//  "example 120" in {//todo: em
-//    test( "<DIV CLASS=\"foo\">\n\n*Markdown*\n\n</DIV>\n" ) shouldBe "<DIV CLASS=\"foo\">\n<p><em>Markdown</em></p>\n</DIV>\n"
-//  }
+  "example 120" in {
+    test( "<DIV CLASS=\"foo\">\n\n*Markdown*\n\n</DIV>\n" ) shouldBe "<DIV CLASS=\"foo\">\n<p><em>Markdown</em></p>\n</DIV>\n"
+  }
 
   "example 121" in {
     test( "<div id=\"foo\"\n  class=\"bar\">\n</div>\n" ) shouldBe "<div id=\"foo\"\n  class=\"bar\">\n</div>\n"
@@ -34,9 +34,9 @@ class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers wi
     test( "<div id=\"foo\" class=\"bar\n  baz\">\n</div>\n" ) shouldBe "<div id=\"foo\" class=\"bar\n  baz\">\n</div>\n"
   }
 
-//  "example 123" in {//todo: em
-//    test( "<div>\n*foo*\n\n*bar*\n" ) shouldBe "<div>\n*foo*\n<p><em>bar</em></p>\n"
-//  }
+  "example 123" in {
+    test( "<div>\n*foo*\n\n*bar*\n" ) shouldBe "<div>\n*foo*\n<p><em>bar</em></p>\n"
+  }
 
   "example 124" in {
     test( "<div id=\"foo\"\n*hi*\n" ) shouldBe "<div id=\"foo\"\n*hi*\n"
@@ -82,9 +82,9 @@ class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers wi
     test( "<del>\n*foo*\n</del>\n" ) shouldBe "<del>\n*foo*\n</del>\n"
   }
 
-//  "example 135" in {//todo: em
-//    test( "<del>\n\n*foo*\n\n</del>\n" ) shouldBe "<del>\n<p><em>foo</em></p>\n</del>\n"
-//  }
+  "example 135" in {
+    test( "<del>\n\n*foo*\n\n</del>\n" ) shouldBe "<del>\n<p><em>foo</em></p>\n</del>\n"
+  }
 
 //  "example 136" in {//todo: em
 //    test( "<del>*foo*</del>\n" ) shouldBe "<p><del><em>foo</em></del></p>\n"
@@ -118,9 +118,9 @@ class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers wi
 //    test( "<style>p{color:red;}</style>\n*foo*\n" ) shouldBe "<style>p{color:red;}</style>\n<p><em>foo</em></p>\n"
 //  }
 
-//  "example 144" in {//todo: em
-//    test( "<!-- foo -->*bar*\n*baz*\n" ) shouldBe "<!-- foo -->*bar*\n<p><em>baz</em></p>\n"
-//  }
+  "example 144" in {
+    test( "<!-- foo -->*bar*\n*baz*\n" ) shouldBe "<!-- foo -->*bar*\n<p><em>baz</em></p>\n"
+  }
 
   "example 145" in {
     test( "<script>\nfoo\n</script>1. *bar*\n" ) shouldBe "<script>\nfoo\n</script>1. *bar*\n"

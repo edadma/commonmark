@@ -6,10 +6,7 @@ object Main extends App {
   val p = new CommonMarkParser
   val input =
     """
-      |> Lorem ipsum dolor
-      |sit amet.
-      |> - Qui *quodsi iracundia*
-      |> - aliquando id
+      |* a *
     """.trim.stripMargin
 
   val doc = p.parse( input )

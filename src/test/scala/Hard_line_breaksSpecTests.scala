@@ -26,13 +26,13 @@ class Hard_line_breaksSpecTests extends FreeSpec with PropertyChecks with Matche
     test( "foo\\\n     bar\n" ) shouldBe "<p>foo<br />\nbar</p>\n"
   }
 
-//  "example 610" in {//todo: em
-//    test( "*foo  \nbar*\n" ) shouldBe "<p><em>foo<br />\nbar</em></p>\n"
-//  }
+  "example 610" in {
+    test( "*foo  \nbar*\n" ) shouldBe "<p><em>foo<br />\nbar</em></p>\n"
+  }
 
-//  "example 611" in {//todo: em
-//    test( "*foo\\\nbar*\n" ) shouldBe "<p><em>foo<br />\nbar</em></p>\n"
-//  }
+  "example 611" in {
+    test( "*foo\\\nbar*\n" ) shouldBe "<p><em>foo<br />\nbar</em></p>\n"
+  }
 
   "example 612" in {
     test( "`code  \nspan`\n" ) shouldBe "<p><code>code span</code></p>\n"
