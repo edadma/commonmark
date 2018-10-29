@@ -398,8 +398,8 @@ class CommonMarkParser {
           case _ => delimiters( node.following )
         }
 
-    flanking( dllist.headNode )
-    delimiters( dllist.headNode )
+    flanking( dllist.startSentinel.following )
+    delimiters( dllist.startSentinel.following )
 
     var current_position: stack.Node =
       if (stack_bottom eq null)
