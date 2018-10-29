@@ -22,10 +22,10 @@ class Emphasis_and_strong_emphasisSpecTests extends FreeSpec with PropertyChecks
     test( "* a *\n" ) shouldBe "<p>* a *</p>\n"
   }
 
-//  "example 335" in {todo: em
-//    test( "foo*bar*\n" ) shouldBe "<p>foo<em>bar</em></p>\n"
-//  }
-//
+  "example 335" in {
+    test( "foo*bar*\n" ) shouldBe "<p>foo<em>bar</em></p>\n"
+  }
+
 //  "example 336" in {
 //    test( "5*6*78\n" ) shouldBe "<p>5<em>6</em>78</p>\n"
 //  }

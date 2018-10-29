@@ -166,7 +166,7 @@ class DLList[T] extends AbstractBuffer[T] {
   }
 
   class Sentinel( name: String ) extends Node {
-    private def novalue = sys.error( "sentinel has no value" )
+    private def novalue = sys.error( s"$name sentinel has no value" )
 
     override def element = novalue
 

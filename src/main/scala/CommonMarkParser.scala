@@ -365,6 +365,7 @@ class CommonMarkParser {
               (!precededByPunct || followedByWhitespace || followedByPunct))
               mark( c, node, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
 
+            println( node.index, c, followedByWhitespace )//, end.element.asInstanceOf[Chr].text.head.toInt )
             flanking( end )
           case _ => flanking( node.following )
         }
@@ -412,17 +413,19 @@ class CommonMarkParser {
     val openers_bottom = HashMap( "*" -> stack_bottom, "_" -> stack_bottom )
 
     def processEmphsis: Unit = {
-      while (!current_position.isAfterEnd && !current_position.element.closer)
+      while (current_position.notAfterEnd && !current_position.element.closer)
         current_position = current_position.following
 
       if (!current_position.isAfterEnd) {
         var opener = current_position.preceding
 
-        while (!opener.isBeforeStart && opener != stack_bottom &&
-          opener != openers_bottom(current_position.element.s) && !opener.element.opener)
+        while (opener.notBeforeStart && opener != stack_bottom &&
+          opener != openers_bottom(current_position.element.s) && !opener.element.opener &&
+          opener.element.s != current_position.element.s)
           opener = opener.preceding
 
-        if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
+        println( opener.element.s, current_position.element.s )
+        if (opener.notBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
           val contents: CommonMarkAST =
             fromList( opener.element.node.skipForward( opener.element.count - 1 ).following.
               unlinkUntil(current_position.element.node) )
@@ -442,7 +445,8 @@ class CommonMarkParser {
           }
 
           if (current_position.element.count > remove)
-            current_position.element.node.following unlinkUntil current_position.element.node.following.skipForward( remove - 1 )
+            current_position.element.node.following.
+              unlinkUntil( current_position.element.node.following.skipForward( remove - 1 ) )
           else {
             current_position.element.node unlinkUntil current_position.element.node.skipForward( remove )
 
@@ -451,7 +455,18 @@ class CommonMarkParser {
             current_position.unlink
             current_position = next
           }
+        } else {
+          openers_bottom(current_position.element.s) = current_position.preceding
+
+          val next = current_position.following
+
+          if (!current_position.element.opener)
+            current_position.unlink
+
+          current_position = next
         }
+
+        processEmphsis
       }
     }
 
