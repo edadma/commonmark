@@ -150,6 +150,18 @@ class DLList[T] extends AbstractBuffer[T] {
       if (cur.notAfterEnd) idx else -1
     }
 
+    def skipFollowing( n: Int ): Node =
+      if (n > 0)
+        following.skipFollowing( n - 1 )
+      else
+        this
+
+    def skipPreceding( n: Int ): Node =
+      if (n > 0)
+        preceding.skipPreceding( n - 1 )
+      else
+        this
+
     override def toString: String = s"node[$v]"
   }
 

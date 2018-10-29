@@ -306,7 +306,7 @@ class CommonMarkParser {
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
     val dllist = DLList( l: _* )
 
-    case class Delimiter( s: String, node: dllist.Node, count: Int, opener: Boolean, closer: Boolean,
+    case class Delimiter( s: String, node: dllist.Node, var count: Int, opener: Boolean, closer: Boolean,
                           var active: Boolean = true )
 
     val stack = new DLList[Delimiter]
@@ -423,11 +423,16 @@ class CommonMarkParser {
           opener = opener.preceding
 
         if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
-          val strong = opener.element.count >= 2 && current_position.element.count >= 2
-          val list: List[CommonMarkAST] =
-            opener.element.node.following unlinkUntil current_position.element.node
+          val content: CommonMarkAST =
+            seq( opener.element.node.skipFollowing( opener.element.count - 1 ).following.
+              unlinkUntil(current_position.element.node) )
+          val emphasis =
+            if (opener.element.count >= 2 && current_position.element.count >= 2)
+              StrongAST( content )
+            else
+              EmphasisAST( content )
 
-          opener.element.node.follow( EmphasisAST(seq(list)) )
+          opener.element.node.skipFollowing( opener.element.count - 1 ).follow( emphasis )
         }
       }
     }
