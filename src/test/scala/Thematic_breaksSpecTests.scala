@@ -18,9 +18,9 @@ class Thematic_breaksSpecTests extends FreeSpec with PropertyChecks with Matcher
     test( "===\n" ) shouldBe "<p>===</p>\n"
   }
 
-//  "example 16" in {
-//    test( "--\n**\n__\n" ) shouldBe "<p>--\n**\n__</p>\n"
-//  }
+  "example 16" in {
+    test( "--\n**\n__\n" ) shouldBe "<p>--\n**\n__</p>\n"
+  }
 
   "example 17" in {
     test( " ***\n  ***\n   ***\n" ) shouldBe "<hr />\n<hr />\n<hr />\n"

@@ -420,11 +420,10 @@ class CommonMarkParser {
         var opener = current_position.preceding
 
         while (opener.notBeforeStart && opener != stack_bottom &&
-          opener != openers_bottom(current_position.element.s) && !opener.element.opener &&
-          opener.element.s != current_position.element.s)
+          opener != openers_bottom(current_position.element.s) && (!opener.element.opener ||
+          opener.element.s != current_position.element.s))
           opener = opener.preceding
 
-        println( opener.element.s, current_position.element.s )
         if (opener.notBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
           val contents: CommonMarkAST =
             fromList( opener.element.node.skipForward( opener.element.count - 1 ).following.
