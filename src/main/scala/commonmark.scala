@@ -7,6 +7,11 @@ package object commonmark {
 
   def nonBlank( s: String ) = !isBlank( s )
 
-  def seq( l: Seq[CommonMarkAST] ) = if (l.length == 1) l.head else SeqAST( l )
+  def fromList( l: List[CommonMarkAST] ) = if (l.length == 1) l.head else SeqAST( l )
 
+  def toList( e: CommonMarkAST ) =
+    e match {
+      case SeqAST( l ) => l
+      case _ => List( e )
+    }
 }

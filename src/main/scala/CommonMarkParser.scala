@@ -49,7 +49,7 @@ class CommonMarkParser {
 
   def parse( src: String ): CommonMarkAST = parse( io.Source.fromString(src) )
 
-  def parse( src: io.Source ) = seq( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
+  def parse( src: io.Source ) = fromList( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
 
   def parseBlocks( lines: Stream[String] ) = {
     val doc = new DocumentBlock
@@ -423,16 +423,34 @@ class CommonMarkParser {
           opener = opener.preceding
 
         if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
-          val content: CommonMarkAST =
-            seq( opener.element.node.skipFollowing( opener.element.count - 1 ).following.
+          val contents: CommonMarkAST =
+            fromList( opener.element.node.skipForward( opener.element.count - 1 ).following.
               unlinkUntil(current_position.element.node) )
-          val emphasis =
+          val (remove, emphasis) =
             if (opener.element.count >= 2 && current_position.element.count >= 2)
-              StrongAST( content )
+              (2, StrongAST( contents ))
             else
-              EmphasisAST( content )
+              (1, EmphasisAST( contents ))
 
-          opener.element.node.skipFollowing( opener.element.count - 1 ).follow( emphasis )
+          opener.element.node.skipForward( opener.element.count - 1 ).follow( emphasis )
+
+          if (opener.element.count > remove)
+            opener.element.node.following unlinkUntil opener.element.node.following.skipForward( remove - 1 )
+          else {
+            opener.element.node unlinkUntil opener.element.node.skipForward( remove )
+            opener.unlink
+          }
+
+          if (current_position.element.count > remove)
+            current_position.element.node.following unlinkUntil current_position.element.node.following.skipForward( remove - 1 )
+          else {
+            current_position.element.node unlinkUntil current_position.element.node.skipForward( remove )
+
+            val next = current_position.following
+
+            current_position.unlink
+            current_position = next
+          }
         }
       }
     }
@@ -441,14 +459,20 @@ class CommonMarkParser {
     dllist.toList
   }
 
-  def textual( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
+  def textual( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): CommonMarkAST =
     l match {
-      case Nil => buf.toList
+      case Nil => fromList( buf.toList )
       case (c: Chr) :: _ =>
         val (cs, r) = l span (_.isInstanceOf[Chr])
 
         buf += TextAST( chars2string(cs) )
         textual( r, buf )
+      case EmphasisAST( contents ) :: t =>
+        buf += EmphasisAST( textual(toList(contents)) )
+        textual( t, buf )
+      case StrongAST( contents ) :: t =>
+        buf += StrongAST( textual(toList(contents)) )
+        textual( t, buf )
       case e :: t =>
         buf += e
         textual( t, buf )
@@ -476,7 +500,7 @@ class CommonMarkParser {
       }
     }
 
-    seq( textual(phase2(breaks(escapes(s1)))) )
+    textual( phase2(breaks(escapes(s1))) )
   }
 
   def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] = {
@@ -503,17 +527,17 @@ class CommonMarkParser {
           case f: FencedBlock =>
             CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
               transform( t, loose )
-          case q: QuoteBlock => BlockquoteAST( seq(transform(q.blocks.toStream)) ) :: transform( t, loose )
+          case q: QuoteBlock => BlockquoteAST( fromList(transform(q.blocks.toStream)) ) :: transform( t, loose )
           case l: ListItemBlock =>
             val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
             val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
             val loose1 = list.init.exists (i => blankAfter(i.blocks)) || blankAfter(list.last.blocks.init)
-            val listitems = list map (b => ListItemAST( seq(transform(b.blocks.toStream, loose1)) )) toList
+            val listitems = list map (b => ListItemAST( fromList(transform(b.blocks.toStream, loose1)) )) toList
             val hd =
               if (l.typ.isInstanceOf[BulletList])
-                BulletListAST( seq(listitems), !loose1 )
+                BulletListAST( fromList(listitems), !loose1 )
               else
-                OrderedListAST( seq(listitems), !loose1, l.typ.asInstanceOf[OrderedList].start )
+                OrderedListAST( fromList(listitems), !loose1, l.typ.asInstanceOf[OrderedList].start )
 
             hd :: transform( rest, loose )
         }

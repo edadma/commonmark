@@ -5,7 +5,7 @@ trait CommonMarkAST {
   def elements: Seq[CommonMarkAST]
 }
 
-case class SeqAST( seq: Seq[CommonMarkAST] ) extends CommonMarkAST {
+case class SeqAST( seq: List[CommonMarkAST] ) extends CommonMarkAST {
   val contents = null
 
   override def elements = seq
