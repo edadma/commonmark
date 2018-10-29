@@ -138,6 +138,18 @@ class DLList[T] extends AbstractBuffer[T] {
         }
       }
 
+    def index = {
+      var cur: Node = startSentinel
+      var idx = -1
+
+      while (cur.notAfterEnd && ne( cur )) {
+        cur = cur.next
+        idx += 1
+      }
+
+      if (cur.notAfterEnd) idx else -1
+    }
+
     override def toString: String = s"node[$v]"
   }
 

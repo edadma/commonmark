@@ -49,7 +49,7 @@ class CommonMarkParser {
 
   def parse( src: String ): CommonMarkAST = parse( io.Source.fromString(src) )
 
-  def parse( src: io.Source ) = SeqAST( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
+  def parse( src: io.Source ) = seq( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
 
   def parseBlocks( lines: Stream[String] ) = {
     val doc = new DocumentBlock
@@ -138,6 +138,8 @@ class CommonMarkParser {
     var rightFlanking = false
     var followedByPunct = false
     var precededByPunct = false
+
+    override def toString = s"C($text, lf=$leftFlanking, rf=$rightFlanking, fbp=$followedByPunct, pbp=$precededByPunct)"
   }
 
   def chars( l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
@@ -302,14 +304,13 @@ class CommonMarkParser {
     )
 
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
-    val buf = new ListBuffer[CommonMarkAST]
-    var stack_bottom: stack.Node = null
     val dllist = DLList( l: _* )
 
     case class Delimiter( s: String, node: dllist.Node, count: Int, opener: Boolean, closer: Boolean,
                           var active: Boolean = true )
 
     val stack = new DLList[Delimiter]
+    var stack_bottom: stack.Node = null
 
     def punctuation( elem: CommonMarkAST ) =
       elem match {
@@ -356,13 +357,15 @@ class CommonMarkParser {
             val end = skip( c, node )
             val followedByPunct = isFollowedByPunct( end )
             val precededByPunct = isPrecededByPunct( node )
+            val followedByWhitespace = isFollowedByWhitespace( end )
+            val precededByWhitespace = isPrecededByWhitespace( node )
 
-            if (!isFollowedByWhitespace( end ) &&
-              (!followedByPunct || isPrecededByWhitespace( node ) || isPrecededByPunct( node )))
+            if (!followedByWhitespace &&
+              (!followedByPunct || precededByWhitespace || precededByPunct))
               mark( c, node, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct} )
 
-            if (!isPrecededByWhitespace( end ) &&
-              (!precededByPunct || isFollowedByWhitespace( node ) || isFollowedByPunct( end )))
+            if (!precededByWhitespace &&
+              (!precededByPunct || followedByWhitespace || followedByPunct))
               mark( c, node, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
 
             flanking( end )
@@ -373,7 +376,7 @@ class CommonMarkParser {
       var cur = node
       var count = 0
 
-      while (cur.element == c) {
+      while (cur.notAfterEnd && cur.element == c) {
         cur = cur.following
         count += 1
       }
@@ -399,9 +402,17 @@ class CommonMarkParser {
         }
 
     flanking( dllist.headNode )
+    println( dllist )
     delimiters( dllist.headNode )
 
-    var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
+    var current_position: stack.Node =
+      if (stack_bottom eq null)
+        if (stack.isEmpty)
+          stack.endSentinel
+        else
+          stack.headNode
+      else
+        stack_bottom
     val openers_bottom = HashMap( "*" -> stack_bottom, "_" -> stack_bottom )
 
     def processEmphsis: Unit = {
@@ -417,15 +428,16 @@ class CommonMarkParser {
 
         if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
           val strong = opener.element.count >= 2 && current_position.element.count >= 2
-          val list: List[CommonMarkAST] = opener.element.node.following unlinkUntil current_position.element.node.preceding
+          val list: List[CommonMarkAST] =
+            opener.element.node.following unlinkUntil current_position.element.node
 
-          opener.element.node.follow( EmphasisAST(list) )
+          opener.element.node.follow( EmphasisAST(seq(list)) )
         }
       }
     }
 
     processEmphsis
-    buf.toList
+    dllist.toList
   }
 
   def textual( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
@@ -463,10 +475,7 @@ class CommonMarkParser {
       }
     }
 
-    textual( /*phase2(*/breaks(escapes(s1)) ) match {
-      case List( e ) => e
-      case l => SeqAST( l )
-    }
+    seq( textual(phase2(breaks(escapes(s1)))) )
   }
 
   def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] = {
@@ -493,17 +502,17 @@ class CommonMarkParser {
           case f: FencedBlock =>
             CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
               transform( t, loose )
-          case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
+          case q: QuoteBlock => BlockquoteAST( seq(transform(q.blocks.toStream)) ) :: transform( t, loose )
           case l: ListItemBlock =>
             val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
             val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
             val loose1 = list.init.exists (i => blankAfter(i.blocks)) || blankAfter(list.last.blocks.init)
-            val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
+            val listitems = list map (b => ListItemAST( seq(transform(b.blocks.toStream, loose1)) )) toList
             val hd =
               if (l.typ.isInstanceOf[BulletList])
-                BulletListAST( SeqAST(listitems), !loose1 )
+                BulletListAST( seq(listitems), !loose1 )
               else
-                OrderedListAST( SeqAST(listitems), !loose1, l.typ.asInstanceOf[OrderedList].start )
+                OrderedListAST( seq(listitems), !loose1, l.typ.asInstanceOf[OrderedList].start )
 
             hd :: transform( rest, loose )
         }
