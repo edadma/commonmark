@@ -327,14 +327,11 @@ class CommonMarkParser {
         case _ => false
       }
 
-    def mark( c: C, node: dllist.Node, f: C => Unit ): dllist.Node =
-      if (node.notAfterEnd) {
-        if (node.element == c)
-          f( node.element.asInstanceOf[C] )
-
+    def mark( c: C, node: dllist.Node, f: C => Unit ): Unit =
+      if (node.notAfterEnd && node.element == c) {
+        f( node.element.asInstanceOf[C] )
         mark( c, node.following, f )
-      } else
-        node
+      }
 
     def skip( c: C, node: dllist.Node ): dllist.Node =
       if (node.notAfterEnd && node.element == c)
@@ -402,7 +399,6 @@ class CommonMarkParser {
         }
 
     flanking( dllist.headNode )
-    println( dllist )
     delimiters( dllist.headNode )
 
     var current_position: stack.Node =
