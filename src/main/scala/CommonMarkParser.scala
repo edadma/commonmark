@@ -444,17 +444,17 @@ class CommonMarkParser {
           if (opener.element.count > remove) {
 //            println( opener.element.node, opener.element.node.index )
             opener.element.node.following unlinkUntil opener.element.node.following.skipForward( remove )
+            opener.element.count -= remove
           } else {
             opener.element.node unlinkUntil opener.element.node.skipForward( remove )
             opener.unlink
           }
 
-          opener.element.count -= remove
-
-          if (current_position.element.count > remove)
+          if (current_position.element.count > remove) {
             current_position.element.node.following.
-              unlinkUntil( current_position.element.node.following.skipForward( remove - 1 ) )
-          else {
+              unlinkUntil( current_position.element.node.following.skipForward(remove) )
+            current_position.element.count -= remove
+          } else {
             current_position.element.node unlinkUntil current_position.element.node.skipForward( remove )
 
             val next = current_position.following
