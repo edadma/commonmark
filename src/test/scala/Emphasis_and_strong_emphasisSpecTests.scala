@@ -234,9 +234,9 @@ class Emphasis_and_strong_emphasisSpecTests extends FreeSpec with PropertyChecks
     test( "_foo _bar_ baz_\n" ) shouldBe "<p><em>foo <em>bar</em> baz</em></p>\n"
   }
 
-//  "example 388" in {//todo: em
-//    test( "__foo_ bar_\n" ) shouldBe "<p><em><em>foo</em> bar</em></p>\n"
-//  }
+  "example 388" in {
+    test( "__foo_ bar_\n" ) shouldBe "<p><em><em>foo</em> bar</em></p>\n"
+  }
 
 //  "example 389" in {//todo: em
 //    test( "*foo *bar**\n" ) shouldBe "<p><em>foo <em>bar</em></em></p>\n"
@@ -250,9 +250,9 @@ class Emphasis_and_strong_emphasisSpecTests extends FreeSpec with PropertyChecks
 //    test( "*foo**bar**baz*\n" ) shouldBe "<p><em>foo<strong>bar</strong>baz</em></p>\n"
 //  }
 
-//  "example 392" in {//todo: em
-//    test( "***foo** bar*\n" ) shouldBe "<p><em><strong>foo</strong> bar</em></p>\n"
-//  }
+  "example 392" in {
+    test( "***foo** bar*\n" ) shouldBe "<p><em><strong>foo</strong> bar</em></p>\n"
+  }
 
 //  "example 393" in {//todo: em
 //    test( "*foo **bar***\n" ) shouldBe "<p><em>foo <strong>bar</strong></em></p>\n"
@@ -294,9 +294,9 @@ class Emphasis_and_strong_emphasisSpecTests extends FreeSpec with PropertyChecks
     test( "__foo __bar__ baz__\n" ) shouldBe "<p><strong>foo <strong>bar</strong> baz</strong></p>\n"
   }
 
-//  "example 403" in {//todo: em
-//    test( "____foo__ bar__\n" ) shouldBe "<p><strong><strong>foo</strong> bar</strong></p>\n"
-//  }
+  "example 403" in {
+    test( "____foo__ bar__\n" ) shouldBe "<p><strong><strong>foo</strong> bar</strong></p>\n"
+  }
 
 //  "example 404" in {//todo: em
 //    test( "**foo **bar****\n" ) shouldBe "<p><strong>foo <strong>bar</strong></strong></p>\n"
@@ -310,10 +310,10 @@ class Emphasis_and_strong_emphasisSpecTests extends FreeSpec with PropertyChecks
 //    test( "**foo*bar*baz**\n" ) shouldBe "<p><strong>foo<em>bar</em>baz</strong></p>\n"
 //  }
 
-//  "example 407" in {
-//    test( "***foo* bar**\n" ) shouldBe "<p><strong><em>foo</em> bar</strong></p>\n"
-//  }
-//
+  "example 407" in {
+    test( "***foo* bar**\n" ) shouldBe "<p><strong><em>foo</em> bar</strong></p>\n"
+  }
+
 //  "example 408" in {
 //    test( "**foo *bar***\n" ) shouldBe "<p><strong>foo <em>bar</em></strong></p>\n"
 //  }
@@ -358,22 +358,22 @@ class Emphasis_and_strong_emphasisSpecTests extends FreeSpec with PropertyChecks
     test( "foo **_**\n" ) shouldBe "<p>foo <strong>_</strong></p>\n"
   }
 
-//  "example 419" in {//todo: em
-//    test( "**foo*\n" ) shouldBe "<p>*<em>foo</em></p>\n"
-//  }
+  "example 419" in {//todo: em
+    test( "**foo*\n" ) shouldBe "<p>*<em>foo</em></p>\n"
+  }
 
 //  "example 420" in {
 //    test( "*foo**\n" ) shouldBe "<p><em>foo</em>*</p>\n"
 //  }
-//
-//  "example 421" in {
-//    test( "***foo**\n" ) shouldBe "<p>*<strong>foo</strong></p>\n"
-//  }
-//
-//  "example 422" in {
-//    test( "****foo*\n" ) shouldBe "<p>***<em>foo</em></p>\n"
-//  }
-//
+
+  "example 421" in {
+    test( "***foo**\n" ) shouldBe "<p>*<strong>foo</strong></p>\n"
+  }
+
+  "example 422" in {
+    test( "****foo*\n" ) shouldBe "<p>***<em>foo</em></p>\n"
+  }
+
 //  "example 423" in {
 //    test( "**foo***\n" ) shouldBe "<p><strong>foo</strong>*</p>\n"
 //  }
@@ -406,22 +406,22 @@ class Emphasis_and_strong_emphasisSpecTests extends FreeSpec with PropertyChecks
     test( "foo __*__\n" ) shouldBe "<p>foo <strong>*</strong></p>\n"
   }
 
-//  "example 431" in {
-//    test( "__foo_\n" ) shouldBe "<p>_<em>foo</em></p>\n"
-//  }
-//
+  "example 431" in {
+    test( "__foo_\n" ) shouldBe "<p>_<em>foo</em></p>\n"
+  }
+
 //  "example 432" in {
 //    test( "_foo__\n" ) shouldBe "<p><em>foo</em>_</p>\n"
 //  }
-//
-//  "example 433" in {
-//    test( "___foo__\n" ) shouldBe "<p>_<strong>foo</strong></p>\n"
-//  }
-//
-//  "example 434" in {
-//    test( "____foo_\n" ) shouldBe "<p>___<em>foo</em></p>\n"
-//  }
-//
+
+  "example 433" in {
+    test( "___foo__\n" ) shouldBe "<p>_<strong>foo</strong></p>\n"
+  }
+
+  "example 434" in {
+    test( "____foo_\n" ) shouldBe "<p>___<em>foo</em></p>\n"
+  }
+
 //  "example 435" in {
 //    test( "__foo___\n" ) shouldBe "<p><strong>foo</strong>_</p>\n"
 //  }

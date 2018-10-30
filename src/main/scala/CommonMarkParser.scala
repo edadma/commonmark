@@ -440,12 +440,16 @@ class CommonMarkParser {
 
           opener.element.node.skipForward( opener.element.count - 1 ).follow( emphasis )
 
-          if (opener.element.count > remove)
-            opener.element.node.following unlinkUntil opener.element.node.following.skipForward( remove - 1 )
-          else {
+//          println( opener.element, remove )
+          if (opener.element.count > remove) {
+//            println( opener.element.node, opener.element.node.index )
+            opener.element.node.following unlinkUntil opener.element.node.following.skipForward( remove )
+          } else {
             opener.element.node unlinkUntil opener.element.node.skipForward( remove )
             opener.unlink
           }
+
+          opener.element.count -= remove
 
           if (current_position.element.count > remove)
             current_position.element.node.following.
