@@ -22,7 +22,7 @@ class ATX_headingsSpecTests extends FreeSpec with PropertyChecks with Matchers w
     test( "\\## foo\n" ) shouldBe "<p>## foo</p>\n"
   }
 
-  "example 36" in {//todo: em
+  "example 36" in {
     test( "# foo *bar* \\*baz\\*\n" ) shouldBe "<h1>foo <em>bar</em> *baz*</h1>\n"
   }
 

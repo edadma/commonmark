@@ -6,9 +6,11 @@ import prop.PropertyChecks
 
 class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
 
-//  "example 116" in {//todo: em
-//    test( "<table><tr><td>\n<pre>\n**Hello**,\n\n_world_.\n</pre>\n</td></tr></table>\n" ) shouldBe "<table><tr><td>\n<pre>\n**Hello**,\n<p><em>world</em>.\n</pre></p>\n</td></tr></table>\n"
-//  }
+  // issue #511
+  // the expected output was "fixed" using the obvious suggested fix
+  "example 116" in {
+    test( "<table><tr><td>\n<pre>\n**Hello**,\n\n_world_.\n</pre>\n</td></tr></table>\n" ) shouldBe "<table><tr><td>\n<pre>\n**Hello**,\n<p><em>world</em>.</p>\n</pre>\n</td></tr></table>\n"
+  }
 
   "example 117" in {
     test( "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n" ) shouldBe "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n<p>okay.</p>\n"
@@ -86,9 +88,9 @@ class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers wi
     test( "<del>\n\n*foo*\n\n</del>\n" ) shouldBe "<del>\n<p><em>foo</em></p>\n</del>\n"
   }
 
-//  "example 136" in {//todo: em
-//    test( "<del>*foo*</del>\n" ) shouldBe "<p><del><em>foo</em></del></p>\n"
-//  }
+  "example 136" in {
+    test( "<del>*foo*</del>\n" ) shouldBe "<p><del><em>foo</em></del></p>\n"
+  }
 
 //  "example 137" in {//todo: html block
 //    test( "<pre language=\"haskell\"><code>\nimport Text.HTML.TagSoup\n\nmain :: IO ()\nmain = print $ parseTags tags\n</code></pre>\nokay\n" ) shouldBe "<pre language=\"haskell\"><code>\nimport Text.HTML.TagSoup\n\nmain :: IO ()\nmain = print $ parseTags tags\n</code></pre>\n<p>okay</p>\n"
