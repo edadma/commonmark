@@ -366,10 +366,6 @@ class CommonMarkParser {
               (!precededByPunct || followedByWhitespace || followedByPunct))
               mark( c, node, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
 
-//            if (node.preceding.notBeforeStart)
-//              println( node.preceding.element )
-//
-//            println( node.index, c, precededByWhitespace, followedByWhitespace )
             flanking( end )
           case _ => flanking( node.following )
         }
@@ -400,6 +396,14 @@ class CommonMarkParser {
             stack += Delimiter( c.text, node, len, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
               c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
             delimiters( r )
+          case c@C( "[" ) =>
+            stack += Delimiter( c.text, node, 1, false, false )
+            delimiters( node.following )
+          case c@C( "!" ) if node.following.notAfterEnd && node.following.element == C( "[" ) =>
+            stack += Delimiter( c.text, node, 1, false, false )
+            delimiters( node.following.following )
+          case C( "]" ) =>
+
           case _ => delimiters( node.following )
         }
 
@@ -440,9 +444,7 @@ class CommonMarkParser {
 
           opener.element.node.skipForward( opener.element.count - 1 ).follow( emphasis )
 
-//          println( opener.element, remove )
           if (opener.element.count > remove) {
-//            println( opener.element.node, opener.element.node.index )
             opener.element.node.following unlinkUntil opener.element.node.following.skipForward( remove )
             opener.element.count -= remove
           } else {
