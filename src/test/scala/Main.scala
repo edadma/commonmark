@@ -4,7 +4,7 @@ package xyz.hyperreal.commonmark
 object Main extends App {
 
   val p = new CommonMarkParser
-  val input = "--\n**\n__\n"
+  val input = "__foo_ bar_\n"
 //    """
 //      |foo*bar*
 //    """.trim.stripMargin

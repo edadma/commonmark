@@ -321,9 +321,10 @@ class CommonMarkParser {
         case _ => false
       }
 
-    def spaceChar( elem: CommonMarkAST ) =
+    def whitespace( elem: CommonMarkAST ) =
       elem match {
         case c: Chr => Character.isSpaceChar( c.text.head )
+        case SoftBreakAST | HardBreakAST => true
         case _ => false
       }
 
@@ -343,9 +344,9 @@ class CommonMarkParser {
 
     def isPrecededByPunct( start: dllist.Node ) = !start.preceding.isBeforeStart && punctuation( start.preceding.element )
 
-    def isFollowedByWhitespace( end: dllist.Node )= end.isAfterEnd || spaceChar( end.element )
+    def isFollowedByWhitespace( end: dllist.Node )= end.isAfterEnd || whitespace( end.element )
 
-    def isPrecededByWhitespace( start: dllist.Node ) = start.preceding.isBeforeStart || spaceChar( start.preceding.element )
+    def isPrecededByWhitespace( start: dllist.Node ) = start.preceding.isBeforeStart || whitespace( start.preceding.element )
 
     def flanking( node: dllist.Node ): Unit =
       if (node.notAfterEnd)
@@ -365,7 +366,10 @@ class CommonMarkParser {
               (!precededByPunct || followedByWhitespace || followedByPunct))
               mark( c, node, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
 
-            println( node.index, c, followedByWhitespace )//, end.element.asInstanceOf[Chr].text.head.toInt )
+//            if (node.preceding.notBeforeStart)
+//              println( node.preceding.element )
+//
+//            println( node.index, c, precededByWhitespace, followedByWhitespace )
             flanking( end )
           case _ => flanking( node.following )
         }
