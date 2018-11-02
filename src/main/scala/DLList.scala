@@ -104,7 +104,7 @@ class DLList[T] extends AbstractBuffer[T] {
         node.isAfterEnd || cur.notAfterEnd
       }
 
-    def iteratorUntil(last: Node ) =
+    def iteratorUntil( last: Node ) =
       new Iterator[Node] {
         private var node = Node.this
 
@@ -122,11 +122,11 @@ class DLList[T] extends AbstractBuffer[T] {
 
     def iterator = iteratorUntil( endSentinel )
 
-    def reverseIterator =
+    def reverseIteratorUntil( last: Node ) =
       new Iterator[Node] {
         private var node = Node.this
 
-        def hasNext = node ne startSentinel
+        def hasNext = (node ne last) && (node ne startSentinel)
 
         def next = {
           if (isEmpty) throw new NoSuchElementException( "no more elements" )
@@ -137,6 +137,12 @@ class DLList[T] extends AbstractBuffer[T] {
           res
         }
       }
+
+    def reverseIterator = reverseIteratorUntil( startSentinel )
+
+    def find( p: T => Boolean ) = iterator find (n => p( n.element ))
+
+    def reverseFind( p: T => Boolean ) = reverseIterator find (n => p( n.element ))
 
     def index = {
       var cur: Node = startSentinel
@@ -207,10 +213,14 @@ class DLList[T] extends AbstractBuffer[T] {
     startSentinel.next
   }
 
+  def headNodeOption = if (isEmpty) None else Some( headNode )
+
   def lastNode = {
     require( nonEmpty, "list is empty" )
     endSentinel.prev
   }
+
+  def lastNodeOption = if (isEmpty) None else Some( lastNode )
 
   def node( n: Int ) = {
     require( 0 <= n && n < count, s"node index out of range: $n" )
@@ -228,6 +238,10 @@ class DLList[T] extends AbstractBuffer[T] {
   def nodeIterator = startSentinel.next.iterator
 
   def reverseNodeIterator = endSentinel.prev.reverseIterator
+
+  def nodeFind( p: T => Boolean ) = startSentinel.next.find( p )
+
+  def reverseNodeFind( p: T => Boolean ) = endSentinel.prev.reverseFind( p )
 
   def prependElement( elem: T ) = startSentinel follow elem
 

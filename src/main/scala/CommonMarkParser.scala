@@ -382,6 +382,19 @@ class CommonMarkParser {
       (count, cur)
     }
 
+    def lookForLinkOrImage( node: dllist.Node ): dllist.Node = {
+      stack.reverseNodeFind( _.s == "[" ) match {
+        case None => node.following
+        case Some( n ) =>
+          if (n.element.active) {
+
+          } else {
+            n.unlink
+            node.following
+          }
+      }
+    }
+
     def delimiters( node: dllist.Node ): Unit =
       if (node.notAfterEnd)
         node.element match {
@@ -402,8 +415,7 @@ class CommonMarkParser {
           case c@C( "!" ) if node.following.notAfterEnd && node.following.element == C( "[" ) =>
             stack += Delimiter( c.text, node, 1, false, false )
             delimiters( node.following.following )
-          case C( "]" ) =>
-
+          case C( "]" ) => delimiters( lookForLinkOrImage(node) )
           case _ => delimiters( node.following )
         }
 
