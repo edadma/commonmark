@@ -307,7 +307,7 @@ class CommonMarkParser {
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
     val dllist = DLList( l: _* )
 
-    class DLListInput private ( n: dllist.Node, val line: Int, val col: Int,
+    class DLListInput private ( val n: dllist.Node, val line: Int, val col: Int,
                                 val groups: Map[String, (Input, Input)] ) extends Input {
 
       def this( n: dllist.Node ) = this( n, 1, 1, Map() )
@@ -327,7 +327,7 @@ class CommonMarkParser {
       override def group( name: String, start: Input, end: Input ): Input =
         new DLListInput( n, line, col, groups + (name -> (start, end)) )
 
-      override def substring( end: Input ): String = ???
+      override def substring( end: Input ): String = n.iteratorUntil( end.asInstanceOf[DLListInput].n ) map (_.element.asInstanceOf[Chr].text) mkString
 
       override def lineText: String = ???
 
@@ -420,7 +420,9 @@ class CommonMarkParser {
           if (n.element.active) {
             linkParser( new DLListInput(n.element.node) ) match {
               case Success( rest ) =>
+                val (start, end) = rest.groups("dst")
 
+                LinkAST( start.substring(end))
               case Failure( _ ) =>
                 n.unlink
             }
