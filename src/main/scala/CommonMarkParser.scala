@@ -420,9 +420,10 @@ class CommonMarkParser {
           if (n.element.active) {
             linkParser( new DLListInput(n.element.node) ) match {
               case Success( rest ) =>
-                val (start, end) = rest.groups("dst")
+                val (dstart, dend) = rest.groups("dst")
+                val (cstart, cend) = rest.groups("text")
 
-                LinkAST( start.substring(end))
+                LinkAST( dstart.substring(dend), None, fromList(cstart.asInstanceOf[DLListInput].n.iteratorUntil(cend.asInstanceOf[DLListInput].n).toList.map(_.element)) )
               case Failure( _ ) =>
                 n.unlink
             }
