@@ -39,32 +39,6 @@ abstract class Input {
 
 }
 
-class DLListInput private ( n: DLList[CommonMarkAST]#Node, val line: Int, val col: Int,
-                            val groups: Map[String, (Input, Input)] ) extends Input {
-
-  def this( n: DLList[CommonMarkAST]#Node ) = this( n, 1, 1, Map() )
-
-  private def problem = sys.error( s"end of input: [$line, $col]" )
-
-  override lazy val eoi: Boolean = n.isAfterEnd
-
-  override lazy val ch: Char = n.element.asInstanceOf[CommonMarkParser#Chr].text.head
-
-  override lazy val next: Input = {
-    n.find( _.isInstanceOf[CommonMarkParser#C] ) match {
-      case None => problem
-      case Some( n1 ) => new DLListInput( n1, line, col, groups )
-    }
-  }
-
-  override def group( name: String, start: Input, end: Input ): Input = ???
-
-  override def substring( end: Input ): String = ???
-
-  override def lineText: String = ???
-
-}
-
 class StringInput private ( s: String, val idx: Int, val line: Int, val col: Int,
                             val groups: Map[String, (Input, Input)] ) extends Input {
 
@@ -109,15 +83,23 @@ class StringInput private ( s: String, val idx: Int, val line: Int, val col: Int
 
 trait Parser extends (Input => Result)
 
-object Matcher {
+object Matcher {/*extends App {
 
-  private val HEXDIGITSET = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') toSet
+  val linkParser: Parser = seq(ch('['), capture("text", zeroOrMore(noneOf(']'))), ch(']'), ch('('), capture("dst", zeroOrMore(noneOf(')'))), ch(')'))
+
+  println( linkParser(new StringInput("[asdf](/url)")) )*/
+
+  private val HEXDIGITSET = ('a' to 'f') ++ ('A' to 'F') ++ ('0' to '9') toSet
 
   def hexdigit: Parser = cls( HEXDIGITSET )
 
   def letterOrDigit: Parser = cls( _.isLetterOrDigit )
 
   def letter: Parser = cls( _.isLetter )
+
+  def lower: Parser = cls( _.isLower )
+
+  def upper: Parser = cls( _.isUpper )
 
   def digit: Parser = cls( _.isDigit )
 

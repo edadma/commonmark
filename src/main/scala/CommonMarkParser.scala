@@ -2,7 +2,6 @@
 package xyz.hyperreal.commonmark
 
 import scala.collection.mutable.{ArrayBuffer, HashMap, ListBuffer}
-
 import xyz.hyperreal.dllist.DLList
 
 
@@ -308,6 +307,32 @@ class CommonMarkParser {
   def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
     val dllist = DLList( l: _* )
 
+    class DLListInput private ( n: dllist.Node, val line: Int, val col: Int,
+                                val groups: Map[String, (Input, Input)] ) extends Input {
+
+      def this( n: dllist.Node ) = this( n, 1, 1, Map() )
+
+      private def problem = sys.error( s"end of input: [$line, $col]" )
+
+      override lazy val eoi: Boolean = n.following.find( _.isInstanceOf[C] ).isDefined
+
+      override lazy val ch: Char = n.element.asInstanceOf[CommonMarkParser#Chr].text.head
+
+      override lazy val next =
+        n.following.find( _.isInstanceOf[C] ) match {
+          case None => problem
+          case Some( n1 ) => new DLListInput( n1, line, col + 1, groups )
+        }
+
+      override def group( name: String, start: Input, end: Input ): Input =
+        new DLListInput( n, line, col, groups + (name -> (start, end)) )
+
+      override def substring( end: Input ): String = ???
+
+      override def lineText: String = ???
+
+    }
+
     case class Delimiter( s: String, node: dllist.Node, var count: Int, opener: Boolean, closer: Boolean,
                           var active: Boolean = true )
 
@@ -384,18 +409,27 @@ class CommonMarkParser {
       (count, cur)
     }
 
+    import Matcher._
+
+    val linkParser: Parser = seq(ch('['), capture("text", zeroOrMore(noneOf(']'))), ch(']'), ch('('), capture("dst", zeroOrMore(noneOf(')'))), ch(')'))
+
     def lookForLinkOrImage( node: dllist.Node ): dllist.Node = {
-//      stack.reverseNodeFind( _.s == "[" ) match {
-//        case None => node.following
-//        case Some( n ) =>
-//          if (n.element.active) {
-//
-//          } else {
-//            n.unlink
-//            node.following
-//          }
-//      }
-      node
+      stack.reverseNodeFind( _.s == "[" ) match {
+        case None =>
+        case Some( n ) =>
+          if (n.element.active) {
+            linkParser( new DLListInput(n.element.node) ) match {
+              case Success( rest ) =>
+
+              case Failure( _ ) =>
+                n.unlink
+            }
+          } else {
+            n.unlink
+          }
+      }
+
+      node.following
     }
 
     def delimiters( node: dllist.Node ): Unit =
