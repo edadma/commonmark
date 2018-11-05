@@ -4,7 +4,7 @@ package xyz.hyperreal.commonmark
 object Main extends App {
 
   val p = new CommonMarkParser
-  val input = "<table><tr><td>\n<pre>\n**Hello**,\n\n_world_.\n</pre>\n</td></tr></table>\n"//"**foo*bar*baz**\n"
+  val input = "[asdf](/url)"
 //    """
 //      |foo*bar*
 //    """.trim.stripMargin

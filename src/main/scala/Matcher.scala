@@ -1,6 +1,8 @@
 //@
 package xyz.hyperreal.commonmark
 
+import xyz.hyperreal.dllist.DLList
+
 
 abstract class Result
 case class Success( rest: Input ) extends Result
@@ -34,6 +36,32 @@ abstract class Input {
 
   override def toString = s"line $line, col $col: $lineText; " +
     groups.map{ case (k, (s, e)) => s"$k: ${s.substring(e)}"}.mkString( ", " )
+
+}
+
+class DLListInput private ( n: DLList[CommonMarkAST]#Node, val line: Int, val col: Int,
+                            val groups: Map[String, (Input, Input)] ) extends Input {
+
+  def this( n: DLList[CommonMarkAST]#Node ) = this( n, 1, 1, Map() )
+
+  private def problem = sys.error( s"end of input: [$line, $col]" )
+
+  override lazy val eoi: Boolean = n.isAfterEnd
+
+  override lazy val ch: Char = n.element.asInstanceOf[CommonMarkParser#Chr].text.head
+
+  override lazy val next: Input = {
+    n.find( _.isInstanceOf[CommonMarkParser#C] ) match {
+      case None => problem
+      case Some( n1 ) => new DLListInput( n1, line, col, groups )
+    }
+  }
+
+  override def group( name: String, start: Input, end: Input ): Input = ???
+
+  override def substring( end: Input ): String = ???
+
+  override def lineText: String = ???
 
 }
 
@@ -98,6 +126,10 @@ object Matcher {
       Success( in.next )
     else
       Failure( in )
+
+  def anyOf( cs: Char* ): Parser = cls( cs contains _ )
+
+  def noneOf( cs: Char* ): Parser = cls( !cs.contains(_) )
 
   def oneOrMore( p: Parser ): Parser = seq( p, zeroOrMore(p) )
 
