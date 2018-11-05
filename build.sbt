@@ -58,6 +58,7 @@ libraryDependencies ++= {
 
 libraryDependencies ++= Seq(
   "xyz.hyperreal" %% "pretty" % "0.1",
+  "xyz.hyperreal" %% "dllist" % "0.1",
   "xyz.hyperreal" %% "json" % "0.7.5"
 )
 

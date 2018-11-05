@@ -1,7 +1,9 @@
 //@
 package xyz.hyperreal.commonmark
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer, HashMap}
+import scala.collection.mutable.{ArrayBuffer, HashMap, ListBuffer}
+
+import xyz.hyperreal.dllist.DLList
 
 
 object CommonMarkParser{
@@ -383,16 +385,17 @@ class CommonMarkParser {
     }
 
     def lookForLinkOrImage( node: dllist.Node ): dllist.Node = {
-      stack.reverseNodeFind( _.s == "[" ) match {
-        case None => node.following
-        case Some( n ) =>
-          if (n.element.active) {
-
-          } else {
-            n.unlink
-            node.following
-          }
-      }
+//      stack.reverseNodeFind( _.s == "[" ) match {
+//        case None => node.following
+//        case Some( n ) =>
+//          if (n.element.active) {
+//
+//          } else {
+//            n.unlink
+//            node.following
+//          }
+//      }
+      node
     }
 
     def delimiters( node: dllist.Node ): Unit =

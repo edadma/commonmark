@@ -99,7 +99,7 @@ object Matcher {
     else
       Failure( in )
 
-  def oneOrMore( p: Parser ): Parser = cat( p, zeroOrMore(p) )
+  def oneOrMore( p: Parser ): Parser = seq( p, zeroOrMore(p) )
 
   def zeroOrMore( p: Parser )( in: Input ): Result =
     p( in ) match {
@@ -109,18 +109,18 @@ object Matcher {
 
   def ch( c: Char ): Parser = cls( _ == c )
 
-  def cat( ps: Parser* )( in: Input ) = {
-    def cat( idx: Int, r: Input ): Result =
+  def seq( ps: Parser* )( in: Input ) = {
+    def seq( idx: Int, r: Input ): Result =
       if (idx < ps.length)
         ps(idx)( r ) match {
           case Success( s ) =>
-            cat( idx + 1, s )
+            seq( idx + 1, s )
           case f => f
         }
       else
         Success( r )
 
-    cat( 0, in )
+    seq( 0, in )
   }
 
   def alt( ps: Parser* )( in: Input ) = {
