@@ -314,7 +314,7 @@ class CommonMarkParser {
 
       private def problem = sys.error( s"end of input: [$line, $col]" )
 
-      override lazy val eoi: Boolean = n.notAfterEnd
+      override lazy val eoi: Boolean = n.isAfterEnd
 
       override lazy val ch: Char = n.element.asInstanceOf[Chr].text.head
 
@@ -340,6 +340,8 @@ class CommonMarkParser {
 
     val stack = new DLList[Delimiter]
     var stack_bottom: stack.Node = null
+    var current_position: stack.Node = null
+    val openers_bottom = new HashMap[String, stack.Node]
 
     def punctuation( elem: CommonMarkAST ) =
       elem match {
@@ -415,34 +417,6 @@ class CommonMarkParser {
 
     val linkParser: Parser = seq(ch('['), capture("text", zeroOrMore(noneOf(']'))), ch(']'), ch('('), capture("dst", zeroOrMore(noneOf(')'))), ch(')'))
 
-    def lookForLinkOrImage( node: dllist.Node ): dllist.Node = {
-      stack.reverseNodeFind( _.s == "[" ) match {
-        case None =>
-        case Some( n ) =>
-          if (n.element.active) {
-            linkParser( new DLListInput(n.element.node) ) match {
-              case Success( rest ) =>
-                val (dstart, dend) = rest.groups("dst")
-                val (cstart, cend) = rest.groups("text")
-
-                n.element.node precede
-                  LinkAST( dstart.substring(dend), None,
-                    fromList(cstart.asInstanceOf[DLListInput].n.iteratorUntil(cend.asInstanceOf[DLListInput].n).toList.map(_.element)) )
-                n.element.node unlinkUntil rest.asInstanceOf[DLListInput].n
-                n.reverseIterator map (_.element) filter (_.s == "[") foreach (_.active = false)
-                n.unlink
-              case Failure( p ) =>
-                println( p)
-                n.unlink
-            }
-          } else {
-            n.unlink
-          }
-      }
-
-      node.following
-    }
-
     def delimiters( node: dllist.Node ): Unit =
       if (node.notAfterEnd)
         node.element match {
@@ -467,10 +441,40 @@ class CommonMarkParser {
           case _ => delimiters( node.following )
         }
 
+    def lookForLinkOrImage( node: dllist.Node ): dllist.Node = {
+      stack.reverseNodeFind( _.s == "[" ) match {
+        case None => node.following
+        case Some( n ) =>
+          if (n.element.active) {
+            linkParser( new DLListInput(n.element.node) ) match {
+              case Success( rest ) =>
+                val (dstart, dend) = rest.groups("dst")
+                val (cstart, cend) = rest.groups("text")
+
+                stack_bottom = n
+                processEmphsis
+                n.element.node precede
+                  LinkAST( dstart.substring(dend), None,//todo: "We run process emphasis on these inlines, with the [ opener as stack_bottom." before calling 'textual'
+                    textual(cstart.asInstanceOf[DLListInput].n.iteratorUntil(cend.asInstanceOf[DLListInput].n).toList.map(_.element)) )
+                n.element.node unlinkUntil rest.asInstanceOf[DLListInput].n
+                n.reverseIterator map (_.element) filter (_.s == "[") foreach (_.active = false)
+                n.unlink
+                rest.asInstanceOf[DLListInput].n
+              case Failure( p ) =>
+                n.unlink
+                node.following
+            }
+          } else {
+            n.unlink
+            node.following
+          }
+      }
+    }
+
     flanking( dllist.startSentinel.following )
     delimiters( dllist.startSentinel.following )
 
-    var current_position: stack.Node =
+    current_position =
       if (stack_bottom eq null)
         if (stack.isEmpty)
           stack.endSentinel
@@ -478,11 +482,13 @@ class CommonMarkParser {
           stack.headNode
       else
         stack_bottom
-    val openers_bottom = HashMap( "*" -> stack_bottom, "_" -> stack_bottom )
+    openers_bottom("*") = stack_bottom
+    openers_bottom("_") = stack_bottom
 
     def processEmphsis: Unit = {
-      while (current_position.notAfterEnd && !current_position.element.closer)
+      while (current_position.notAfterEnd && !current_position.element.closer) {
         current_position = current_position.following
+        }
 
       if (!current_position.isAfterEnd) {
         var opener = current_position.preceding
@@ -539,6 +545,7 @@ class CommonMarkParser {
       }
     }
 
+    stack_bottom = null
     processEmphsis
     dllist.toList
   }
