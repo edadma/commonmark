@@ -123,12 +123,13 @@ object Matcher {/*extends App {
 
   def ch( c: Char ): Parser = cls( _ == c )
 
+  def str( s: String )( in: Input ) = seq( s.toList map ch: _* )( in )
+
   def seq( ps: Parser* )( in: Input ) = {
     def seq( idx: Int, r: Input ): Result =
       if (idx < ps.length)
         ps(idx)( r ) match {
-          case Success( s ) =>
-            seq( idx + 1, s )
+          case Success( s ) => seq( idx + 1, s )
           case f => f
         }
       else
@@ -163,4 +164,8 @@ object Matcher {/*extends App {
 
   def opt( p: Parser ): Parser = alt( p, succeed )
 
+  def print( a: Any ): Parser = {
+    println( a )
+    succeed
+  }
 }

@@ -314,13 +314,13 @@ class CommonMarkParser {
 
       private def problem = sys.error( s"end of input: [$line, $col]" )
 
-      override lazy val eoi: Boolean = n.following.find( _.isInstanceOf[C] ).isDefined
+      override lazy val eoi: Boolean = n.notAfterEnd
 
-      override lazy val ch: Char = n.element.asInstanceOf[CommonMarkParser#Chr].text.head
+      override lazy val ch: Char = n.element.asInstanceOf[Chr].text.head
 
       override lazy val next =
         n.following.find( _.isInstanceOf[C] ) match {
-          case None => problem
+          case None => new DLListInput( dllist.endSentinel, line, col + 1, groups )
           case Some( n1 ) => new DLListInput( n1, line, col + 1, groups )
         }
 
@@ -329,7 +329,9 @@ class CommonMarkParser {
 
       override def substring( end: Input ): String = n.iteratorUntil( end.asInstanceOf[DLListInput].n ) map (_.element.asInstanceOf[Chr].text) mkString
 
-      override def lineText: String = ???
+      override def lineText: String = {
+        n.iteratorUntil( n.skipReverse(col - 1) ).toList.toString
+      }
 
     }
 
@@ -423,8 +425,14 @@ class CommonMarkParser {
                 val (dstart, dend) = rest.groups("dst")
                 val (cstart, cend) = rest.groups("text")
 
-                LinkAST( dstart.substring(dend), None, fromList(cstart.asInstanceOf[DLListInput].n.iteratorUntil(cend.asInstanceOf[DLListInput].n).toList.map(_.element)) )
-              case Failure( _ ) =>
+                n.element.node precede
+                  LinkAST( dstart.substring(dend), None,
+                    fromList(cstart.asInstanceOf[DLListInput].n.iteratorUntil(cend.asInstanceOf[DLListInput].n).toList.map(_.element)) )
+                n.element.node unlinkUntil rest.asInstanceOf[DLListInput].n
+                n.reverseIterator map (_.element) filter (_.s == "[") foreach (_.active = false)
+                n.unlink
+              case Failure( p ) =>
+                println( p)
                 n.unlink
             }
           } else {
