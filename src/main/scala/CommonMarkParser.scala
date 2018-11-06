@@ -415,7 +415,13 @@ class CommonMarkParser {
 
     import Matcher._
 
-    val linkParser: Parser = seq(ch('['), capture("text", zeroOrMore(noneOf(']'))), ch(']'), ch('('), capture("dst", zeroOrMore(noneOf(')'))), ch(')'))
+    val linkParser: Parser =
+      seq(
+        ch('['), zeroOrMore(noneOf(']')), ch(']'), ch('('),
+        alt(
+          seq(ch('<'), capture("dst", zeroOrMore(noneOf(')', '>'))), ch('>')),
+          seq(not(ch('<')), capture("dst", zeroOrMore(noneOf(')', '>'))), not(ch('>')))),
+        ch(')'))
 
     def delimiters( node: dllist.Node ): Unit =
       if (node.notAfterEnd)
@@ -449,13 +455,12 @@ class CommonMarkParser {
             linkParser( new DLListInput(n.element.node) ) match {
               case Success( rest ) =>
                 val (dstart, dend) = rest.groups("dst")
-                val (cstart, cend) = rest.groups("text")
 
                 stack_bottom = n
                 processEmphsis
                 n.element.node precede
                   LinkAST( dstart.substring(dend), None,//todo: "We run process emphasis on these inlines, with the [ opener as stack_bottom." before calling 'textual'
-                    textual(cstart.asInstanceOf[DLListInput].n.iteratorUntil(cend.asInstanceOf[DLListInput].n).toList.map(_.element)) )
+                    textual(n.element.node.following.iteratorUntil(node).toList.map(_.element)) )
                 n.element.node unlinkUntil rest.asInstanceOf[DLListInput].n
                 n.reverseIterator map (_.element) filter (_.s == "[") foreach (_.active = false)
                 n.unlink
@@ -474,75 +479,78 @@ class CommonMarkParser {
     flanking( dllist.startSentinel.following )
     delimiters( dllist.startSentinel.following )
 
-    current_position =
-      if (stack_bottom eq null)
-        if (stack.isEmpty)
-          stack.endSentinel
-        else
-          stack.headNode
-      else
-        stack_bottom
-    openers_bottom("*") = stack_bottom
-    openers_bottom("_") = stack_bottom
-
     def processEmphsis: Unit = {
-      while (current_position.notAfterEnd && !current_position.element.closer) {
-        current_position = current_position.following
-        }
-
-      if (!current_position.isAfterEnd) {
-        var opener = current_position.preceding
-
-        while (opener.notBeforeStart && opener != stack_bottom &&
-          opener != openers_bottom(current_position.element.s) && (!opener.element.opener ||
-          opener.element.s != current_position.element.s))
-          opener = opener.preceding
-
-        if (opener.notBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
-          val contents: CommonMarkAST =
-            fromList( opener.element.node.skipForward( opener.element.count - 1 ).following.
-              unlinkUntil(current_position.element.node) )
-          val (remove, emphasis) =
-            if (opener.element.count >= 2 && current_position.element.count >= 2)
-              (2, StrongAST( contents ))
-            else
-              (1, EmphasisAST( contents ))
-
-          opener.element.node.skipForward( opener.element.count - 1 ).follow( emphasis )
-
-          if (opener.element.count > remove) {
-            opener.element.node.following unlinkUntil opener.element.node.following.skipForward( remove )
-            opener.element.count -= remove
-          } else {
-            opener.element.node unlinkUntil opener.element.node.skipForward( remove )
-            opener.unlink
+      def processEmphsis: Unit = {
+        while (current_position.notAfterEnd && !current_position.element.closer) {
+          current_position = current_position.following
           }
 
-          if (current_position.element.count > remove) {
-            current_position.element.node.following.
-              unlinkUntil( current_position.element.node.following.skipForward(remove) )
-            current_position.element.count -= remove
+        if (!current_position.isAfterEnd) {
+          var opener = current_position.preceding
+
+          while (opener.notBeforeStart && opener != stack_bottom &&
+            opener != openers_bottom(current_position.element.s) && (!opener.element.opener ||
+            opener.element.s != current_position.element.s))
+            opener = opener.preceding
+
+          if (opener.notBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
+            val contents: CommonMarkAST =
+              fromList( opener.element.node.skipForward( opener.element.count - 1 ).following.
+                unlinkUntil(current_position.element.node) )
+            val (remove, emphasis) =
+              if (opener.element.count >= 2 && current_position.element.count >= 2)
+                (2, StrongAST( contents ))
+              else
+                (1, EmphasisAST( contents ))
+
+            opener.element.node.skipForward( opener.element.count - 1 ).follow( emphasis )
+
+            if (opener.element.count > remove) {
+              opener.element.node.following unlinkUntil opener.element.node.following.skipForward( remove )
+              opener.element.count -= remove
+            } else {
+              opener.element.node unlinkUntil opener.element.node.skipForward( remove )
+              opener.unlink
+            }
+
+            if (current_position.element.count > remove) {
+              current_position.element.node.following.
+                unlinkUntil( current_position.element.node.following.skipForward(remove) )
+              current_position.element.count -= remove
+            } else {
+              current_position.element.node unlinkUntil current_position.element.node.skipForward( remove )
+
+              val next = current_position.following
+
+              current_position.unlink
+              current_position = next
+            }
           } else {
-            current_position.element.node unlinkUntil current_position.element.node.skipForward( remove )
+            openers_bottom(current_position.element.s) = current_position.preceding
 
             val next = current_position.following
 
-            current_position.unlink
+            if (!current_position.element.opener)
+              current_position.unlink
+
             current_position = next
           }
-        } else {
-          openers_bottom(current_position.element.s) = current_position.preceding
 
-          val next = current_position.following
-
-          if (!current_position.element.opener)
-            current_position.unlink
-
-          current_position = next
+          processEmphsis
         }
-
-        processEmphsis
       }
+
+      current_position =
+        if (stack_bottom eq null)
+          if (stack.isEmpty)
+            stack.endSentinel
+          else
+            stack.headNode
+        else
+          stack_bottom
+      openers_bottom("*") = stack_bottom
+      openers_bottom("_") = stack_bottom
+      processEmphsis
     }
 
     stack_bottom = null

@@ -85,7 +85,13 @@ trait Parser extends (Input => Result)
 
 object Matcher {/*extends App {
 
-  val linkParser: Parser = seq(ch('['), capture("text", zeroOrMore(noneOf(']'))), ch(']'), ch('('), capture("dst", zeroOrMore(noneOf(')'))), ch(')'))
+    val linkParser: Parser =
+      seq(
+        ch('['), zeroOrMore(noneOf(']')), ch(']'), ch('('),
+        alt(
+          seq(ch('<'), capture("dst", zeroOrMore(noneOf(')', '>'))), ch('>')),
+          seq(not(ch('<')), capture("dst", zeroOrMore(noneOf(')', '>'))), not(ch('>')))),
+        ch(')'))
 
   println( linkParser(new StringInput("[asdf](/url)")) )*/
 
@@ -168,4 +174,11 @@ object Matcher {/*extends App {
     println( a )
     succeed
   }
+
+  def not( p: Parser )( in: Input ) =
+    p( in ) match {
+      case Success( _ ) => Failure( in )
+      case Failure( _ ) => Success( in )
+    }
+
 }
