@@ -83,17 +83,27 @@ class StringInput private ( s: String, val idx: Int, val line: Int, val col: Int
 
 trait Parser extends (Input => Result)
 
-object Matcher {/*extends App {
+object Matcher extends App {
 
     val linkParser: Parser =
       seq(
-        ch('['), zeroOrMore(noneOf(']')), ch(']'), ch('('),
+        ch('['), zeroOrMore(noneOf(']')), ch(']'), ch('('), zeroOrMore(space),
         alt(
-          seq(ch('<'), capture("dst", zeroOrMore(noneOf(')', '>'))), ch('>')),
-          seq(not(ch('<')), capture("dst", zeroOrMore(noneOf(')', '>'))), not(ch('>')))),
-        ch(')'))
+          seq(ch('<'), capture("dst", zeroOrMore(noneOf(')', '>', ' ', '\n'))), ch('>')),
+          seq(not(ch('<')), capture("dst", zeroOrMore(noneOf(')', '>', ' ', '\n'))), not(ch('>')))),
+        opt(
+          seq(
+            oneOrMore(space),
+            alt(
+              seq(ch('"'), capture( "title", zeroOrMore(noneOf('"'))), ch('"')),
+              seq(ch('\''), capture( "title", zeroOrMore(noneOf('\''))), ch('\'')),
+              seq(ch('('), capture( "title", zeroOrMore(noneOf(')'))), ch(')')),
+            )
+          ),
+        ),
+        zeroOrMore(space), ch(')'))
 
-  println( linkParser(new StringInput("[asdf](/url)")) )*/
+  println( linkParser(new StringInput("""[asdf]( /url "title" )""")) )
 
   private val HEXDIGITSET = ('a' to 'f') ++ ('A' to 'F') ++ ('0' to '9') toSet
 
@@ -108,6 +118,8 @@ object Matcher {/*extends App {
   def upper: Parser = cls( _.isUpper )
 
   def digit: Parser = cls( _.isDigit )
+
+  def space: Parser = cls( _.isSpaceChar )
 
   def cls( pred: Char => Boolean )( in: Input ): Result =
     if (in.more && pred( in.ch ))
