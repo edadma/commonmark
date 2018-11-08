@@ -103,7 +103,7 @@ object Matcher extends App {
         ),
         zeroOrMore(space), ch(')'))
 
-  println( linkParser(new StringInput("""[asdf]( /url "title" )""")) )
+  println( linkParser(new StringInput("""[asdf](</url>)""")) )
 
   private val HEXDIGITSET = ('a' to 'f') ++ ('A' to 'F') ++ ('0' to '9') toSet
 

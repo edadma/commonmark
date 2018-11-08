@@ -417,11 +417,21 @@ class CommonMarkParser {
 
     val linkParser: Parser =
       seq(
-        ch('['), zeroOrMore(noneOf(']')), ch(']'), ch('('),
+        ch('['), zeroOrMore(noneOf(']')), ch(']'), ch('('), zeroOrMore(space),
         alt(
-          seq(ch('<'), capture("dst", zeroOrMore(noneOf(')', '>'))), ch('>')),
-          seq(not(ch('<')), capture("dst", zeroOrMore(noneOf(')', '>'))), not(ch('>')))),
-        ch(')'))
+          seq(ch('<'), capture("dst", zeroOrMore(noneOf(')', '>', ' ', '\n'))), ch('>')),
+          seq(not(ch('<')), capture("dst", zeroOrMore(noneOf(')', '>', ' ', '\n'))), not(ch('>')))),
+        opt(
+          seq(
+            oneOrMore(space),
+            alt(
+              seq(ch('"'), capture( "title", zeroOrMore(noneOf('"'))), ch('"')),
+              seq(ch('\''), capture( "title", zeroOrMore(noneOf('\''))), ch('\'')),
+              seq(ch('('), capture( "title", zeroOrMore(noneOf(')'))), ch(')')),
+            )
+          ),
+        ),
+        zeroOrMore(space), ch(')'))
 
     def delimiters( node: dllist.Node ): Unit =
       if (node.notAfterEnd)
@@ -455,11 +465,13 @@ class CommonMarkParser {
             linkParser( new DLListInput(n.element.node) ) match {
               case Success( rest ) =>
                 val (dstart, dend) = rest.groups("dst")
+                println(dstart, dend)
+                val title = rest.groups get "title" map { case (s, e) => s substring e }
 
                 stack_bottom = n
                 processEmphsis
                 n.element.node precede
-                  LinkAST( dstart.substring(dend), None,//todo: "We run process emphasis on these inlines, with the [ opener as stack_bottom." before calling 'textual'
+                  LinkAST( dstart.substring(dend), title,
                     textual(n.element.node.following.iteratorUntil(node).toList.map(_.element)) )
                 n.element.node unlinkUntil rest.asInstanceOf[DLListInput].n
                 n.reverseIterator map (_.element) filter (_.s == "[") foreach (_.active = false)
