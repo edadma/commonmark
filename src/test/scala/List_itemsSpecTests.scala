@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class List_itemsSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class List_itemsSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 216" in {
     test( "A paragraph\nwith two lines.\n\n    indented code\n\n> A block quote.\n" ) shouldBe "<p>A paragraph\nwith two lines.</p>\n<pre><code>indented code\n</code></pre>\n<blockquote>\n<p>A block quote.</p>\n</blockquote>\n"

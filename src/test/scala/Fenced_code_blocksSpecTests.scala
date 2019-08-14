@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class Fenced_code_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class Fenced_code_blocksSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 88" in {
     test( "```\n<\n >\n```\n" ) shouldBe "<pre><code>&lt;\n &gt;\n</code></pre>\n"

@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class Setext_headingsSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class Setext_headingsSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 50" in {
     test( "Foo *bar*\n=========\n\nFoo *bar*\n---------\n" ) shouldBe "<h1>Foo <em>bar</em></h1>\n<h2>Foo <em>bar</em></h2>\n"

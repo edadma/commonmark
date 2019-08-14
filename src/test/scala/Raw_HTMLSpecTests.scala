@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class Raw_HTMLSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class Raw_HTMLSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 584" in {
     test( "<a><bab><c2c>\n" ) shouldBe "<p><a><bab><c2c></p>\n"

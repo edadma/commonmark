@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class HTML_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class HTML_blocksSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   // issue #511
   // the expected output was "fixed" using the obvious suggested fix

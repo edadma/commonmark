@@ -29,10 +29,10 @@ object SpecTestGenerator /*extends App*/ {
           |package xyz.hyperreal.commonmark
           |
           |import org.scalatest._
-          |import prop.PropertyChecks
+          |import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
           |
           |
-          |class $name extends FreeSpec with PropertyChecks with Matchers with Testing {
+          |class $name extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
         """.trim.stripMargin
       )
       out.println

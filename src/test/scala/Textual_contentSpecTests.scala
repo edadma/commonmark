@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class Textual_contentSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class Textual_contentSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 622" in {
     test( "hello $.;'there\n" ) shouldBe "<p>hello $.;'there</p>\n"

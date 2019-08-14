@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class Thematic_breaksSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class Thematic_breaksSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 13" in {
     test( "***\n---\n___\n" ) shouldBe "<hr />\n<hr />\n<hr />\n"

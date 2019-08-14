@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class LinksSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class LinksSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 459" in {
     test( "[link](/uri \"title\")\n" ) shouldBe "<p><a href=\"/uri\" title=\"title\">link</a></p>\n"

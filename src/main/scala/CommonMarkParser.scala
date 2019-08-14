@@ -50,15 +50,15 @@ class CommonMarkParser {
 
   def parse( src: String ): CommonMarkAST = parse( io.Source.fromString(src) )
 
-  def parse( src: io.Source ) = fromList( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
+  def parse( src: io.Source ) = fromList( transform(parseBlocks(LazyList.from(src.getLines)).blocks.toStream) )
 
-  def parseBlocks( lines: Stream[String] ) = {
+  def parseBlocks( lines: LazyList[String] ) = {
     val doc = new DocumentBlock
     val trail = new ArrayBuffer[Block]
 
     trail += doc
 
-    def next( s: Stream[String] ): Unit = {
+    def next( s: LazyList[String] ): Unit = {
       def matching( from: Int, text: String, prev: ContainerBlock, blocks: List[Block] ): (Block, Int, String, ContainerBlock) =
         blocks match {
           case Nil => (null, from, text, prev)
@@ -597,7 +597,7 @@ class CommonMarkParser {
       if (s isEmpty)
         s
       else {
-        val lines = s.lines.toSeq
+        val lines = s.split( "\n" ).toList
         val init =
           for (l <- lines.init)
             yield {
@@ -637,7 +637,7 @@ class CommonMarkParser {
             ParagraphAST( inline(p.buf.toString) ) :: transform( t, loose )
           case p: ParagraphBlock => inline(p.buf.toString) :: transform( t, loose )
           case b: IndentedBlock =>
-            CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank _).reverse mkString "\n", None, None ) :: transform( t, loose )
+            CodeBlockAST( b.buf.toString.split( "\n" ).toList.reverse.dropWhile(isBlank _).reverse mkString "\n", None, None ) :: transform( t, loose )
           case f: FencedBlock =>
             CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
               transform( t, loose )

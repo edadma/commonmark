@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class BlockParsingTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
 	"paragraphs" in {
 		testBlockParsing(

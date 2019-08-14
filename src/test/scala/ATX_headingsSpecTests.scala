@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class ATX_headingsSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class ATX_headingsSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 32" in {
     test( "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n" ) shouldBe "<h1>foo</h1>\n<h2>foo</h2>\n<h3>foo</h3>\n<h4>foo</h4>\n<h5>foo</h5>\n<h6>foo</h6>\n"

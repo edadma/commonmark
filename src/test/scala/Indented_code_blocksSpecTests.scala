@@ -1,10 +1,10 @@
 package xyz.hyperreal.commonmark
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class Indented_code_blocksSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class Indented_code_blocksSpecTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 
   "example 76" in {
     test( "    a simple\n      indented code block\n" ) shouldBe "<pre><code>a simple\n  indented code block\n</code></pre>\n"
