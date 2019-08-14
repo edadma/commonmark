@@ -637,7 +637,7 @@ class CommonMarkParser {
             ParagraphAST( inline(p.buf.toString) ) :: transform( t, loose )
           case p: ParagraphBlock => inline(p.buf.toString) :: transform( t, loose )
           case b: IndentedBlock =>
-            CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
+            CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank _).reverse mkString "\n", None, None ) :: transform( t, loose )
           case f: FencedBlock =>
             CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
               transform( t, loose )
@@ -645,7 +645,7 @@ class CommonMarkParser {
           case l: ListItemBlock =>
             val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
             val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
-            val loose1 = list.init.exists (i => blankAfter(i.blocks)) || blankAfter(list.last.blocks.init)
+            val loose1 = list.init.exists (i => blankAfter(i.blocks.toSeq)) || blankAfter(list.last.blocks.init.toSeq)
             val listitems = list map (b => ListItemAST( fromList(transform(b.blocks.toStream, loose1)) )) toList
             val hd =
               if (l.typ.isInstanceOf[BulletList])
