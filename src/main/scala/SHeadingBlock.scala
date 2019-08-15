@@ -5,7 +5,7 @@ object SHeadingBlockType extends BlockType {
 
   val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*"""r
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] = {
+  override def start(from: Int, text: String, s: LazyList[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] = {
     text match {
       case sHeadingRegex( underline ) =>
         prev.open match {
@@ -24,12 +24,12 @@ class SHeadingBlock( val level: Int, val heading: String ) extends SimpleLeafBlo
 
   val name = "sheading"
 
-  def accept(from: Int, text: String, s: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, s: LazyList[String]): Option[(Int, String)] =
     if (SHeadingBlockType.sHeadingRegex.pattern.matcher( text ).matches)
       Some( (from, text) )
     else
       None
 
-  override def toString: String = super.toString + s"[$level, $heading]"
+  override def toString: String = s"${super.toString}[$level, $heading]"
 
 }

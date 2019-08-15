@@ -3,7 +3,7 @@ package xyz.hyperreal.commonmark
 
 object BlankBlockType extends BlockType {
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
+  override def start(from: Int, text: String, s: LazyList[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
     if (isBlank( text ) && !prev.open.exists( _.isInstanceOf[IndentedBlock]))
       Some( (BlankBlock, from, text) )
     else
@@ -17,7 +17,7 @@ object BlankBlock extends SimpleLeafBlock {  // this is an object and not a clas
 
   keep = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = // todo: do non appendable block need to code accept()
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] = // todo: do non appendable block need to code accept()
     if (isBlank( text ))
       Some( (from, text) )
     else

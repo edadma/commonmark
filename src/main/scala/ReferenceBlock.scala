@@ -5,7 +5,7 @@ object ReferenceBlockType extends BlockType {
 
   val linkRegex = """[ ]{0,3}\[([^\]]+)\]:\s*(.+?)\s*(?:"(.*?)")?"""r
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
+  override def start(from: Int, text: String, s: LazyList[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
       case linkRegex( ref, url, title ) =>
         doc.refs(ref) = doc.Link( url, if (title eq null) None else Some(title) )
@@ -21,6 +21,6 @@ object ReferenceBlock extends SimpleLeafBlock {  // this is an object and not a 
 
   keep = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = Some( (from, text) )
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] = Some( (from, text) )
 
 }

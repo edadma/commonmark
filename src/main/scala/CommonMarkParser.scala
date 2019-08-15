@@ -50,7 +50,7 @@ class CommonMarkParser {
 
   def parse( src: String ): CommonMarkAST = parse( io.Source.fromString(src) )
 
-  def parse( src: io.Source ) = fromList( transform(parseBlocks(LazyList.from(src.getLines)).blocks.toStream) )
+  def parse( src: io.Source ) = fromList( transform(LazyList from parseBlocks(LazyList.from(src.getLines)).blocks) )
 
   def parseBlocks( lines: LazyList[String] ) = {
     val doc = new DocumentBlock
@@ -617,7 +617,7 @@ class CommonMarkParser {
     textual( phase2(breaks(escapes(s1))) )
   }
 
-  def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] = {
+  def transform( s: LazyList[Block], loose: Boolean = true ): List[CommonMarkAST] = {
     def blankAfter( s: Seq[Block] ) =
       if (s.length < 2)
         false
@@ -641,12 +641,12 @@ class CommonMarkParser {
           case f: FencedBlock =>
             CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
               transform( t, loose )
-          case q: QuoteBlock => BlockquoteAST( fromList(transform(q.blocks.toStream)) ) :: transform( t, loose )
+          case q: QuoteBlock => BlockquoteAST( fromList(transform(LazyList from q.blocks)) ) :: transform( t, loose )
           case l: ListItemBlock =>
             val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
-            val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
+            val list = l +: items.asInstanceOf[LazyList[ListItemBlock]]
             val loose1 = list.init.exists (i => blankAfter(i.blocks.toSeq)) || blankAfter(list.last.blocks.init.toSeq)
-            val listitems = list map (b => ListItemAST( fromList(transform(b.blocks.toStream, loose1)) )) toList
+            val listitems = list map (b => ListItemAST( fromList(transform(LazyList from b.blocks, loose1)) )) toList
             val hd =
               if (l.typ.isInstanceOf[BulletList])
                 BulletListAST( fromList(listitems), !loose1 )

@@ -158,13 +158,13 @@ object Util {
 
           if (codeblock eq null)
             if (highlighted isDefined) {
-              val clas = '"' + s"language-${highlighted.get}" + '"'
+              val clas = s""""language-${highlighted.get}""""
 
               s"\n<pre><code class=$clas>$escaped</code></pre>\n"
             } else
               s"\n<pre><code>$escaped</code></pre>\n"
           else
-            "\n" + codeblock( escaped, highlighted, caption ) + "\n"
+            s"\n${codeblock( escaped, highlighted, caption )}\n"
         case LinkAST( address, None, contents ) => tag( "a", contents, false, "href" -> address )
         case LinkAST( address, Some(title), contents ) => tag( "a", contents, false, "href" -> address, "title" -> title )
         case ListItemAST( contents ) => tag( "li", contents, true )
