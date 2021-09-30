@@ -1,18 +1,17 @@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
 import org.scalatest._
 import prop.PropertyChecks
 
-
 class BlockParsingTests extends FreeSpec with PropertyChecks with Matchers with Testing {
 
-	"paragraphs" in {
-		testBlockParsing(
+  "paragraphs" in {
+    testBlockParsing(
       """
 			  |asdf
 		  """.stripMargin
     ) shouldBe "document[*blank, paragraph[asdf], *blank],Map()"
-	}
+  }
 
   "blockquotes" in {
     testBlockParsing(

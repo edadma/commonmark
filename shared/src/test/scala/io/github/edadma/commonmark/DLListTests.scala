@@ -1,8 +1,7 @@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
 import org.scalatest._
 import prop.PropertyChecks
-
 
 class DLListTests extends FreeSpec with PropertyChecks with Matchers {
 
@@ -29,18 +28,18 @@ class DLListTests extends FreeSpec with PropertyChecks with Matchers {
   "iteration" in {
     val l = new DLList[Int]
 
-    l ++= Seq( 3, 4, 5 )
+    l ++= Seq(3, 4, 5)
     l.iterator.toList.reverse shouldBe l.reverseIterator.toList
   }
 
   "deletion" in {
-    val l = DLList[Int]( 3, 4, 5, 6, 7, 8 )
+    val l = DLList[Int](3, 4, 5, 6, 7, 8)
 
-    l.toList shouldBe List( 3, 4, 5, 6, 7, 8 )
-    l.remove( 2 ) shouldBe 5
-    l.toList shouldBe List( 3, 4, 6, 7, 8 )
-    l.remove( 3 ) shouldBe 7
-    l.toList shouldBe List( 3, 4, 6, 8 )
+    l.toList shouldBe List(3, 4, 5, 6, 7, 8)
+    l.remove(2) shouldBe 5
+    l.toList shouldBe List(3, 4, 6, 7, 8)
+    l.remove(3) shouldBe 7
+    l.toList shouldBe List(3, 4, 6, 8)
     l.clear
     l.length shouldBe 0
     l.toList shouldBe Nil

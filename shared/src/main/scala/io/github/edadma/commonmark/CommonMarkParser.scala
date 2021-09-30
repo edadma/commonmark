@@ -1,5 +1,5 @@
 //@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer, HashMap}
 

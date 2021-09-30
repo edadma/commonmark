@@ -1,27 +1,31 @@
 //@
-package xyz.hyperreal.commonmark
-
+package io.github.edadma.commonmark
 
 object FencedBlockType extends BlockType {
 
-  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s`]*)[^`]*"""r
-  val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*"""r
+  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s`]*)[^`]*""" r
+  val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*""" r
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
+  override def start(from: Int,
+                     text: String,
+                     s: Stream[String],
+                     prev: ContainerBlock,
+                     parser: CommonMarkParser,
+                     doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
-      case startFenceRegex( indent, fence, info ) => Some( (new FencedBlock(indent, fence, info.trim), from, "") )
-      case _ => None
+      case startFenceRegex(indent, fence, info) => Some((new FencedBlock(indent, fence, info.trim), from, ""))
+      case _                                    => None
     }
 
-  def end( startfence: String, text: String ) =
+  def end(startfence: String, text: String) =
     text match {
-      case endFenceRegex( fence ) if fence(0) == startfence(0) && fence.length >= startfence.length => true
-      case _ => false
+      case endFenceRegex(fence) if fence(0) == startfence(0) && fence.length >= startfence.length => true
+      case _                                                                                      => false
     }
 
 }
 
-class FencedBlock( indent: String, fence: String, val info: String ) extends TextLeafBlock {
+class FencedBlock(indent: String, fence: String, val info: String) extends TextLeafBlock {
 
   val name = "fenced"
   var start = false
@@ -29,17 +33,17 @@ class FencedBlock( indent: String, fence: String, val info: String ) extends Tex
 
   override val isInterruptible = false
 
-  def accept( from: Int, text: String, stream: Stream[String] ): Option[(Int, String)] =
+  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] =
     if (end)
       None
     else {
-      if (FencedBlockType.end( fence, text ))
+      if (FencedBlockType.end(fence, text))
         end = true
 
-      Some( (from, text) )
+      Some((from, text))
     }
 
-  override def append( from: Int, text: String, stream: Stream[String] ): Unit = {
+  override def append(from: Int, text: String, stream: Stream[String]): Unit = {
     if (start && !end) {
       val t =
         if (text startsWith indent)
@@ -47,7 +51,7 @@ class FencedBlock( indent: String, fence: String, val info: String ) extends Tex
         else
           text dropWhile (_ == ' ')
 
-      super.append( from, t, stream )
+      super.append(from, t, stream)
     }
 
     start = true

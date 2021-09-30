@@ -1,5 +1,4 @@
-package xyz.hyperreal.commonmark
-
+package io.github.edadma.commonmark
 
 object Main extends App {
 
@@ -12,9 +11,9 @@ object Main extends App {
       |> - aliquando id
     """.trim.stripMargin
 
-  val doc = p.parse( input )
+  val doc = p.parse(input)
 
-  println( p.parseBlocks(input.lines.toStream) )
-  println( doc )
-  println( Util.html(doc, 2) )
+  println(p.parseBlocks(input.lines.toStream))
+  println(doc)
+  println(Util.html(doc, 2))
 }

@@ -1,6 +1,3 @@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
-
-object Main extends App {
-
-}
+object Main extends App {}

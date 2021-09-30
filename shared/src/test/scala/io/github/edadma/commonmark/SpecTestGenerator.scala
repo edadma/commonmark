@@ -1,16 +1,15 @@
 //@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
 import java.io.PrintWriter
 
 import xyz.hyperreal.json.DefaultJSONReader
 
-
 object SpecTestGenerator /*extends App*/ {
 
   val args = List[String]()
   val src = args(0)
-  val spec_tests = DefaultJSONReader.fromFile( src ).asInstanceOf[List[Map[String, Any]]]
+  val spec_tests = DefaultJSONReader.fromFile(src).asInstanceOf[List[Map[String, Any]]]
 
   if (args.length == 1)
     println(
@@ -22,11 +21,11 @@ object SpecTestGenerator /*extends App*/ {
 
     for (section <- sections) {
       val name = s"${section.replace(' ', '_')}SpecTests"
-      val out = new PrintWriter( s"$dst/$name.scala" )
+      val out = new PrintWriter(s"$dst/$name.scala")
 
       out.println(
         s"""
-          |package xyz.hyperreal.commonmark
+          |package io.github.edadma.commonmark
           |
           |import org.scalatest._
           |import prop.PropertyChecks
@@ -50,16 +49,15 @@ object SpecTestGenerator /*extends App*/ {
         out.println
       }
 
-      out.println( "}" )
+      out.println("}")
       out.close
     }
 
-    def escape( s: String ) =
-      s
-        .replace( "\\", "\\\\" )
-        .replace( "\t", "\\t" )
-        .replace( "\n", "\\n" )
-        .replace( "\"", "\\\"" )
- }
+    def escape(s: String) =
+      s.replace("\\", "\\\\")
+        .replace("\t", "\\t")
+        .replace("\n", "\\n")
+        .replace("\"", "\\\"")
+  }
 
 }

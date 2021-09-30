@@ -1,7 +1,6 @@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
 import scala.collection.mutable.ArrayBuffer
-
 
 abstract class Block {
 
@@ -10,7 +9,7 @@ abstract class Block {
 
   def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)]
 
-  def add( block: Block ): Unit
+  def add(block: Block): Unit
 
   def append(from: Int, text: String, stream: Stream[String]): Unit
 
@@ -26,7 +25,7 @@ abstract class Block {
 
 abstract class LeafBlock extends Block {
 
-  def add( block: Block ): Unit = sys.error( "cannot add to" )
+  def add(block: Block): Unit = sys.error("cannot add to")
 
   val open = None
 
@@ -58,7 +57,7 @@ abstract class TextLeafBlock extends LeafBlock with Appendable {
 
 trait NonAppendable {
 
-  def append( from: Int, text: String, s: Stream[String] ): Unit = sys.error( "cannot append to" )
+  def append(from: Int, text: String, s: Stream[String]): Unit = sys.error("cannot append to")
 
   val isAppendable = false
 
@@ -70,7 +69,7 @@ abstract class ContainerBlock extends Block with NonAppendable {
 
   val blocks = new ArrayBuffer[Block]
 
-  def add( block: Block ): Unit = blocks += block
+  def add(block: Block): Unit = blocks += block
 
   def open = blocks lastOption
 

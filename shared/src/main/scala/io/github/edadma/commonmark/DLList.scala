@@ -1,40 +1,39 @@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
 import collection.mutable.AbstractBuffer
 
-
 object DLList {
 
-  def apply[T]( elems: T* ) =
+  def apply[T](elems: T*) =
     new DLList[T] {
-      appendAll( elems )
+      appendAll(elems)
     }
 
 }
 
 class DLList[T] extends AbstractBuffer[T] {
 
-  class Node( private [DLList] var prev: Node, private [DLList] var next: Node, init: T ) {
+  class Node(private[DLList] var prev: Node, private[DLList] var next: Node, init: T) {
 
-    private [DLList] def this() = this( null, null, null.asInstanceOf[T] )
+    private[DLList] def this() = this(null, null, null.asInstanceOf[T])
 
-    private [DLList] var v = init
+    private[DLList] var v = init
 
     def element = v
 
-    def element_=( value: T ) = v = value
+    def element_=(value: T) = v = value
 
     def following = next
 
     def preceding = prev
 
-    def isBeforeStart = eq( startSentinel )
+    def isBeforeStart = eq(startSentinel)
 
-    def isAfterEnd = eq( endSentinel )
+    def isAfterEnd = eq(endSentinel)
 
     def unlink = {
-      require( this ne startSentinel, "can't unlink the start sentinel" )
-      require( this ne endSentinel, "can't unlink the end sentinel" )
+      require(this ne startSentinel, "can't unlink the start sentinel")
+      require(this ne endSentinel, "can't unlink the end sentinel")
       next.prev = prev
       prev.next = next
       prev = null
@@ -43,8 +42,8 @@ class DLList[T] extends AbstractBuffer[T] {
       v
     }
 
-    def follow( v: T ) = {
-      val node = new Node( this, next, v )
+    def follow(v: T) = {
+      val node = new Node(this, next, v)
 
       next.prev = node
       next = node
@@ -52,8 +51,8 @@ class DLList[T] extends AbstractBuffer[T] {
       node
     }
 
-    def precede( v: T ) = {
-      val node = new Node( prev, this, v )
+    def precede(v: T) = {
+      val node = new Node(prev, this, v)
 
       prev.next = node
       prev = node
@@ -68,7 +67,7 @@ class DLList[T] extends AbstractBuffer[T] {
         def hasNext = node ne endSentinel
 
         def next = {
-          if (isEmpty) throw new NoSuchElementException( "no more elements" )
+          if (isEmpty) throw new NoSuchElementException("no more elements")
 
           val res = node
 
@@ -84,7 +83,7 @@ class DLList[T] extends AbstractBuffer[T] {
         def hasNext = node ne startSentinel
 
         def next = {
-          if (isEmpty) throw new NoSuchElementException( "no more elements" )
+          if (isEmpty) throw new NoSuchElementException("no more elements")
 
           val res = node
 
@@ -96,14 +95,14 @@ class DLList[T] extends AbstractBuffer[T] {
     override def toString: String = s"node[$v]"
   }
 
-  class Sentinel( name: String ) extends Node {
-    private def novalue = sys.error( "sentinel has no value" )
+  class Sentinel(name: String) extends Node {
+    private def novalue = sys.error("sentinel has no value")
 
     override def element = novalue
 
-    override def element_=( v: T ) = novalue
+    override def element_=(v: T) = novalue
 
-    private def noiterator = sys.error( "can't iterate from sentinel" )
+    private def noiterator = sys.error("can't iterate from sentinel")
 
     override def iterator =
       if (this eq startSentinel)
@@ -120,8 +119,8 @@ class DLList[T] extends AbstractBuffer[T] {
     override def toString: String = name
   }
 
-  val startSentinel = new Sentinel( "start sentinel" )
-  val endSentinel = new Sentinel( "end sentinel" )
+  val startSentinel = new Sentinel("start sentinel")
+  val endSentinel = new Sentinel("end sentinel")
 
   private var count = 0
 
@@ -131,26 +130,26 @@ class DLList[T] extends AbstractBuffer[T] {
   // DLList operations
   //
 
-  def appendElement( elem: T ) = endSentinel precede elem
+  def appendElement(elem: T) = endSentinel precede elem
 
   def headNode = {
-    require( nonEmpty, "list is empty" )
+    require(nonEmpty, "list is empty")
     startSentinel.next
   }
 
   def lastNode = {
-    require( nonEmpty, "list is empty" )
+    require(nonEmpty, "list is empty")
     endSentinel.prev
   }
 
-  def node( n: Int ) = {
-    require( 0 <= n && n < count, s"node index out of range: $n" )
+  def node(n: Int) = {
+    require(0 <= n && n < count, s"node index out of range: $n")
 
     if (n == 0)
       headNode
     else if (n == count - 1)
       lastNode
-    else if (n <= count/2)
+    else if (n <= count / 2)
       nodeIterator drop n next
     else
       reverseNodeIterator drop (count - 1 - n) next
@@ -160,23 +159,23 @@ class DLList[T] extends AbstractBuffer[T] {
 
   def reverseNodeIterator = endSentinel.prev.reverseIterator
 
-  def prependElement( elem: T ) = startSentinel follow elem
+  def prependElement(elem: T) = startSentinel follow elem
 
   //
   // abstract Buffer methods
   //
 
-  def +=( elem: T ) = {
-    appendElement( elem )
+  def +=(elem: T) = {
+    appendElement(elem)
     this
   }
 
-  def +=:( elem: T ) = {
-    prependElement( elem )
+  def +=:(elem: T) = {
+    prependElement(elem)
     this
   }
 
-  def apply( n: Int ) = node( n ).v
+  def apply(n: Int) = node(n).v
 
   def clear: Unit = {
     startSentinel.next = endSentinel
@@ -188,15 +187,15 @@ class DLList[T] extends AbstractBuffer[T] {
 
   def length = count
 
-  def insertAll( n: Int, elems: Traversable[T] ) = {
-    var prev = node( n )
+  def insertAll(n: Int, elems: Traversable[T]) = {
+    var prev = node(n)
 
     elems foreach (e => prev = prev follow e)
   }
 
-  def remove( n: Int ) = node( n ).unlink
+  def remove(n: Int) = node(n).unlink
 
-  def update( n: Int, newelem: T ): Unit = node( n ).v = newelem
+  def update(n: Int, newelem: T): Unit = node(n).v = newelem
 
   //
   // overrides

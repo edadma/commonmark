@@ -1,13 +1,17 @@
-package xyz.hyperreal.commonmark
-
+package io.github.edadma.commonmark
 
 object AHeadingBlockType extends BlockType {
 
-  val aHeadingRegex = """[ ]{0,3}(#{1,6})\s*?(?:( [^#]+?)?(?:\s+#+)?\s*| (.*))"""r
+  val aHeadingRegex = """[ ]{0,3}(#{1,6})\s*?(?:( [^#]+?)?(?:\s+#+)?\s*| (.*))""" r
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] =
+  override def start(from: Int,
+                     text: String,
+                     s: Stream[String],
+                     prev: ContainerBlock,
+                     parser: CommonMarkParser,
+                     doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
-      case aHeadingRegex( level, heading, rest ) =>
+      case aHeadingRegex(level, heading, rest) =>
         val h =
           if (heading eq null)
             if (rest eq null)
@@ -17,13 +21,13 @@ object AHeadingBlockType extends BlockType {
           else
             heading.trim
 
-        Some( (new AHeadingBlock(level.length, h), level.length, h) )
+        Some((new AHeadingBlock(level.length, h), level.length, h))
       case _ => None
     }
 
 }
 
-class AHeadingBlock( val level: Int, val heading: String ) extends SimpleLeafBlock {
+class AHeadingBlock(val level: Int, val heading: String) extends SimpleLeafBlock {
 
   val name = "aheading"
 

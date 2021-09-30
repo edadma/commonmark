@@ -1,17 +1,21 @@
-package xyz.hyperreal.commonmark
-
+package io.github.edadma.commonmark
 
 object SHeadingBlockType extends BlockType {
 
-  val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*"""r
+  val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*""" r
 
-  override def start(from: Int, text: String, s: Stream[String], prev: ContainerBlock, parser: CommonMarkParser, doc: DocumentBlock): Option[(Block, Int, String)] = {
+  override def start(from: Int,
+                     text: String,
+                     s: Stream[String],
+                     prev: ContainerBlock,
+                     parser: CommonMarkParser,
+                     doc: DocumentBlock): Option[(Block, Int, String)] = {
     text match {
-      case sHeadingRegex( underline ) =>
+      case sHeadingRegex(underline) =>
         prev.open match {
-          case Some( p: ParagraphBlock ) =>
+          case Some(p: ParagraphBlock) =>
             p.keep = false
-            Some( (new SHeadingBlock(if (underline.head == '=') 1 else 2, p.buf.toString), from, text) )
+            Some((new SHeadingBlock(if (underline.head == '=') 1 else 2, p.buf.toString), from, text))
           case _ => None
         }
       case _ => None
@@ -20,13 +24,13 @@ object SHeadingBlockType extends BlockType {
 
 }
 
-class SHeadingBlock( val level: Int, val heading: String ) extends SimpleLeafBlock {
+class SHeadingBlock(val level: Int, val heading: String) extends SimpleLeafBlock {
 
   val name = "sheading"
 
   def accept(from: Int, text: String, s: Stream[String]): Option[(Int, String)] =
-    if (SHeadingBlockType.sHeadingRegex.pattern.matcher( text ).matches)
-      Some( (from, text) )
+    if (SHeadingBlockType.sHeadingRegex.pattern.matcher(text).matches)
+      Some((from, text))
     else
       None
 

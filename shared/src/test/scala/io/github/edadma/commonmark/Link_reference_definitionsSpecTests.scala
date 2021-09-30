@@ -1,11 +1,10 @@
-package xyz.hyperreal.commonmark
+package io.github.edadma.commonmark
 
 import org.scalatest._
 import prop.PropertyChecks
 
-
 class Link_reference_definitionsSpecTests extends FreeSpec with PropertyChecks with Matchers with Testing {
-/*
+  /*
   "example 159" in {
     test( "[foo]: /url \"title\"\n\n[foo]\n" ) shouldBe "<p><a href=\"/url\" title=\"title\">foo</a></p>\n"
   }
@@ -97,5 +96,5 @@ class Link_reference_definitionsSpecTests extends FreeSpec with PropertyChecks w
   "example 181" in {
     test( "[foo]\n\n> [foo]: /url\n" ) shouldBe "<p><a href=\"/url\">foo</a></p>\n<blockquote>\n</blockquote>\n"
   }
-*/
+ */
 }
