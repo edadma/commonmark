@@ -119,7 +119,7 @@ object Util {
         if (urlchar(c))
           buf += c
         else
-          buf ++= (io.Codec.toUTF8(c.toString) map (n => f"%%$n%02x".toUpperCase) mkString)
+          buf ++= (scala.io.Codec.toUTF8(c.toString) map (n => f"%%$n%02x".toUpperCase) mkString)
 
       buf.toString
     }

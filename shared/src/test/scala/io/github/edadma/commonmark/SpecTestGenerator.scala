@@ -3,7 +3,7 @@ package io.github.edadma.commonmark
 
 import java.io.PrintWriter
 
-import xyz.hyperreal.json.DefaultJSONReader
+import io.github.edadma.json.DefaultJSONReader
 
 object SpecTestGenerator /*extends App*/ {
 

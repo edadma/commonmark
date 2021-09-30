@@ -1,7 +1,10 @@
 //@
 package io.github.edadma.commonmark
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer, HashMap}
+import scala.collection.mutable.{ArrayBuffer, HashMap, ListBuffer}
+import scala.language.postfixOps
+
+import scala.jdk.CollectionConverters._
 
 
 object CommonMarkParser{
@@ -47,9 +50,9 @@ class CommonMarkParser {
       append( BlankBlockType )
     }
 
-  def parse( src: String ): CommonMarkAST = parse( io.Source.fromString(src) )
+  def parse( src: String ): CommonMarkAST = parse( scala.io.Source.fromString(src) )
 
-  def parse( src: io.Source ) = SeqAST( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
+  def parse( src: scala.io.Source ) = SeqAST( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
 
   def parseBlocks( lines: Stream[String] ) = {
     val doc = new DocumentBlock
@@ -301,121 +304,121 @@ class CommonMarkParser {
       Character.START_PUNCTUATION
     )
 
-  def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
-    case class Delimiter( s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
-    case class TextNode( s: String )
-
-    val buf = new ListBuffer[CommonMarkAST]
-    val stack = new DLList[Delimiter]
-    var stack_bottom: stack.Node = null
-    val array = ArrayBuffer( l: _* )
-
-    def punctuation( elem: CommonMarkAST ) =
-      elem match {
-        case c: Chr =>
-          val ch = c.text.head
-
-          ("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains ch) || punctuationCategories( Character.getType(ch).toByte )
-        case _ => false
-      }
-
-    def whitespace( elem: CommonMarkAST ) =
-      elem match {
-        case c: Chr => c.text.head.isWhitespace
-        case _ => false
-      }
-
-    def mark( c: C, idx: Int, f: C => Unit ): Int =
-      if (idx < array.length) {
-        val o = array(idx)
-
-        if (o == c)
-          f( o )
-
-        mark( c, idx, f )
-      } else
-        idx
-
-    def skip( c: C, idx: Int ): Int =
-      if (idx < array.length && array(idx) == c)
-        skip( c, idx + 1 )
-      else
-        idx
-
-    def isFollowedByPunct( end: Int ) = end < array.length && punctuation( array(end) )
-
-    def isPrecededByPunct( idx: Int ) = idx > 0 && punctuation( array(idx - 1) )
-
-    def isFollowedByWhitespace( end: Int )= end == array.length || whitespace( array(end) )
-
-    def isPrecededByWhitespace( idx: Int ) = idx == 0 || whitespace( array(idx - 1) )
-
-    def flanking( idx: Int ): Unit = {
-      if (idx < array.length)
-        array(idx) match {
-          case c@C( "*"|"_" ) =>
-            val end = skip( c, idx )
-            val followedByPunct = isFollowedByPunct( end )
-            val precededByPunct = isPrecededByPunct( idx )
-
-            if (!isFollowedByWhitespace( end ) &&
-              (!followedByPunct || isPrecededByWhitespace( idx ) || isPrecededByPunct( idx )))
-              mark( c, idx, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct} )
-
-            if (!isPrecededByWhitespace( end ) &&
-              (!precededByPunct || isFollowedByWhitespace( idx ) || isFollowedByPunct( end )))
-              mark( c, idx, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
-
-            flanking( end )
-          case _ => flanking( idx + 1 )
-        }
-    }
-
-    def delimiters( l: List[CommonMarkAST], idx: Int ): Unit =
-      l match {
-        case Nil =>
-        case (c@C( "*" )) :: t if c.leftFlanking || c.rightFlanking =>
-          val (cs, r) = t span (_ == c)
-          val len = cs.length + 1
-
-          stack += Delimiter( c.text, idx, len, c.leftFlanking, c.rightFlanking )
-          delimiters( r, idx + len )
-        case (c@C( "_" )) :: t if c.leftFlanking || c.rightFlanking =>
-          val (cs, r) = t span (_ == c)
-          val len = cs.length + 1
-
-          stack += Delimiter( c.text, idx, len, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
-            c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
-          delimiters( r, idx + len )
-        case _ :: t => delimiters( t, idx + 1 )
-      }
-
-    flanking( 0 )
-    delimiters( l, 0 )
-
-    var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
-    val openers_bottom = HashMap( "*" -> stack_bottom, "_" -> stack_bottom )
-
-    def processEmphsis: Unit = {
-
-      while (!current_position.isAfterEnd && !current_position.v.closer)
-        current_position = current_position.next
-
-      if (!current_position.isAfterEnd) {
-        var opener = current_position.prev
-
-        while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s) && !opener.v.opener)
-          opener = opener.prev
-
-        if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s)) {
-
-        }
-      }
-    }
-
-    processEmphsis
-    buf.toList
-  }
+//  def phase2( l: List[CommonMarkAST] ): List[CommonMarkAST] = {
+//    case class Delimiter( s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true )
+//    case class TextNode( s: String )
+//
+//    val buf = new ListBuffer[CommonMarkAST]
+//    val stack = new DLList[Delimiter]
+//    var stack_bottom: stack.Node = null
+//    val array = ArrayBuffer( l: _* )
+//
+//    def punctuation( elem: CommonMarkAST ) =
+//      elem match {
+//        case c: Chr =>
+//          val ch = c.text.head
+//
+//          ("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains ch) || punctuationCategories( Character.getType(ch).toByte )
+//        case _ => false
+//      }
+//
+//    def whitespace( elem: CommonMarkAST ) =
+//      elem match {
+//        case c: Chr => c.text.head.isWhitespace
+//        case _ => false
+//      }
+//
+//    def mark( c: C, idx: Int, f: C => Unit ): Int =
+//      if (idx < array.length) {
+//        val o = array(idx)
+//
+//        if (o == c)
+//          f( o )
+//
+//        mark( c, idx, f )
+//      } else
+//        idx
+//
+//    def skip( c: C, idx: Int ): Int =
+//      if (idx < array.length && array(idx) == c)
+//        skip( c, idx + 1 )
+//      else
+//        idx
+//
+//    def isFollowedByPunct( end: Int ) = end < array.length && punctuation( array(end) )
+//
+//    def isPrecededByPunct( idx: Int ) = idx > 0 && punctuation( array(idx - 1) )
+//
+//    def isFollowedByWhitespace( end: Int )= end == array.length || whitespace( array(end) )
+//
+//    def isPrecededByWhitespace( idx: Int ) = idx == 0 || whitespace( array(idx - 1) )
+//
+//    def flanking( idx: Int ): Unit = {
+//      if (idx < array.length)
+//        array(idx) match {
+//          case c@C( "*"|"_" ) =>
+//            val end = skip( c, idx )
+//            val followedByPunct = isFollowedByPunct( end )
+//            val precededByPunct = isPrecededByPunct( idx )
+//
+//            if (!isFollowedByWhitespace( end ) &&
+//              (!followedByPunct || isPrecededByWhitespace( idx ) || isPrecededByPunct( idx )))
+//              mark( c, idx, x => {x.leftFlanking = true; x.followedByPunct = followedByPunct} )
+//
+//            if (!isPrecededByWhitespace( end ) &&
+//              (!precededByPunct || isFollowedByWhitespace( idx ) || isFollowedByPunct( end )))
+//              mark( c, idx, x => {x.rightFlanking = true; x.precededByPunct = precededByPunct} )
+//
+//            flanking( end )
+//          case _ => flanking( idx + 1 )
+//        }
+//    }
+//
+//    def delimiters( l: List[CommonMarkAST], idx: Int ): Unit =
+//      l match {
+//        case Nil =>
+//        case (c@C( "*" )) :: t if c.leftFlanking || c.rightFlanking =>
+//          val (cs, r) = t span (_ == c)
+//          val len = cs.length + 1
+//
+//          stack += Delimiter( c.text, idx, len, c.leftFlanking, c.rightFlanking )
+//          delimiters( r, idx + len )
+//        case (c@C( "_" )) :: t if c.leftFlanking || c.rightFlanking =>
+//          val (cs, r) = t span (_ == c)
+//          val len = cs.length + 1
+//
+//          stack += Delimiter( c.text, idx, len, c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
+//            c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
+//          delimiters( r, idx + len )
+//        case _ :: t => delimiters( t, idx + 1 )
+//      }
+//
+//    flanking( 0 )
+//    delimiters( l, 0 )
+//
+//    var current_position: stack.Node = if (stack_bottom eq null) stack.headNode else stack_bottom
+//    val openers_bottom = HashMap( "*" -> stack_bottom, "_" -> stack_bottom )
+//
+//    def processEmphsis: Unit = {
+//
+//      while (!current_position.isAfterEnd && !current_position.v.closer)
+//        current_position = current_position.next
+//
+//      if (!current_position.isAfterEnd) {
+//        var opener = current_position.prev
+//
+//        while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s) && !opener.v.opener)
+//          opener = opener.prev
+//
+//        if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.v.s)) {
+//
+//        }
+//      }
+//    }
+//
+//    processEmphsis
+//    buf.toList
+//  }
 
   def textual( l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer ): List[CommonMarkAST] =
     l match {
@@ -435,7 +438,7 @@ class CommonMarkParser {
       if (s isEmpty)
         s
       else {
-        val lines = s.lines.toSeq
+        val lines = s.lines.iterator.asScala.toSeq
         val init =
           for (l <- lines.init)
             yield {
@@ -459,7 +462,7 @@ class CommonMarkParser {
   }
 
   def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] = {
-    def blankAfter( s: Seq[Block] ) =
+    def blankAfter( s: collection.Seq[Block] ) =
       if (s.length < 2)
         false
       else
@@ -478,7 +481,7 @@ class CommonMarkParser {
             ParagraphAST( inline(p.buf.toString) ) :: transform( t, loose )
           case p: ParagraphBlock => inline(p.buf.toString) :: transform( t, loose )
           case b: IndentedBlock =>
-            CodeBlockAST( b.buf.toString.lines.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
+            CodeBlockAST( b.buf.toString.lines.iterator.asScala.toList.reverse.dropWhile(isBlank).reverse mkString "\n", None, None ) :: transform( t, loose )
           case f: FencedBlock =>
             CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
               transform( t, loose )
