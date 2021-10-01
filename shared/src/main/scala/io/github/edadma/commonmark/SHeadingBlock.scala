@@ -6,7 +6,7 @@ object SHeadingBlockType extends BlockType {
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] = {
@@ -28,7 +28,7 @@ class SHeadingBlock(val level: Int, val heading: String) extends SimpleLeafBlock
 
   val name = "sheading"
 
-  def accept(from: Int, text: String, s: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, s: LazyList[String]): Option[(Int, String)] =
     if (SHeadingBlockType.sHeadingRegex.pattern.matcher(text).matches)
       Some((from, text))
     else

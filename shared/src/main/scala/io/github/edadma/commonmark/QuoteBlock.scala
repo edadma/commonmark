@@ -12,7 +12,7 @@ object QuoteBlockType extends BlockType {
 
   def start(from: Int,
             text: String,
-            s: Stream[String],
+            s: LazyList[String],
             prev: ContainerBlock,
             parser: CommonMarkParser,
             doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -27,7 +27,7 @@ class QuoteBlock extends ContainerBlock {
 
   val name = "quote"
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] =
     QuoteBlockType.accept(from, text)
 
 }

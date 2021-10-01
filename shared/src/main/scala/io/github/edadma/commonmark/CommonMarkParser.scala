@@ -52,15 +52,15 @@ class CommonMarkParser {
 
   def parse( src: String ): CommonMarkAST = parse( scala.io.Source.fromString(src) )
 
-  def parse( src: scala.io.Source ) = SeqAST( transform(parseBlocks(src.getLines.toStream).blocks.toStream) )
+  def parse( src: scala.io.Source ) = SeqAST( transform(parseBlocks(src.getLines.to(LazyList)).blocks.to(LazyList)) )
 
-  def parseBlocks( lines: Stream[String] ) = {
+  def parseBlocks( lines: LazyList[String] ) = {
     val doc = new DocumentBlock
     val trail = new ArrayBuffer[Block]
 
     trail += doc
 
-    def next( s: Stream[String] ): Unit = {
+    def next( s: LazyList[String] ): Unit = {
       def matching( from: Int, text: String, prev: ContainerBlock, blocks: List[Block] ): (Block, Int, String, ContainerBlock) =
         blocks match {
           case Nil => (null, from, text, prev)
@@ -461,7 +461,7 @@ class CommonMarkParser {
     }
   }
 
-  def transform( s: Stream[Block], loose: Boolean = true ): List[CommonMarkAST] = {
+  def transform( s: LazyList[Block], loose: Boolean = true ): List[CommonMarkAST] = {
     def blankAfter( s: collection.Seq[Block] ) =
       if (s.length < 2)
         false
@@ -485,12 +485,12 @@ class CommonMarkParser {
           case f: FencedBlock =>
             CodeBlockAST( f.buf.toString, if (f.info nonEmpty) Some(escapedString(f.info)) else None, None ) ::
               transform( t, loose )
-          case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.toStream)) ) :: transform( t, loose )
+          case q: QuoteBlock => BlockquoteAST( SeqAST(transform(q.blocks.to(LazyList))) ) :: transform( t, loose )
           case l: ListItemBlock =>
             val (items, rest) = t span (b => b.isInstanceOf[ListItemBlock] && b.asInstanceOf[ListItemBlock].typ == l.typ)
-            val list = l +: items.asInstanceOf[Stream[ListItemBlock]]
+            val list = l +: items.asInstanceOf[LazyList[ListItemBlock]]
             val loose1 = list.init.exists (i => blankAfter(i.blocks)) || blankAfter(list.last.blocks.init)
-            val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.toStream, loose1)) )) toList
+            val listitems = list map (b => ListItemAST( SeqAST(transform(b.blocks.to(LazyList), loose1)) )) toList
             val hd =
               if (l.typ.isInstanceOf[BulletList])
                 BulletListAST( SeqAST(listitems), !loose1 )

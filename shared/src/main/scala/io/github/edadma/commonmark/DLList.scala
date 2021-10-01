@@ -1,6 +1,7 @@
 package io.github.edadma.commonmark
 
 import collection.mutable.AbstractBuffer
+import scala.collection.mutable
 
 object DLList {
 
@@ -11,7 +12,7 @@ object DLList {
 
 }
 
-class DLList[T] extends AbstractBuffer[T] {
+class DLList[T] extends mutable.AbstractBuffer[T] {
 
   class Node(private[DLList] var prev: Node, private[DLList] var next: Node, init: T) {
 
@@ -19,13 +20,13 @@ class DLList[T] extends AbstractBuffer[T] {
 
     private[DLList] var v = init
 
-    def element = v
+    def element: T = v
 
-    def element_=(value: T) = v = value
+    def element_=(value: T): Unit = v = value
 
-    def following = next
+    def following: Node = next
 
-    def preceding = prev
+    def preceding: Node = prev
 
     def isBeforeStart = eq(startSentinel)
 
@@ -165,12 +166,12 @@ class DLList[T] extends AbstractBuffer[T] {
   // abstract Buffer methods
   //
 
-  def +=(elem: T) = {
+  def addOne(elem: T) = {
     appendElement(elem)
     this
   }
 
-  def +=:(elem: T) = {
+  def prepend(elem: T) = {
     prependElement(elem)
     this
   }
@@ -187,10 +188,10 @@ class DLList[T] extends AbstractBuffer[T] {
 
   def length = count
 
-  def insertAll(n: Int, elems: Traversable[T]) = {
+  def insertAll(n: Int, elems: IterableOnce[T]) = {
     var prev = node(n)
 
-    elems foreach (e => prev = prev follow e)
+    elems.iterator foreach (e => prev = prev follow e)
   }
 
   def remove(n: Int) = node(n).unlink

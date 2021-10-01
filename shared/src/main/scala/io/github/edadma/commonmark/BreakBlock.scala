@@ -6,7 +6,7 @@ object BreakBlockType extends BlockType {
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -21,7 +21,7 @@ class BreakBlock extends SimpleLeafBlock {
 
   val name = "break"
 
-  def accept(from: Int, text: String, s: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, s: LazyList[String]): Option[(Int, String)] =
     if (BreakBlockType.breakRegex.pattern.matcher(s.head.subSequence(from, s.head.length)).matches)
       Some((from, text))
     else

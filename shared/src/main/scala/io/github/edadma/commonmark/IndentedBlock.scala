@@ -7,7 +7,7 @@ object IndentedBlockType extends BlockType {
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -25,7 +25,7 @@ class IndentedBlock extends TextLeafBlock {
 
   override val isInterruptible = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = {
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] = {
     if (IndentedBlockType.indentedRegex.pattern.matcher(stream.head.substring(from)).matches || isBlank(text))
       Some((from + 4, if (text.length < 4) "" else text.substring(4)))
     else

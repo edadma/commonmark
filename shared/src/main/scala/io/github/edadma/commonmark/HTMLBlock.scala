@@ -16,30 +16,30 @@ object HTMLBlockType extends BlockType {
 
   val starts =
     List(
-      (from: Int, text: String, s: Stream[String]) => start1Regex.pattern.matcher(text).matches,
-      (from: Int, text: String, s: Stream[String]) => start2Regex.pattern.matcher(text).matches,
-      (from: Int, text: String, s: Stream[String]) => start3Regex.pattern.matcher(text).matches,
-      (from: Int, text: String, s: Stream[String]) => start4Regex.pattern.matcher(text).matches,
-      (from: Int, text: String, s: Stream[String]) => start5Regex.pattern.matcher(text).matches,
-      (from: Int, text: String, s: Stream[String]) => start6Regex.pattern.matcher(text).matches,
-      (from: Int, text: String, s: Stream[String]) => start7Regex.pattern.matcher(text).matches
+      (from: Int, text: String, s: LazyList[String]) => start1Regex.pattern.matcher(text).matches,
+      (from: Int, text: String, s: LazyList[String]) => start2Regex.pattern.matcher(text).matches,
+      (from: Int, text: String, s: LazyList[String]) => start3Regex.pattern.matcher(text).matches,
+      (from: Int, text: String, s: LazyList[String]) => start4Regex.pattern.matcher(text).matches,
+      (from: Int, text: String, s: LazyList[String]) => start5Regex.pattern.matcher(text).matches,
+      (from: Int, text: String, s: LazyList[String]) => start6Regex.pattern.matcher(text).matches,
+      (from: Int, text: String, s: LazyList[String]) => start7Regex.pattern.matcher(text).matches
     )
   val ends =
     Vector(
-      (from: Int, text: String, s: Stream[String]) => HTMLBlockType.end1Regex.pattern.matcher(text).matches,
-      (from: Int, text: String, s: Stream[String]) => text contains "-->",
-      (from: Int, text: String, s: Stream[String]) => text contains "?>",
-      (from: Int, text: String, s: Stream[String]) => text contains ">",
-      (from: Int, text: String, s: Stream[String]) => text contains "]]>",
-      (from: Int, text: String, s: Stream[String]) =>
+      (from: Int, text: String, s: LazyList[String]) => HTMLBlockType.end1Regex.pattern.matcher(text).matches,
+      (from: Int, text: String, s: LazyList[String]) => text contains "-->",
+      (from: Int, text: String, s: LazyList[String]) => text contains "?>",
+      (from: Int, text: String, s: LazyList[String]) => text contains ">",
+      (from: Int, text: String, s: LazyList[String]) => text contains "]]>",
+      (from: Int, text: String, s: LazyList[String]) =>
         s.isEmpty || s.tail.isEmpty || s.tail.head.length <= from || isBlank(s.tail.head substring from),
-      (from: Int, text: String, s: Stream[String]) =>
+      (from: Int, text: String, s: LazyList[String]) =>
         s.isEmpty || s.tail.isEmpty || s.tail.head.length <= from || isBlank(s.tail.head substring from)
     )
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] = {
@@ -54,7 +54,7 @@ object HTMLBlockType extends BlockType {
     None
   }
 
-  def end(ind: Int, from: Int, text: String, stream: Stream[String]) = ends(ind)(from, text, stream)
+  def end(ind: Int, from: Int, text: String, stream: LazyList[String]) = ends(ind)(from, text, stream)
 
 }
 
@@ -64,7 +64,7 @@ class HTMLBlock(val typ: Int, var ended: Boolean) extends TextLeafBlock {
 
   override val isInterruptible = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = {
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] = {
     if (ended)
       None
     else {

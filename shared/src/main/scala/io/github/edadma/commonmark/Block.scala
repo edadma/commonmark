@@ -7,11 +7,11 @@ abstract class Block {
   val name: String
   var keep = true
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)]
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)]
 
   def add(block: Block): Unit
 
-  def append(from: Int, text: String, stream: Stream[String]): Unit
+  def append(from: Int, text: String, stream: LazyList[String]): Unit
 
   def isAppendable: Boolean
 
@@ -42,7 +42,7 @@ abstract class TextLeafBlock extends LeafBlock with Appendable {
   val buf = new StringBuilder
   var appended = false
 
-  def append(from: Int, text: String, stream: Stream[String]): Unit = {
+  def append(from: Int, text: String, stream: LazyList[String]): Unit = {
     if (appended)
       buf += '\n'
     else
@@ -57,7 +57,7 @@ abstract class TextLeafBlock extends LeafBlock with Appendable {
 
 trait NonAppendable {
 
-  def append(from: Int, text: String, s: Stream[String]): Unit = sys.error("cannot append to")
+  def append(from: Int, text: String, s: LazyList[String]): Unit = sys.error("cannot append to")
 
   val isAppendable = false
 

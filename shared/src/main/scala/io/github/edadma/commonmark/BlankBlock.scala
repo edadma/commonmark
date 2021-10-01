@@ -4,7 +4,7 @@ object BlankBlockType extends BlockType {
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -21,7 +21,7 @@ object BlankBlock extends SimpleLeafBlock { // this is an object and not a class
 
   keep = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = // todo: do non appendable block need to code accept()
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] = // todo: do non appendable block need to code accept()
     if (isBlank(text))
       Some((from, text))
     else

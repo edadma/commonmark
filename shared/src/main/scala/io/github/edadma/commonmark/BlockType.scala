@@ -4,7 +4,7 @@ abstract class BlockType {
 
   def start(from: Int,
             text: String,
-            s: Stream[String],
+            s: LazyList[String],
             prev: ContainerBlock,
             parser: CommonMarkParser,
             doc: DocumentBlock): Option[(Block, Int, String)]

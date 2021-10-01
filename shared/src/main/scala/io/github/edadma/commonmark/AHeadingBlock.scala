@@ -6,7 +6,7 @@ object AHeadingBlockType extends BlockType {
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -31,7 +31,7 @@ class AHeadingBlock(val level: Int, val heading: String) extends SimpleLeafBlock
 
   val name = "aheading"
 
-  def accept(from: Int, text: String, s: Stream[String]): Option[(Int, String)] = None
+  def accept(from: Int, text: String, s: LazyList[String]): Option[(Int, String)] = None
 
   override def toString: String = super.toString + s"""[$level, "$heading"]"""
 }

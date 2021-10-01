@@ -8,7 +8,7 @@ object FencedBlockType extends BlockType {
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -33,7 +33,7 @@ class FencedBlock(indent: String, fence: String, val info: String) extends TextL
 
   override val isInterruptible = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] =
     if (end)
       None
     else {
@@ -43,7 +43,7 @@ class FencedBlock(indent: String, fence: String, val info: String) extends TextL
       Some((from, text))
     }
 
-  override def append(from: Int, text: String, stream: Stream[String]): Unit = {
+  override def append(from: Int, text: String, stream: LazyList[String]): Unit = {
     if (start && !end) {
       val t =
         if (text startsWith indent)

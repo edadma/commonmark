@@ -9,7 +9,7 @@ class DocumentBlock extends ContainerBlock {
   val name = "document"
   val refs = new mutable.HashMap[String, Link]
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] =
     if (blocks nonEmpty)
       Some((from, text))
     else

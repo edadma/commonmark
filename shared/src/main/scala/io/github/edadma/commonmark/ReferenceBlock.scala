@@ -6,7 +6,7 @@ object ReferenceBlockType extends BlockType {
 
   override def start(from: Int,
                      text: String,
-                     s: Stream[String],
+                     s: LazyList[String],
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -25,6 +25,6 @@ object ReferenceBlock extends SimpleLeafBlock { // this is an object and not a c
 
   keep = false
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] = Some((from, text))
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] = Some((from, text))
 
 }

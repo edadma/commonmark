@@ -22,7 +22,7 @@ object ListItemBlockType extends BlockType {
 
   def start(from: Int,
             text: String,
-            s: Stream[String],
+            s: LazyList[String],
             prev: ContainerBlock,
             parser: CommonMarkParser,
             doc: DocumentBlock): Option[(Block, Int, String)] =
@@ -83,7 +83,7 @@ class ListItemBlock(val indent: Int, val typ: ListType) extends ContainerBlock {
   val name = "list"
   var tight = true
 
-  def accept(from: Int, text: String, stream: Stream[String]): Option[(Int, String)] =
+  def accept(from: Int, text: String, stream: LazyList[String]): Option[(Int, String)] =
     ListItemBlockType.accept(this, from, text)
 
 }
