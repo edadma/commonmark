@@ -1,11 +1,10 @@
 package io.github.edadma.commonmark
 
-import collection.mutable.AbstractBuffer
 import scala.collection.mutable
 
 object DLList {
 
-  def apply[T](elems: T*) =
+  def apply[T](elems: T*): DLList[T] =
     new DLList[T] {
       appendAll(elems)
     }
@@ -28,11 +27,11 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
 
     def preceding: Node = prev
 
-    def isBeforeStart = eq(startSentinel)
+    def isBeforeStart: Boolean = eq(startSentinel)
 
-    def isAfterEnd = eq(endSentinel)
+    def isAfterEnd: Boolean = eq(endSentinel)
 
-    def unlink = {
+    def unlink: T = {
       require(this ne startSentinel, "can't unlink the start sentinel")
       require(this ne endSentinel, "can't unlink the end sentinel")
       next.prev = prev
@@ -43,7 +42,7 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
       v
     }
 
-    def follow(v: T) = {
+    def follow(v: T): Node = {
       val node = new Node(this, next, v)
 
       next.prev = node
@@ -52,7 +51,7 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
       node
     }
 
-    def precede(v: T) = {
+    def precede(v: T): Node = {
       val node = new Node(prev, this, v)
 
       prev.next = node
@@ -61,13 +60,13 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
       node
     }
 
-    def iterator =
+    def iterator: Iterator[Node] =
       new Iterator[Node] {
         private var node = Node.this
 
-        def hasNext = node ne endSentinel
+        def hasNext: Boolean = node ne endSentinel
 
-        def next = {
+        def next: Node = {
           if (isEmpty) throw new NoSuchElementException("no more elements")
 
           val res = node
@@ -77,13 +76,13 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
         }
       }
 
-    def reverseIterator =
+    def reverseIterator: Iterator[Node] =
       new Iterator[Node] {
         private var node = Node.this
 
-        def hasNext = node ne startSentinel
+        def hasNext: Boolean = node ne startSentinel
 
-        def next = {
+        def next: Node = {
           if (isEmpty) throw new NoSuchElementException("no more elements")
 
           val res = node
@@ -99,9 +98,9 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
   class Sentinel(name: String) extends Node {
     private def novalue = sys.error("sentinel has no value")
 
-    override def element = novalue
+    override def element: T = novalue
 
-    override def element_=(v: T) = novalue
+    override def element_=(v: T): Unit = novalue
 
     private def noiterator = sys.error("can't iterate from sentinel")
 
@@ -176,7 +175,7 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
     this
   }
 
-  def apply(n: Int) = node(n).v
+  def apply(n: Int): T = node(n).v
 
   def clear: Unit = {
     startSentinel.next = endSentinel
@@ -187,6 +186,12 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
   def iterator = nodeIterator map (_.v)
 
   def length = count
+
+  def insert(n: Int, elem: T) = {
+    var prev = node(n)
+
+    prev follow elem
+  }
 
   def insertAll(n: Int, elems: IterableOnce[T]) = {
     var prev = node(n)
