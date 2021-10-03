@@ -5,9 +5,8 @@ import java.io.PrintWriter
 
 import io.github.edadma.json.DefaultJSONReader
 
-object SpecTestGenerator /*extends App*/ {
+object SpecTestGenerator extends App {
 
-  val args = List[String]()
   val src = args(0)
   val spec_tests = DefaultJSONReader.fromFile(src).asInstanceOf[List[Map[String, Any]]]
 
@@ -27,11 +26,10 @@ object SpecTestGenerator /*extends App*/ {
         s"""
           |package io.github.edadma.commonmark
           |
-          |import org.scalatest._
-          |import prop.PropertyChecks
+          |import org.scalatest.freespec.AnyFreeSpec
+          |import org.scalatest.matchers.should.Matchers
           |
-          |
-          |class $name extends FreeSpec with PropertyChecks with Matchers with Testing {
+          |class $name extends AnyFreeSpec with Matchers with Testing {
         """.trim.stripMargin
       )
       out.println

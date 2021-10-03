@@ -203,6 +203,10 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
 
   def update(n: Int, newelem: T): Unit = node(n).v = newelem
 
+  def remove(idx: Int, count: Int): Unit = ???
+
+  def patchInPlace(from: Int, patch: IterableOnce[T], replaced: Int): DLList.this.type = ???
+
   //
   // overrides
   //

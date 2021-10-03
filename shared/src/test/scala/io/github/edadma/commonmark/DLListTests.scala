@@ -1,9 +1,9 @@
 package io.github.edadma.commonmark
 
-import org.scalatest._
-import prop.PropertyChecks
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
-class DLListTests extends FreeSpec with PropertyChecks with Matchers {
+class DLListTests extends AnyFreeSpec with Matchers {
 
   "empty" in {
     val l = new DLList

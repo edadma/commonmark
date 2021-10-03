@@ -3,6 +3,7 @@ package io.github.edadma.commonmark
 
 import java.net.URLEncoder
 import scala.collection.mutable
+import scala.language.postfixOps
 
 object Util {
 
