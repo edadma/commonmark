@@ -157,7 +157,7 @@ object Util {
 
           if (codeblock eq null)
             if (highlighted isDefined) {
-              val clas = '"' + s"language-${highlighted.get}" + '"'
+              val clas = '"' +: s"language-${highlighted.get}" :+ '"'
 
               s"\n<pre><code class=$clas>$escaped</code></pre>\n"
             } else

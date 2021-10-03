@@ -2,13 +2,15 @@
 package io.github.edadma.commonmark
 
 import java.io.PrintWriter
+import io.github.edadma.json.{Array => JArray, DefaultJSONReader}
 
-import io.github.edadma.json.DefaultJSONReader
+import scala.language.postfixOps
 
-object SpecTestGenerator extends App {
+object SpecTestGenerator /*extends App*/ {
 
+  val args = Array[String]()
   val src = args(0)
-  val spec_tests = DefaultJSONReader.fromFile(src).asInstanceOf[List[Map[String, Any]]]
+  val spec_tests = DefaultJSONReader.fromFile(src).asInstanceOf[JArray].asInstanceOf[Seq[Map[String, Any]]]
 
   if (args.length == 1)
     println(
@@ -24,12 +26,12 @@ object SpecTestGenerator extends App {
 
       out.println(
         s"""
-          |package io.github.edadma.commonmark
-          |
-          |import org.scalatest.freespec.AnyFreeSpec
-          |import org.scalatest.matchers.should.Matchers
-          |
-          |class $name extends AnyFreeSpec with Matchers with Testing {
+           |package io.github.edadma.commonmark
+           |
+           |import org.scalatest.freespec.AnyFreeSpec
+           |import org.scalatest.matchers.should.Matchers
+           |
+           |class $name extends AnyFreeSpec with Matchers with Testing {
         """.trim.stripMargin
       )
       out.println
@@ -39,9 +41,9 @@ object SpecTestGenerator extends App {
       for (test <- tests) {
         out.println(
           s"""
-            |  "example ${test("example")}" in {
-            |    test( "${escape(test("markdown").toString)}" ) shouldBe "${escape(test("html").toString)}"
-            |  }
+             |  "example ${test("example")}" in {
+             |    test( "${escape(test("markdown").toString)}" ) shouldBe "${escape(test("html").toString)}"
+             |  }
           """.trim.stripMargin
         )
         out.println

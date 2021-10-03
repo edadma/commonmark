@@ -7,13 +7,13 @@ trait CommonMarkAST {
 case class SeqAST(seq: Seq[CommonMarkAST]) extends CommonMarkAST {
   val contents = null
 
-  override def elements = seq
+  override def elements: Seq[CommonMarkAST] = seq
 }
 
 abstract class BranchAST extends CommonMarkAST {
   val contents: CommonMarkAST
 
-  def elements =
+  def elements: Seq[CommonMarkAST] =
     contents match {
       case SeqAST(seq) => seq
       case _           => Seq(contents)
@@ -21,11 +21,11 @@ abstract class BranchAST extends CommonMarkAST {
 }
 
 abstract class InlineAST extends CommonMarkAST {
-  def elements = Nil
+  def elements: Seq[Nothing] = Nil
 }
 
 abstract class LeafAST extends CommonMarkAST {
-  def elements = Nil
+  def elements: Seq[Nothing] = Nil
 
   val text: String
 }
