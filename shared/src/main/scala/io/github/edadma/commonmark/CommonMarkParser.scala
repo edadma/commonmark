@@ -347,6 +347,13 @@ class CommonMarkParser {
     )
 
   def phase2(l: List[CommonMarkAST]): List[CommonMarkAST] = {
+    case class Delimiter(s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true)
+    case class TextNode(s: String)
+
+    val buf = new ListBuffer[CommonMarkAST]
+    val stack = new DLList[Delimiter]
+    var stack_bottom: stack.Node = null
+
     l
   }
 
@@ -492,24 +499,24 @@ class CommonMarkParser {
 
   def inlineText(s: String): CommonMarkAST = {
     val s1 = {
-//      if (s isEmpty)
-//        s
-//      else {
-//        val lines = s.lines.iterator.asScala.toSeq
-//        val init =
-//          for (l <- lines.init)
-//            yield {
-//              if (l endsWith "  ")
-//                l.trim + "  "
-//              else
-//                l.trim
-//            }
-//
-//        if (init nonEmpty)
-//          init.mkString("\n") + "\n" + lines.last.trim
-//        else
-//          lines.head.trim
-//      }
+      //      if (s isEmpty)
+      //        s
+      //      else {
+      //        val lines = s.lines.iterator.asScala.toSeq
+      //        val init =
+      //          for (l <- lines.init)
+      //            yield {
+      //              if (l endsWith "  ")
+      //                l.trim + "  "
+      //              else
+      //                l.trim
+      //            }
+      //
+      //        if (init nonEmpty)
+      //          init.mkString("\n") + "\n" + lines.last.trim
+      //        else
+      //          lines.head.trim
+      //      }
       s
     }
 
