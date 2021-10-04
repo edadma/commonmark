@@ -28,7 +28,8 @@ lazy val commonmark = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
     ),
     publishMavenStyle := true,
     Test / publishArtifact := false,
-    licenses += "ISC" -> url("https://opensource.org/licenses/ISC")
+    licenses += "ISC" -> url("https://opensource.org/licenses/ISC"),
+//    fork := true
   ).
   jvmSettings(
     libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0" % "provided",
