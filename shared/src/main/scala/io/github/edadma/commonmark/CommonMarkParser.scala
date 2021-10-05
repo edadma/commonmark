@@ -347,14 +347,39 @@ class CommonMarkParser {
     )
 
   def phase2(l: List[CommonMarkAST]): List[CommonMarkAST] = {
-    case class Delimiter(s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true)
-    case class TextNode(s: String)
+    @tailrec
+    def emph(l: List[CommonMarkAST],
+             buf: ListBuffer[CommonMarkAST],
+             body: ListBuffer[CommonMarkAST]): List[CommonMarkAST] =
+      l match {
+        case C("*") :: t if body == null => emph(t, buf, new ListBuffer)
+        case C("*") :: t =>
+          buf += EmphasisAST(TextAST(body.flatMap(_.asInstanceOf[LeafAST].text).mkString))
+          emph(t, buf, null)
+        case c :: t if body == null =>
+          buf += c
+          emph(t, buf, null)
+        case c :: t =>
+          body += c
+          emph(t, buf, body)
+        case Nil if body == null => buf.toList
+        case Nil                 => (C("*") +: buf ++: body).toList
+      }
 
-    val buf = new ListBuffer[CommonMarkAST]
-    val stack = new DLList[Delimiter]
-    var stack_bottom: stack.Node = null
+    emph( /*code(l, new ListBuffer, null)*/ l, new ListBuffer, null)
 
-    l
+    //    case class Delimiter(s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true)
+    //    case class TextNode(s: String)
+    //
+    //    val buf = new ListBuffer[CommonMarkAST]
+    //    val stack = new DLList[Delimiter]
+    //    var stack_bottom: stack.Node = null
+
+//    println(l)
+    val res = emph(l, new ListBuffer, null)
+    //    println(res)
+    res
+    //    l
   }
 
   //  def phase2(l: List[CommonMarkAST]): List[CommonMarkAST] = {
