@@ -489,11 +489,11 @@ class CommonMarkParser {
     flanking(0)
     delimiters(0)
 
-    var stack_bottom: stack.Node = null
+    var stack_bottom: stack.Node = stack.headNode
     var current_position: stack.Node = null
 
     def processEmphsis(): Unit = {
-      current_position = if (stack_bottom eq null) stack.headNode else stack_bottom
+      current_position = stack_bottom
 
       val openers_bottom = mutable.HashMap("*" -> stack_bottom, "_" -> stack_bottom)
 
@@ -540,6 +540,7 @@ class CommonMarkParser {
 
             while (!d.isAfterEnd) {
               d.element.idx -= removed
+              d = d.following
             }
 
             if (opener.element.n == 0)
@@ -552,6 +553,8 @@ class CommonMarkParser {
               current_position = next
             }
           } else {
+            println(openers_bottom(current_position.element.s))
+            println(current_position.element)
             openers_bottom(current_position.element.s).element.idx = current_position.element.idx - 1
 
             if (!current_position.element.opener) {
@@ -559,7 +562,8 @@ class CommonMarkParser {
 
               current_position.unlink
               current_position = next
-            }
+            } else
+              current_position = current_position.following
           }
         }
       }

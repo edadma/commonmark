@@ -5,7 +5,7 @@ import scala.jdk.CollectionConverters._
 object Main extends App {
 
   val p = new CommonMarkParser
-  val input = "asdf*foo*zxcv"
+  val input = "*a*"
 
   val doc = p.parse(input)
 
