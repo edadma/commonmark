@@ -2,6 +2,7 @@
 package io.github.edadma.commonmark
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, HashMap, ListBuffer}
 import scala.language.postfixOps
@@ -381,7 +382,12 @@ class CommonMarkParser {
   //  }
 
   def phase2(l: List[CommonMarkAST]): List[CommonMarkAST] = {
-    case class Delimiter(s: String, idx: Int, n: Int, opener: Boolean, closer: Boolean, var active: Boolean = true)
+    case class Delimiter(s: String,
+                         var idx: Int,
+                         var n: Int,
+                         opener: Boolean,
+                         closer: Boolean,
+                         var active: Boolean = true)
     case class TextNode(s: String)
 
     val buf = new ListBuffer[CommonMarkAST]
@@ -459,30 +465,29 @@ class CommonMarkParser {
     }
 
     @tailrec
-    def delimiters(l: List[CommonMarkAST], idx: Int): Unit =
-      l match {
-        case Nil =>
-        case (c @ C("*")) :: t if c.leftFlanking || c.rightFlanking =>
-          val (cs, r) = t span (_ == c)
-          val len = cs.length + 1
+    def delimiters(idx: Int): Unit =
+      if (idx < array.length) {
+        array(idx) match {
+          case c @ C("*") if c.leftFlanking || c.rightFlanking =>
+            val end = skip(c, idx)
 
-          stack += Delimiter(c.text, idx, len, c.leftFlanking, c.rightFlanking)
-          delimiters(r, idx + len)
-        case (c @ C("_")) :: t if c.leftFlanking || c.rightFlanking =>
-          val (cs, r) = t span (_ == c)
-          val len = cs.length + 1
+            stack += Delimiter(c.text, idx, end - idx, c.leftFlanking, c.rightFlanking)
+            delimiters(end)
+          case c @ C("_") if c.leftFlanking || c.rightFlanking =>
+            val end = skip(c, idx)
 
-          stack += Delimiter(c.text,
-                             idx,
-                             len,
-                             c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
-                             c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
-          delimiters(r, idx + len)
-        case _ :: t => delimiters(t, idx + 1)
+            stack += Delimiter(c.text,
+                               idx,
+                               end - idx,
+                               c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
+                               c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
+            delimiters(end)
+          case _ => delimiters(idx + 1)
+        }
       }
 
     flanking(0)
-    delimiters(l, 0)
+    delimiters(0)
 
     var stack_bottom: stack.Node = null
     var current_position: stack.Node = null
@@ -492,23 +497,76 @@ class CommonMarkParser {
 
       val openers_bottom = mutable.HashMap("*" -> stack_bottom, "_" -> stack_bottom)
 
-      while (!current_position.isAfterEnd && !current_position.element.closer) {
-        current_position = current_position.following
-      }
-
-      if (!current_position.isAfterEnd) {
-        var opener = current_position.preceding
-
-        while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && !opener.element.opener) {
-          opener = opener.preceding
+      while (!current_position.isAfterEnd) {
+        while (!current_position.isAfterEnd && !current_position.element.closer) {
+          current_position = current_position.following
         }
 
-        if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {}
+        if (!current_position.isAfterEnd) {
+          var opener = current_position.preceding
+
+          while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && !opener.element.opener) {
+            opener = opener.preceding
+          }
+
+          if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
+            var d = opener.following
+
+            while (d != current_position) {
+              val next = d.following
+
+              d.unlink
+              d = next
+            }
+
+            val strong = opener.element.n >= 2 && current_position.element.n >= 2
+            val seq = SeqAST(
+              array.slice(opener.element.idx + opener.element.n, current_position.element.idx) to ArraySeq)
+
+            array.remove(opener.element.idx + opener.element.n + 1,
+                         current_position.element.idx - opener.element.idx + opener.element.n - 1)
+            array(opener.element.idx + opener.element.n) = if (strong) StrongAST(seq) else EmphasisAST(seq)
+
+            var removed = if (strong) 2 else 1
+
+            opener.element.n -= removed
+            current_position.element.n -= removed
+            array.remove(opener.element.idx, removed)
+            current_position.element.idx -= removed + seq.elements.length
+            array.remove(current_position.element.idx, removed)
+
+            d = current_position.following
+            removed += seq.elements.length + removed
+
+            while (!d.isAfterEnd) {
+              d.element.idx -= removed
+            }
+
+            if (opener.element.n == 0)
+              opener.unlink
+
+            if (current_position.element.n == 0) {
+              val next = current_position.following
+
+              current_position.unlink
+              current_position = next
+            }
+          } else {
+            openers_bottom(current_position.element.s).element.idx = current_position.element.idx - 1
+
+            if (!current_position.element.opener) {
+              val next = current_position.following
+
+              current_position.unlink
+              current_position = next
+            }
+          }
+        }
       }
     }
 
     processEmphsis()
-    buf.toList
+    array.toList
   }
 
   def textual(l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer): List[CommonMarkAST] =
