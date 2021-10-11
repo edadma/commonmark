@@ -1,6 +1,8 @@
 //@
 package io.github.edadma.commonmark
 
+import scala.language.postfixOps
+
 object HTMLBlockType extends BlockType {
 
   val start1Regex = """(?i)[ ]{0,3}(?:<script|<pre|<style)\s*>?""" r
