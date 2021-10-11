@@ -489,11 +489,11 @@ class CommonMarkParser {
     flanking(0)
     delimiters(0)
 
-    var stack_bottom: stack.Node = stack.headNode
+    var stack_bottom: stack.Node = stack.startSentinel
     var current_position: stack.Node = null
 
     def processEmphsis(): Unit = {
-      current_position = stack_bottom
+      current_position = stack_bottom.following
 
       val openers_bottom = mutable.HashMap("*" -> stack_bottom, "_" -> stack_bottom)
 
@@ -502,12 +502,17 @@ class CommonMarkParser {
           current_position = current_position.following
         }
 
+        println("current_position", current_position)
+
         if (!current_position.isAfterEnd) {
           var opener = current_position.preceding
 
           while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && !opener.element.opener) {
             opener = opener.preceding
           }
+
+          println("opener", opener)
+          println("stack_bottom", stack_bottom)
 
           if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
             var d = opener.following
@@ -520,28 +525,39 @@ class CommonMarkParser {
             }
 
             val strong = opener.element.n >= 2 && current_position.element.n >= 2
-            val seq = SeqAST(
-              array.slice(opener.element.idx + opener.element.n, current_position.element.idx) to ArraySeq)
+            println("strong", strong)
+            val body = SeqAST(
+              textual(array.slice(opener.element.idx + opener.element.n, current_position.element.idx) toList))
+            val tagged = current_position.element.idx - (opener.element.idx + opener.element.n)
+            println("stack", stack)
+            println("seq", body)
+            println(current_position.element.idx - (opener.element.idx + opener.element.n + 1))
 
             array.remove(opener.element.idx + opener.element.n + 1,
-                         current_position.element.idx - opener.element.idx + opener.element.n - 1)
-            array(opener.element.idx + opener.element.n) = if (strong) StrongAST(seq) else EmphasisAST(seq)
+                         current_position.element.idx - (opener.element.idx + opener.element.n + 1))
+            array(opener.element.idx + opener.element.n) = if (strong) StrongAST(body) else EmphasisAST(body)
+            println("array", array)
 
             var removed = if (strong) 2 else 1
+            println("removed", removed)
 
             opener.element.n -= removed
             current_position.element.n -= removed
             array.remove(opener.element.idx, removed)
-            current_position.element.idx -= removed + seq.elements.length
+            println(current_position.element.idx)
+            current_position.element.idx -= removed + tagged - 1
+            println(tagged, removed)
             array.remove(current_position.element.idx, removed)
 
             d = current_position.following
-            removed += seq.elements.length + removed
+            removed += body.elements.length + removed
 
             while (!d.isAfterEnd) {
               d.element.idx -= removed
               d = d.following
             }
+
+            println("stack", stack)
 
             if (opener.element.n == 0)
               opener.unlink
@@ -553,8 +569,6 @@ class CommonMarkParser {
               current_position = next
             }
           } else {
-            println(openers_bottom(current_position.element.s))
-            println(current_position.element)
             openers_bottom(current_position.element.s).element.idx = current_position.element.idx - 1
 
             if (!current_position.element.opener) {
@@ -569,6 +583,8 @@ class CommonMarkParser {
       }
     }
 
+    println(array map { case c: C => (c.text, c.leftFlanking, c.rightFlanking, c.precededByPunct, c.followedByPunct) })
+    println(stack)
     processEmphsis()
     array.toList
   }
