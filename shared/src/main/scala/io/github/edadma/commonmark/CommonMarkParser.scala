@@ -511,6 +511,7 @@ class CommonMarkParser {
             opener = opener.preceding
           }
 
+          println("---------")
           println("opener", opener)
           println("stack_bottom", stack_bottom)
           println("stack", stack)
@@ -526,18 +527,15 @@ class CommonMarkParser {
             }
 
             val strong = opener.element.n >= 2 && current_position.element.n >= 2
-            println("strong", strong)
             val body = SeqAST(
               textual(array.slice(opener.element.idx + opener.element.n, current_position.element.idx) toList))
             val tagged = current_position.element.idx - (opener.element.idx + opener.element.n)
-            println("stack", stack)
             println("seq", body)
-            println(current_position.element.idx - (opener.element.idx + opener.element.n + 1))
+            println("array", array)
 
             array.remove(opener.element.idx + opener.element.n + 1,
                          current_position.element.idx - (opener.element.idx + opener.element.n + 1))
             array(opener.element.idx + opener.element.n) = if (strong) StrongAST(body) else EmphasisAST(body)
-            println("array", array)
 
             var removed = if (strong) 2 else 1
             println("removed", removed)
@@ -545,13 +543,12 @@ class CommonMarkParser {
             opener.element.n -= removed
             current_position.element.n -= removed
             array.remove(opener.element.idx, removed)
-            println(current_position.element.idx)
             current_position.element.idx -= removed + tagged - 1
-            println(tagged, removed)
             array.remove(current_position.element.idx, removed)
 
             d = current_position.following
-            removed += body.elements.length + removed
+            removed += tagged - 1 + removed
+            println("removed", removed)
 
             while (!d.isAfterEnd) {
               d.element.idx -= removed
