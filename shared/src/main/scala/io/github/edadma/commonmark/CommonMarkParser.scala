@@ -403,11 +403,13 @@ class CommonMarkParser {
         case _ => false
       }
 
-    def whitespace(elem: CommonMarkAST) =
+    def whitespace(elem: CommonMarkAST) = {
       elem match {
-        case c: Chr => c.text.head.isWhitespace || c.text.head.isSpaceChar
-        case _      => false
+        case c: Chr       => c.text.head.isWhitespace || c.text.head.isSpaceChar
+        case SoftBreakAST => true
+        case _            => false
       }
+    }
 
     @tailrec
     def mark(c: C, idx: Int, f: C => Unit): Int =
@@ -447,6 +449,7 @@ class CommonMarkParser {
             val followedBySpace = isFollowedBySpace(end)
             val precededBySpace = isPrecededBySpace(idx)
 
+            println("flanking", idx, c, precededBySpace, followedBySpace)
             if (!followedBySpace && (!followedByPunct || followedByPunct && (precededBySpace || precededByPunct)))
               mark(c, idx, x => {
                 x.leftFlanking = true
@@ -529,8 +532,8 @@ class CommonMarkParser {
             val body = SeqAST(
               textual(array.slice(opener.element.idx + opener.element.n, current_position.element.idx) toList))
             val tagged = current_position.element.idx - (opener.element.idx + opener.element.n)
-//            println("seq", body)
-//            println("array", array)
+            //            println("seq", body)
+            //            println("array", array)
 
             array.remove(opener.element.idx + opener.element.n + 1,
                          current_position.element.idx - (opener.element.idx + opener.element.n + 1))
@@ -552,7 +555,7 @@ class CommonMarkParser {
               d = d.following
             }
 
-//            println("stack", stack)
+            //            println("stack", stack)
 
             if (opener.element.n == 0)
               opener.unlink
