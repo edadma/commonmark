@@ -498,7 +498,12 @@ class CommonMarkParser {
     def processEmphsis(): Unit = {
       current_position = stack_bottom.following
 
-      val openers_bottom = mutable.HashMap("*" -> stack_bottom, "_" -> stack_bottom)
+      case class Bottom(typ: String, closingLen: Int, closingCanBeOpener: Boolean)
+
+      val openers_bottom = new mutable.HashMap[Bottom, stack.Node]
+
+      for (typ <- List("*", "_"); closingLen <- 0 to 2; closingCanBeOpener <- List(false, true))
+        openers_bottom(Bottom(typ, closingLen, closingCanBeOpener)) = stack_bottom
 
       while (!current_position.isAfterEnd) {
         while (!current_position.isAfterEnd && !current_position.element.closer) {
@@ -507,18 +512,30 @@ class CommonMarkParser {
 
         if (!current_position.isAfterEnd) {
           var opener = current_position.preceding
-          println("opener", opener)
 
-          while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && !opener.element.opener) {
+          while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(Bottom(
+                   current_position.element.s,
+                   current_position.element.n % 3,
+                   current_position.element.opener)) && !opener.element.opener) {
             opener = opener.preceding
           }
 
           println("---------")
+          println("current_position", current_position)
           println("opener", opener)
           println("stack_bottom", stack_bottom)
+          println("openers_bottom", openers_bottom)
           println("stack", stack)
-
-          if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && opener.element.s == current_position.element.s) {
+          println(
+            !opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(
+              Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) &&
+              opener.element.s == current_position.element.s &&
+              (opener.element.n + current_position.element.n) % 3 != 0)
+          if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(
+                Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) &&
+              opener.element.s == current_position.element.s &&
+              (opener.element.n + current_position.element.n) % 3 != 0) {
+            println("+++ found +++")
             var d = opener.following
 
             while (d != current_position) {
@@ -567,7 +584,10 @@ class CommonMarkParser {
               current_position = next
             }
           } else {
-            openers_bottom(current_position.element.s) = current_position.preceding
+            println("--- not found ---")
+            openers_bottom(
+              Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) =
+              current_position.preceding
 
             if (!current_position.element.opener) {
               val next = current_position.following
@@ -577,6 +597,8 @@ class CommonMarkParser {
             } else {
               current_position = current_position.following
             }
+            println("current_position", current_position)
+            println("openers_bottom", openers_bottom)
           }
         }
       }
