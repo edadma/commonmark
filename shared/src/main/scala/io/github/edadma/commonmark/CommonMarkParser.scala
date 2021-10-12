@@ -262,6 +262,7 @@ class CommonMarkParser {
         case _ => None
       }
 
+    @tailrec
     def parseNumeric(l: List[CommonMarkAST],
                      digits: Char => Boolean,
                      base: Int,
@@ -276,7 +277,7 @@ class CommonMarkParser {
             }
 
           Some(((if (ch > 0xFFFF || ch <= 0) 0xFFFD else ch).toChar.toString, rest))
-        case C(c) :: t if digits(c.head) =>
+        case C(c) :: t if digits(c.head) && buf.length < 7 =>
           buf ++= c
           parseNumeric(t, digits, base, buf)
         case _ => None
@@ -296,17 +297,17 @@ class CommonMarkParser {
       case (c1 @ C("&")) :: (c2 @ C("#")) :: (c3 @ C("x" | "X")) :: t =>
         parseHex(t) match {
           case None              => entities(t, buf, c1, c2, c3)
-          case Some((ent, rest)) => entities(rest, buf, C(ent))
+          case Some((ent, rest)) => entities(rest, buf, Ce(ent))
         }
       case (c1 @ C("&")) :: (c2 @ C("#")) :: t =>
         parseDecimal(t) match {
           case None              => entities(t, buf, c1, c2)
-          case Some((ent, rest)) => entities(rest, buf, C(ent))
+          case Some((ent, rest)) => entities(rest, buf, Ce(ent))
         }
       case (c @ C("&")) :: t =>
         parseName(t) match {
           case None              => entities(t, buf, c)
-          case Some((ent, rest)) => entities(rest, buf, C(ent))
+          case Some((ent, rest)) => entities(rest, buf, Ce(ent))
         }
       case c :: t => entities(t, buf, c)
       case Nil    => buf.toList

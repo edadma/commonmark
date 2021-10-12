@@ -1,8 +1,9 @@
 package io.github.edadma.commonmark
 
 import java.io.PrintWriter
-
 import io.github.edadma.json.DefaultJSONReader
+
+import scala.language.postfixOps
 
 object EntitiesGenerator extends App {
 

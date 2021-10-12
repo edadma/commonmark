@@ -8,7 +8,7 @@ object Main extends App {
   //  val input = "__foo_ bar_" //407
   //  val input = "*foo**bar**baz*" //410
   //  val input = "*foo**bar*" //411
-  val input = "foo *_*" //437 <p>foo <em>_</em></p>
+  val input = "&#42;foo&#42;\n*foo*\n" //"<p>*foo*\n<em>foo</em></p>\n"
 
   val doc = p.parse(input)
 
