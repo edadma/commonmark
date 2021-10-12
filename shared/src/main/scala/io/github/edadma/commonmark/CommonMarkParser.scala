@@ -405,7 +405,7 @@ class CommonMarkParser {
 
     def whitespace(elem: CommonMarkAST) =
       elem match {
-        case c: Chr => c.text.head.isWhitespace
+        case c: Chr => c.text.head.isWhitespace || c.text.head.isSpaceChar
         case _      => false
       }
 
