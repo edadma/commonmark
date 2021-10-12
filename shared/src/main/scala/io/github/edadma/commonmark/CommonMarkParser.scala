@@ -533,8 +533,8 @@ class CommonMarkParser {
               (opener.element.n + current_position.element.n) % 3 != 0)
           if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(
                 Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) &&
-              opener.element.s == current_position.element.s &&
-              (opener.element.n + current_position.element.n) % 3 != 0) {
+              opener.element.s == current_position.element.s && !(current_position.element.opener && current_position.element.closer &&
+                (opener.element.n + current_position.element.n) % 3 == 0)) {
             println("+++ found +++")
             var d = opener.following
 
