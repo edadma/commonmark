@@ -504,17 +504,18 @@ class CommonMarkParser {
 
         if (!current_position.isAfterEnd) {
           var opener = current_position.preceding
+          println("opener", opener)
 
           while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && !opener.element.opener) {
             opener = opener.preceding
           }
 
-//          println("---------")
-//          println("opener", opener)
-//          println("stack_bottom", stack_bottom)
-//          println("stack", stack)
+          println("---------")
+          println("opener", opener)
+          println("stack_bottom", stack_bottom)
+          println("stack", stack)
 
-          if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
+          if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s) && opener.element.s == current_position.element.s) {
             var d = opener.following
 
             while (d != current_position) {
