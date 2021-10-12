@@ -513,6 +513,7 @@ class CommonMarkParser {
 
           println("opener", opener)
           println("stack_bottom", stack_bottom)
+          println("stack", stack)
 
           if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(current_position.element.s)) {
             var d = opener.following
@@ -569,15 +570,16 @@ class CommonMarkParser {
               current_position = next
             }
           } else {
-            openers_bottom(current_position.element.s).element.idx = current_position.element.idx - 1
+            openers_bottom(current_position.element.s) = current_position.preceding
 
             if (!current_position.element.opener) {
               val next = current_position.following
 
               current_position.unlink
               current_position = next
-            } else
+            } else {
               current_position = current_position.following
+            }
           }
         }
       }
