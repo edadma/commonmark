@@ -3,8 +3,8 @@ package io.github.edadma.commonmark
 
 object FencedBlockType extends BlockType {
 
-  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s`]*)[^`]*""" r
-  val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*""" r
+  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s]*)(.*)""".r
+  val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*""".r
 
   override def start(from: Int,
                      text: String,
@@ -13,8 +13,10 @@ object FencedBlockType extends BlockType {
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
-      case startFenceRegex(indent, fence, info) => Some((new FencedBlock(indent, fence, info.trim), from, ""))
-      case _                                    => None
+      case startFenceRegex(indent, fence, info, rest)
+          if fence.head == '~' || !info.contains('`') && !rest.contains('`') =>
+        Some((new FencedBlock(indent, fence, info.trim), from, ""))
+      case _ => None
     }
 
   def end(startfence: String, text: String) =
