@@ -449,7 +449,7 @@ class CommonMarkParser {
             val followedBySpace = isFollowedBySpace(end)
             val precededBySpace = isPrecededBySpace(idx)
 
-            println("flanking", idx, c, precededBySpace, followedBySpace)
+//            println("flanking", idx, c, precededBySpace, followedBySpace)
             if (!followedBySpace && (!followedByPunct || followedByPunct && (precededBySpace || precededByPunct)))
               mark(c, idx, x => {
                 x.leftFlanking = true
@@ -512,13 +512,13 @@ class CommonMarkParser {
 
         if (!current_position.isAfterEnd) {
           var opener = current_position.preceding
-          println("opener", opener)
-          println("stack_bottom", stack_bottom)
-          println(
-            !opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(Bottom(
-              current_position.element.s,
-              current_position.element.n % 3,
-              current_position.element.opener)) && !opener.element.opener)
+//          println("opener", opener)
+//          println("stack_bottom", stack_bottom)
+//          println(
+//            !opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(Bottom(
+//              current_position.element.s,
+//              current_position.element.n % 3,
+//              current_position.element.opener)) && !opener.element.opener)
 
           while (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(Bottom(
                    current_position.element.s,
@@ -527,34 +527,34 @@ class CommonMarkParser {
                  (!opener.element.opener || opener.element.s != current_position.element.s || (opener.element.closer || current_position.element.opener) &&
                  (opener.element.n + current_position.element.n) % 3 == 0 && opener.element.n % 3 != 0 && current_position.element.n % 3 != 0)) {
             opener = opener.preceding
-            println(
-              "looking back",
-              opener,
-              !opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(Bottom(
-                current_position.element.s,
-                current_position.element.n % 3,
-                current_position.element.opener)) && !opener.element.opener
-            )
+//            println(
+//              "looking back",
+//              opener,
+//              !opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(Bottom(
+//                current_position.element.s,
+//                current_position.element.n % 3,
+//                current_position.element.opener)) && !opener.element.opener
+//            )
           }
 
-          println("---------")
-          println("current_position", current_position)
-          println("opener", opener)
-          println("stack_bottom", stack_bottom)
-          println("openers_bottom", openers_bottom)
-          println("stack", stack)
-          println(
-            "if found",
-            !opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(
-              Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) &&
-              opener.element.s == current_position.element.s &&
-              (opener.element.n + current_position.element.n) % 3 != 0
-          )
+//          println("---------")
+//          println("current_position", current_position)
+//          println("opener", opener)
+//          println("stack_bottom", stack_bottom)
+//          println("openers_bottom", openers_bottom)
+//          println("stack", stack)
+//          println(
+//            "if found",
+//            !opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(
+//              Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) &&
+//              opener.element.s == current_position.element.s &&
+//              (opener.element.n + current_position.element.n) % 3 != 0
+//          )
           if (!opener.isBeforeStart && opener != stack_bottom && opener != openers_bottom(
                 Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) &&
               opener.element.s == current_position.element.s && !(current_position.element.opener && current_position.element.closer &&
                 (opener.element.n + current_position.element.n) % 3 == 0 && opener.element.n % 3 != 0 && current_position.element.n % 3 != 0)) {
-            println("+++ found +++")
+//            println("+++ found +++")
             var d = opener.following
 
             while (d != current_position) {
@@ -603,7 +603,7 @@ class CommonMarkParser {
               current_position = next
             }
           } else {
-            println("--- not found ---")
+//            println("--- not found ---")
             openers_bottom(
               Bottom(current_position.element.s, current_position.element.n % 3, current_position.element.opener)) =
               current_position.preceding
@@ -616,8 +616,8 @@ class CommonMarkParser {
             } else {
               current_position = current_position.following
             }
-            println("current_position", current_position)
-            println("openers_bottom", openers_bottom)
+//            println("current_position", current_position)
+//            println("openers_bottom", openers_bottom)
           }
         }
       }
