@@ -634,7 +634,7 @@ class CommonMarkParser {
   def textual(l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
-      case (c: Chr) :: _ =>
+      case (_: Chr) :: _ =>
         val (cs, r) = l span (_.isInstanceOf[Chr])
 
         buf += TextAST(chars2string(cs))
@@ -644,34 +644,11 @@ class CommonMarkParser {
         textual(t, buf)
     }
 
-  def inlineText(s: String): CommonMarkAST = {
-    val s1 = {
-      //      if (s isEmpty)
-      //        s
-      //      else {
-      //        val lines = s.lines.iterator.asScala.toSeq
-      //        val init =
-      //          for (l <- lines.init)
-      //            yield {
-      //              if (l endsWith "  ")
-      //                l.trim + "  "
-      //              else
-      //                l.trim
-      //            }
-      //
-      //        if (init nonEmpty)
-      //          init.mkString("\n") + "\n" + lines.last.trim
-      //        else
-      //          lines.head.trim
-      //      }
-      s
-    }
-
-    textual(phase2(breaks(escapes(s1)))) match {
+  def inlineText(s: String): CommonMarkAST =
+    textual(phase2(breaks(escapes(s)))) match {
       case List(e) => e
       case l       => SeqAST(if (l.last == HardBreakAST) l dropRight 1 else l)
     }
-  }
 
   def transform(s: LazyList[Block], loose: Boolean = true): List[CommonMarkAST] = {
     def blankAfter(s: collection.Seq[Block]) =
