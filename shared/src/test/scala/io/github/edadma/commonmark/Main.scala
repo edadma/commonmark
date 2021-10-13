@@ -9,8 +9,8 @@ object Main extends App {
   //  val input = "*foo**bar**baz*" //410
   //  val input = "*foo**bar*" //411
 
-  val input = "  Foo *bar\nbaz*\t\n====\n"
-  //"<h1>Foo <em>bar\nbaz</em></h1>\n"
+  val input = "\tfoo\tbaz\t\tbim\n"
+  //"<pre><code>foo\tbaz\t\tbim\n</code></pre>\n"
 
   //  val input = "<table><tr><td>\n<pre>\n**Hello**,\n\n_world_.\n</pre>\n</td></tr></table>\n"
   //"<table><tr><td>\n<pre>\n**Hello**,\n<p><em>world</em>.\n</pre></p>\n</td></tr></table>\n"

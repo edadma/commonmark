@@ -2,7 +2,7 @@ package io.github.edadma.commonmark
 
 object BreakBlockType extends BlockType {
 
-  val breakRegex = """[ ]{0,3}([-_*])\s*(?:\1\s*){2,}""" r
+  val breakRegex = """[ \ue000]{0,3}(?:[-_*][\s\ue000]*){3,}""".r
 
   override def start(from: Int,
                      text: String,

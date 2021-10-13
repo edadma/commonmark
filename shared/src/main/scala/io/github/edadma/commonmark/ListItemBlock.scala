@@ -3,9 +3,9 @@ package io.github.edadma.commonmark
 
 object ListItemBlockType extends BlockType {
 
-  val bulletListRegex = """([ ]{0,3})([-+*])(?:([ ]+)([^ ].*)|\s*)""" r
-  val orderedListRegex = """([ ]{0,3})([0-9]{1,9})([.)])(?:([ ]+)([^ ].*)|\s*)""" r
-  val listRegex = """([ ]*)(.*)""" r
+  val bulletListRegex = """([ \ue000]{0,3})([-+*])(?:([ \ue000]+)([^ ].*)|\s*)""".r
+  val orderedListRegex = """([ \ue000]{0,3})([0-9]{1,9})([.)])(?:([ ]+)([^ ].*)|\s*)""".r
+  val listRegex = """([ \ue000]*)(.*)""".r
 
   def accept(list: ListItemBlock, from: Int, text: String) =
     if (isBlank(text) && list.blocks.exists(_ != BlankBlock))

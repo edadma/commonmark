@@ -2,7 +2,7 @@ package io.github.edadma.commonmark
 
 object QuoteBlockType extends BlockType {
 
-  val quoteRegex = """([ ]{0,3}> ?)(.*)""" r
+  val quoteRegex = """([ \ue000]{0,3}>[ \ue000]?)(.*)""".r
 
   def accept(from: Int, text: String) =
     text match {

@@ -27,7 +27,7 @@ abstract class LeafBlock extends Block {
 
   def add(block: Block): Unit = sys.error("cannot add to")
 
-  val open = None
+  val open: Option[Block] = None
 
 }
 
@@ -71,7 +71,7 @@ abstract class ContainerBlock extends Block with NonAppendable {
 
   def add(block: Block): Unit = blocks += block
 
-  def open = blocks lastOption
+  def open: Option[Block] = blocks.lastOption
 
   override def toString: String = super.toString + s"[${blocks mkString ", "}]"
 

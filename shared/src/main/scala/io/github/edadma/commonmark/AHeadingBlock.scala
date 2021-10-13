@@ -2,7 +2,8 @@ package io.github.edadma.commonmark
 
 object AHeadingBlockType extends BlockType {
 
-  val aHeadingRegex = """[ ]{0,3}(#{1,6})\s*?(?:( [^#]+?)?(?:\s+#+)?\s*| (.*))""" r
+  val aHeadingRegex =
+    """[ \ue000]{0,3}(#{1,6})[\s\ue000]*?(?:([ \ue000][^#]+?)?(?:[\s\ue000]+#+)?[\s\ue000]*|[ \ue000](.*))""".r
 
   override def start(from: Int,
                      text: String,

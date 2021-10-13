@@ -3,8 +3,8 @@ package io.github.edadma.commonmark
 
 object FencedBlockType extends BlockType {
 
-  val startFenceRegex = """([ ]{0,3})(`{3,}|~{3,})\s*([^\s]*)(.*)""".r
-  val endFenceRegex = """[ ]{0,3}(`{3,}|~{3,})\s*""".r
+  val startFenceRegex = """([ \ue000]{0,3})(`{3,}|~{3,})\s*([^\s]*)(.*)""".r
+  val endFenceRegex = """[ \ue000]{0,3}(`{3,}|~{3,})\s*""".r
 
   override def start(from: Int,
                      text: String,

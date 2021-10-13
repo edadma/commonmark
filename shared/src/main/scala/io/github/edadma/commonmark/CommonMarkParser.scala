@@ -7,13 +7,14 @@ import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, HashMap, ListBuffer}
 import scala.language.postfixOps
 import scala.jdk.CollectionConverters._
+import scala.util.matching.Regex
 
 object CommonMarkParser {
 
-  val emailRegex =
+  val emailRegex: Regex =
     """[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*""" r
-  val uriRegex = """[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*""" r
-  val htmlRegex =
+  val uriRegex: Regex = """[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*""" r
+  val htmlRegex: Regex =
     """(?isx)
       |# start tag
       |<[a-z][a-z0-9-]*(?:\s+[a-z_:][a-z90-9_.:-]*(?:\s*=\s*(?:[^\s"'=<>`]+|'[^']*'|"[^"]*"))?)*\s*/?>|
@@ -37,7 +38,7 @@ object CommonMarkParser {
 
 class CommonMarkParser {
 
-  val blockTypes =
+  val blockTypes: mutable.Seq[BlockType] =
     new ArrayBuffer[BlockType] {
       append(HTMLBlockType)
       append(ReferenceBlockType)
@@ -54,15 +55,30 @@ class CommonMarkParser {
 
   def parse(src: String): CommonMarkAST = parse(scala.io.Source.fromString(src))
 
-  def parse(src: scala.io.Source) = SeqAST(transform(parseBlocks(src.getLines().to(LazyList)).blocks.to(LazyList)))
+  def expandTabs(s: String): String =
+    if (s contains '\t') {
+      val buf = new StringBuilder
 
-  def parseBlocks(lines: LazyList[String]) = {
+      s foreach {
+        case '\t' => buf ++= "\ue000" * (4 - buf.length % 4)
+        case c    => buf += c
+      }
+
+      buf.toString
+    } else s
+
+  def parse(src: scala.io.Source): SeqAST =
+    SeqAST(transform(parseBlocks(src.getLines() to LazyList map expandTabs).blocks to LazyList))
+
+  def parseBlocks(lines: LazyList[String]): DocumentBlock = {
     val doc = new DocumentBlock
     val trail = new ArrayBuffer[Block]
 
     trail += doc
 
+    @tailrec
     def next(s: LazyList[String]): Unit = {
+      @tailrec
       def matching(from: Int,
                    text: String,
                    prev: ContainerBlock,
@@ -153,7 +169,7 @@ class CommonMarkParser {
     var precededByPunct = false
   }
 
-  def chars(l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer): List[CommonMarkAST] =
+  def chars(l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer, col: Int = 0): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
       case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains p =>

@@ -2,7 +2,7 @@ package io.github.edadma.commonmark
 
 object ReferenceBlockType extends BlockType {
 
-  val linkRegex = """[ ]{0,3}\[([^\]]+)\]:\s*(.+?)\s*(?:"(.*?)")?""" r
+  val linkRegex = """[ \ue000]{0,3}\[([^\]]+)\]:\s*(.+?)\s*(?:"(.*?)")?""".r
 
   override def start(from: Int,
                      text: String,

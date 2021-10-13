@@ -107,7 +107,29 @@ object Util {
         //        case '{' => buf ++= "&lcub;"
         //        case '}' => buf ++= "&rcub;"
         //        case c if c > '\u007F' => buf ++= s"&#${c.toInt};"
-        case c => buf += c
+        case c =>
+          buf += c
+      }
+
+      var i = 0
+
+      while (i < buf.length) {
+        if (buf(i) == '\ue000') {
+          var count = 1
+
+          while (i + count < buf.length && buf(i + count) == '\ue000') count += 1
+
+          val tabs = count / 4 + (if (count % 4 > 0) 1 else 0)
+
+          for (j <- i until i + tabs)
+            buf(j) = '\t'
+
+          i += tabs
+
+          for (_ <- 1 to count - tabs)
+            buf.deleteCharAt(i)
+        } else
+          i += 1
       }
 
       buf.toString

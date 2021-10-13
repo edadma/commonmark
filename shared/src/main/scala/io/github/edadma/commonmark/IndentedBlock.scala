@@ -3,7 +3,7 @@ package io.github.edadma.commonmark
 
 object IndentedBlockType extends BlockType {
 
-  val indentedRegex = """    (.+)""" r
+  val indentedRegex = """[ \ue000]{4}(.+)""".r
 
   override def start(from: Int,
                      text: String,
