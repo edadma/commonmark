@@ -10,7 +10,9 @@ object BreakBlockType extends BlockType {
                      prev: ContainerBlock,
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] =
-    if (breakRegex.pattern.matcher(text).matches)
+    if (breakRegex.pattern
+          .matcher(text)
+          .matches && text.filter(c => c == '-' || c == '_' || c == '*').distinct.length == 1)
       Some((new BreakBlock, from, text))
     else
       None

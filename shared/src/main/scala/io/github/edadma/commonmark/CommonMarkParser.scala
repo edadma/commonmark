@@ -663,6 +663,7 @@ class CommonMarkParser {
   def inlineText(s: String): CommonMarkAST =
     textual(phase2(breaks(escapes(s)))) match {
       case List(e) => e
+      case Nil     => SeqAST(Nil)
       case l       => SeqAST(if (l.last == HardBreakAST) l dropRight 1 else l)
     }
 
