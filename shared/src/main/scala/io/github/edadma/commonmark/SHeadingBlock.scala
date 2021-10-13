@@ -2,7 +2,7 @@ package io.github.edadma.commonmark
 
 object SHeadingBlockType extends BlockType {
 
-  val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*""" r
+  val sHeadingRegex = """[ ]{0,3}(-+|=+)\s*""".r
 
   override def start(from: Int,
                      text: String,

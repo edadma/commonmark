@@ -685,7 +685,7 @@ class CommonMarkParser {
           case h: HTMLBlock        => HTMLBlockAST(h.buf.toString) :: transform(t, loose)
           case _: BreakBlock       => RuleAST :: transform(t, loose)
           case h: AHeadingBlock    => HeadingAST(h.level, inlineText(h.heading), None) :: transform(t, loose)
-          case h: SHeadingBlock    => HeadingAST(h.level, inlineText(h.heading), None) :: transform(t, loose)
+          case h: SHeadingBlock    => HeadingAST(h.level, inlineText(h.heading.trim), None) :: transform(t, loose)
           case p: ParagraphBlock if loose =>
             ParagraphAST(inlineText(p.buf.toString)) :: transform(t, loose)
           case p: ParagraphBlock => inlineText(p.buf.toString) :: transform(t, loose)
