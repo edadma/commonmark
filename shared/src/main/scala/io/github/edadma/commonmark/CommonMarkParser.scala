@@ -667,6 +667,19 @@ class CommonMarkParser {
       case l       => SeqAST(if (l.last == HardBreakAST) l dropRight 1 else l)
     }
 
+  def trim(s: String): String = {
+    val buf = new StringBuilder(s)
+
+    while (buf.nonEmpty && (buf.head == ' ' || buf.head == '\ue000')) buf.deleteCharAt(0)
+
+    var i = buf.length - 1
+
+    while (buf.nonEmpty && (buf.last == ' ' || buf.last == '\ue000')) buf.deleteCharAt(buf.length - 1)
+
+    if (buf.length == s.length) s
+    else buf.toString
+  }
+
   def transform(s: LazyList[Block], loose: Boolean = true): List[CommonMarkAST] = {
     def blankAfter(s: collection.Seq[Block]) =
       if (s.length < 2)
@@ -681,8 +694,8 @@ class CommonMarkParser {
           case b: Block if !b.keep => transform(t, loose)
           case h: HTMLBlock        => HTMLBlockAST(h.buf.toString) :: transform(t, loose)
           case _: BreakBlock       => RuleAST :: transform(t, loose)
-          case h: AHeadingBlock    => HeadingAST(h.level, inlineText(h.heading), None) :: transform(t, loose)
-          case h: SHeadingBlock    => HeadingAST(h.level, inlineText(h.heading.trim), None) :: transform(t, loose)
+          case h: AHeadingBlock    => HeadingAST(h.level, inlineText(trim(h.heading)), None) :: transform(t, loose)
+          case h: SHeadingBlock    => HeadingAST(h.level, inlineText(trim(h.heading)), None) :: transform(t, loose)
           case p: ParagraphBlock if loose =>
             ParagraphAST(inlineText(p.buf.toString)) :: transform(t, loose)
           case p: ParagraphBlock => inlineText(p.buf.toString) :: transform(t, loose)
