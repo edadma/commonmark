@@ -329,6 +329,9 @@ class CommonMarkParser {
       case C("\\") :: C("\n") :: t =>
         buf += HardBreakAST
         breaks(t, buf)
+      case C(" ") :: C("\n") :: t =>
+        buf += SoftBreakAST
+        breaks(t, buf)
       case C("\n") :: t =>
         buf += SoftBreakAST
         breaks(t, buf)
