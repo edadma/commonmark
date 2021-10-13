@@ -5,7 +5,7 @@ import scala.language.postfixOps
 
 object HTMLBlockType extends BlockType {
 
-  val start1Regex = """(?i)[ ]{0,3}(?:<script|<pre|<style)\s*>?""" r
+  val start1Regex = """(?i)[ ]{0,3}(?:<script|<pre|<style)\s*>?.*""" r
   val start2Regex = """[ ]{0,3}<!--.*""" r
   val start3Regex = """[ ]{0,3}<\?.*""" r
   val end1Regex = """.*(?:</script>|</pre>|</style>).*""" r
@@ -47,6 +47,7 @@ object HTMLBlockType extends BlockType {
                      doc: DocumentBlock): Option[(Block, Int, String)] = {
     for ((st, i) <- starts zipWithIndex)
       if (st(from, text, s) && !(i == 6 && prev.open.exists(_.isInstanceOf[ParagraphBlock]))) {
+        println(text, st(from, text, s), i)
         if (end(i, from, text, s))
           return Some((new HTMLBlock(i, true), from, text))
         else
@@ -70,8 +71,10 @@ class HTMLBlock(val typ: Int, var ended: Boolean) extends TextLeafBlock {
     if (ended)
       None
     else {
-      if (HTMLBlockType.end(typ, from, text, stream))
+      if (HTMLBlockType.end(typ, from, text, stream)) {
+        println("ended", text)
         ended = true
+      }
 
       Some((from, text))
     }
