@@ -666,7 +666,7 @@ class CommonMarkParser {
 
     textual(phase2(breaks(escapes(s1)))) match {
       case List(e) => e
-      case l       => SeqAST(l)
+      case l       => SeqAST(if (l.last == HardBreakAST) l dropRight 1 else l)
     }
   }
 
