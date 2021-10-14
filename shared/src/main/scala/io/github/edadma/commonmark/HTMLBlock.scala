@@ -5,7 +5,7 @@ import scala.language.postfixOps
 
 object HTMLBlockType extends BlockType {
 
-  val start1Regex = """(?i)[ ]{0,3}(?:<script|<pre|<style)(?:[ \ue000>].*)?""" r
+  val start1Regex = """(?i)[ ]{0,3}<(?:script|pre|style|textarea)(?:[ \ue000>].*)?""" r
   val start2Regex = """[ ]{0,3}<!--.*""" r
   val start3Regex = """[ ]{0,3}<\?.*""" r
   val end1Regex = """.*(?:</script>|</pre>|</style>).*""" r
@@ -46,13 +46,11 @@ object HTMLBlockType extends BlockType {
                      parser: CommonMarkParser,
                      doc: DocumentBlock): Option[(Block, Int, String)] = {
     for ((st, i) <- starts zipWithIndex)
-      if (st(from, text, s) && !(i == 6 && prev.open.exists(_.isInstanceOf[ParagraphBlock]))) {
-        println("start", i, text, start6Regex)
+      if (st(from, text, s) && !(i == 6 && prev.open.exists(_.isInstanceOf[ParagraphBlock])))
         if (end(i, from, text, s))
           return Some((new HTMLBlock(i, true), from, text))
         else
           return Some((new HTMLBlock(i, false), from, text))
-      }
 
     None
   }
@@ -71,10 +69,8 @@ class HTMLBlock(val typ: Int, var ended: Boolean) extends TextLeafBlock {
     if (ended)
       None
     else {
-      if (HTMLBlockType.end(typ, from, text, stream)) {
-        println("ended", typ, text)
+      if (HTMLBlockType.end(typ, from, text, stream))
         ended = true
-      }
 
       Some((from, text))
     }

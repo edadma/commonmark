@@ -9,8 +9,8 @@ object Main extends App {
   //  val input = "*foo**bar**baz*" //410
   //  val input = "*foo**bar*" //411
 
-  val input = "<table><tr><td>\n<pre>\n**Hello**,\n\n_world_.\n</pre>\n</td></tr></table>\n"
-  //"<table><tr><td>\n<pre>\n**Hello**,\n<p><em>world</em>.\n</pre></p>\n</td></tr></table>\n"
+  val input = "<textarea>\n\n*foo*\n\n_bar_\n\n</textarea>\n"
+  //"<textarea>\n\n*foo*\n\n_bar_\n\n</textarea>\n"
 
   //  val input = "<table><tr><td>\n<pre>\n**Hello**,\n\n_world_.\n</pre>\n</td></tr></table>\n"
   //"<table><tr><td>\n<pre>\n**Hello**,\n<p><em>world</em>.\n</pre></p>\n</td></tr></table>\n"
