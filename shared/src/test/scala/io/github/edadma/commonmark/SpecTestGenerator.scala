@@ -6,9 +6,9 @@ import io.github.edadma.json.{Array => JArray, DefaultJSONReader}
 
 import scala.language.postfixOps
 
-object SpecTestGenerator /*extends App*/ {
+object SpecTestGenerator extends App {
 
-  val args = Array[String]()
+//  val args = Array[String]()
   val src = args(0)
   val spec_tests = DefaultJSONReader.fromFile(src).asInstanceOf[JArray].asInstanceOf[Seq[Map[String, Any]]]
 

@@ -2,9 +2,8 @@
 package io.github.edadma.commonmark
 
 import scala.annotation.tailrec
-import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, HashMap, ListBuffer}
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.language.postfixOps
 import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex
