@@ -19,7 +19,7 @@ object ReferenceBlockType extends BlockType {
 
 }
 
-object ReferenceBlock extends SimpleLeafBlock { // this is an object and not a class for efficiency
+object ReferenceBlock extends SimpleLeafBlock {
 
   val name = "reference"
 
