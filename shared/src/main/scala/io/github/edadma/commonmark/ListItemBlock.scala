@@ -4,7 +4,7 @@ package io.github.edadma.commonmark
 object ListItemBlockType extends BlockType {
 
   val bulletListRegex = """([ \ue000]{0,3})([-+*])(?:([ \ue000]+)([^ ].*)|\s*)""".r
-  val orderedListRegex = """([ \ue000]{0,3})([0-9]{1,9})([.)])(?:([ ]+)([^ ].*)|\s*)""".r
+  val orderedListRegex = """([ \ue000]{0,3})([0-9]{1,9})([.)])(?:([ \ue000]+)([^ ].*)|\s*)""".r
   val listRegex = """([ \ue000]*)(.*)""".r
 
   def accept(list: ListItemBlock, from: Int, text: String) =

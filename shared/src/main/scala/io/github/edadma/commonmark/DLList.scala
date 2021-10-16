@@ -1,6 +1,7 @@
 package io.github.edadma.commonmark
 
 import scala.collection.mutable
+import scala.language.postfixOps
 
 object DLList {
 
@@ -104,13 +105,13 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
 
     private def noiterator = sys.error("can't iterate from sentinel")
 
-    override def iterator =
+    override def iterator: Iterator[Node] =
       if (this eq startSentinel)
         noiterator
       else
         super.iterator
 
-    override def reverseIterator =
+    override def reverseIterator: Iterator[Node] =
       if (this eq endSentinel)
         noiterator
       else
@@ -130,19 +131,19 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
   // DLList operations
   //
 
-  def appendElement(elem: T) = endSentinel precede elem
+  def appendElement(elem: T): Node = endSentinel precede elem
 
-  def headNode = {
+  def headNode: Node = {
     require(nonEmpty, "list is empty")
     startSentinel.next
   }
 
-  def lastNode = {
+  def lastNode: Node = {
     require(nonEmpty, "list is empty")
     endSentinel.prev
   }
 
-  def node(n: Int) = {
+  def node(n: Int): Node = {
     require(0 <= n && n < count, s"node index out of range: $n")
 
     if (n == 0)
@@ -155,22 +156,22 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
       reverseNodeIterator drop (count - 1 - n) next
   }
 
-  def nodeIterator = startSentinel.next.iterator
+  def nodeIterator: Iterator[Node] = startSentinel.next.iterator
 
-  def reverseNodeIterator = endSentinel.prev.reverseIterator
+  def reverseNodeIterator: Iterator[Node] = endSentinel.prev.reverseIterator
 
-  def prependElement(elem: T) = startSentinel follow elem
+  def prependElement(elem: T): Node = startSentinel follow elem
 
   //
   // abstract Buffer methods
   //
 
-  def addOne(elem: T) = {
+  def addOne(elem: T): DLList.this.type = {
     appendElement(elem)
     this
   }
 
-  def prepend(elem: T) = {
+  def prepend(elem: T): DLList.this.type = {
     prependElement(elem)
     this
   }
@@ -183,23 +184,23 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
     count = 0
   }
 
-  def iterator = nodeIterator map (_.v)
+  def iterator: Iterator[T] = nodeIterator map (_.v)
 
-  def length = count
+  def length: Int = count
 
-  def insert(n: Int, elem: T) = {
+  def insert(n: Int, elem: T): Unit = {
     var prev = node(n)
 
     prev follow elem
   }
 
-  def insertAll(n: Int, elems: IterableOnce[T]) = {
+  def insertAll(n: Int, elems: IterableOnce[T]): Unit = {
     var prev = node(n)
 
     elems.iterator foreach (e => prev = prev follow e)
   }
 
-  def remove(n: Int) = node(n).unlink
+  def remove(n: Int): T = node(n).unlink
 
   def update(n: Int, newelem: T): Unit = node(n).v = newelem
 
@@ -211,12 +212,12 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
   // overrides
   //
 
-  override def head = headNode.v
+  override def head: T = headNode.v
 
-  override def last = lastNode.v
+  override def last: T = lastNode.v
 
-  override def reverseIterator = reverseNodeIterator map (_.v)
+  override def reverseIterator: Iterator[T] = reverseNodeIterator map (_.v)
 
-  override def toString = iterator mkString ("DLList(", ", ", ")")
+  override def toString: String = iterator mkString ("DLList(", ", ", ")")
 
 }

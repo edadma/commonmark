@@ -504,7 +504,14 @@ class CommonMarkParser {
                                c.leftFlanking && (!c.rightFlanking || c.precededByPunct),
                                c.rightFlanking && (!c.leftFlanking || c.followedByPunct))
             delimiters(end)
-          case _ => delimiters(idx + 1)
+          case C("[") =>
+            stack += Delimiter("[", idx, 1, opener = false, closer = false)
+            delimiters(idx + 1)
+          case C("!") if idx + 1 < array.length && array(idx + 1) == C("[") =>
+            stack += Delimiter("![", idx, 2, opener = false, closer = false)
+            delimiters(idx + 2)
+          case C("]") => lookForLinkOrImage()
+          case _      => delimiters(idx + 1)
         }
       }
 
@@ -513,6 +520,23 @@ class CommonMarkParser {
 
     var stack_bottom: stack.Node = stack.startSentinel
     var current_position: stack.Node = null
+
+    def lookForLinkOrImage(): Unit = {
+      val it = stack.reverseNodeIterator
+
+      while (it.hasNext) {
+        val node = it.next()
+
+        node.element match {
+          case Delimiter("[" | "![", idx, n, opener, closer, active) =>
+            if (!active) {
+              node.unlink
+              return
+            }
+
+        }
+      }
+    }
 
     def processEmphsis(): Unit = {
       current_position = stack_bottom.following
