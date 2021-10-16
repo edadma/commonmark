@@ -4,19 +4,24 @@ version := "0.1"
 
 scalaVersion := "2.13.0"
 
-scalacOptions ++= Seq( "-deprecation", "-feature", "-unchecked", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-language:postfixOps",
+  "-language:implicitConversions",
+  "-language:existentials"
+)
 
-organization := "xyz.hyperreal"
+organization := "io.github.edadma"
 
-//resolvers += Resolver.sonatypeRepo( "snapshots" )
+githubOwner := "edadma"
 
-resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
-
-resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
+githubRepository := name.value
 
 libraryDependencies ++= Seq(
-	"org.scalatest" %% "scalatest" % "3.0.8" % "test",
-	"org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+  "org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
 )
 
 //libraryDependencies ++= Seq(
@@ -28,24 +33,21 @@ libraryDependencies ++= Seq(
 //)
 
 libraryDependencies ++= Seq(
-  "xyz.hyperreal" %% "pretty" % "0.2",
-  "xyz.hyperreal" %% "dllist" % "0.3",
-  "xyz.hyperreal" %% "json" % "0.8.0"
+  "io.github.edadma" %% "dllist" % "0.1.1",
+  "io.github.edadma" %% "json" % "0.1.12"
 )
 
-coverageExcludedPackages := ".*Main"
-
-mainClass in (Compile, run) := Some( "xyz.hyperreal." + name.value.replace('-', '_') + ".Main" )
-
-mainClass in assembly := Some( "xyz.hyperreal." + name.value.replace('-', '_') + ".Main" )
-
-assemblyJarName in assembly := name.value + "-" + version.value + ".jar"
+mainClass in (Compile, run) := Some(
+  "xyz.hyperreal." + name.value.replace('-', '_') + ".Main"
+)
 
 publishMavenStyle := true
 
 publishArtifact in Test := false
 
-pomIncludeRepository := { _ => false }
+pomIncludeRepository := { _ =>
+  false
+}
 
 licenses := Seq("ISC" -> url("https://opensource.org/licenses/ISC"))
 
@@ -53,13 +55,17 @@ homepage := Some(url("https://github.com/edadma/" + name.value))
 
 pomExtra :=
   <scm>
-    <url>git@github.com:edadma/{name.value}.git</url>
-    <connection>scm:git:git@github.com:edadma/{name.value}.git</connection>
+    <url>git@github.com:edadma/
+      {name.value}
+      .git</url>
+    <connection>scm:git:git@github.com:edadma/
+      {name.value}
+      .git</connection>
   </scm>
-  <developers>
-    <developer>
-      <id>edadma</id>
-      <name>Edward A. Maxedon, Sr.</name>
+    <developers>
+      <developer>
+        <id>edadma</id>
+        <name>Edward A. Maxedon, Sr.</name>
       <url>https://github.com/edadma</url>
     </developer>
   </developers>

@@ -4,28 +4,31 @@ package xyz.hyperreal.commonmark
 import java.net.URLEncoder
 import scala.collection.mutable
 
-
 object Util {
 
-  val urlchar = ('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9') ++ "-._~:/?#@!$&'()*+,;=" toSet
+  val urlchar =
+    ('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9') ++ "-._~:/?#@!$&'()*+,;=" toSet
 
-  def text( n: CommonMarkAST ): String = {
+  def text(n: CommonMarkAST): String = {
     n match {
       case leaf: LeafAST => leaf.text
-      case e => e.elements map text mkString
+      case e             => e.elements map text mkString
     }
   }
 
-  def headingIds( ast: CommonMarkAST ) = {
+  def headingIds(ast: CommonMarkAST) = {
     val idmap = new mutable.HashMap[String, Int]
     val idset = new mutable.HashSet[String]
 
-    def id( s: String ) = {
+    def id(s: String) = {
       val ids =
         if (s isEmpty)
           "_"
         else
-          s.replace( ' ', '_' ).replace( '\t', '_' ).replace( '\r', '_' ).replace( '\n', '_' )
+          s.replace(' ', '_')
+            .replace('\t', '_')
+            .replace('\r', '_')
+            .replace('\n', '_')
 
       if (idset(ids))
         idmap get ids match {
@@ -35,7 +38,7 @@ object Util {
             idset += rid
             idmap(ids) = 2
             rid
-          case Some( count ) =>
+          case Some(count) =>
             val rid = s"$ids-$count"
 
             idset += rid
@@ -49,54 +52,73 @@ object Util {
       }
     }
 
-    def headingIds( ast: CommonMarkAST ): Unit = {
+    def headingIds(ast: CommonMarkAST): Unit = {
       ast match {
-        case SeqAST( s ) => s foreach headingIds
-        case h@HeadingAST( _, contents, _ ) => h.id = Some( id(text(contents)) )
-        case b: BranchAST => headingIds( b.contents )
-        case _ =>
+        case SeqAST(s)                      => s foreach headingIds
+        case h @ HeadingAST(_, contents, _) => h.id = Some(id(text(contents)))
+        case b: BranchAST                   => headingIds(b.contents)
+        case _                              =>
       }
     }
 
-    headingIds( ast )
+    headingIds(ast)
   }
 
-  def html( doc: CommonMarkAST, tab: Int, codeblock: (String, Option[String], Option[String]) => String = null ) = {
+  def html(
+      doc: CommonMarkAST,
+      tab: Int,
+      codeblock: (String, Option[String], Option[String]) => String = null
+  ) = {
     val buf = new StringBuilder
 
-    def attributes( attr: Seq[(String, String)] ) =
-      attr.
-        filter {case ("align", "left") => false; case _ => true}.
-        map {case (k, v) => s"""$k="${escape( v )}""""}.
-        mkString (" ") match {
-          case "" => ""
-          case s => s" $s"
-        }
+    def attributes(attr: Seq[(String, String)]) =
+      attr
+        .filter { case ("align", "left") => false; case _ => true }
+        .map { case (k, v) => s"""$k="${escape(v)}"""" }
+        .mkString(" ") match {
+        case "" => ""
+        case s  => s" $s"
+      }
 
-    def nl( newline: Boolean ) = if (newline) "\n" else ""
+    def nl(newline: Boolean) = if (newline) "\n" else ""
 
-    def containerTag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) = {
-      val h = html( contents ).trim
+    def containerTag(
+        tag: String,
+        contents: CommonMarkAST,
+        newline: Boolean,
+        attr: (String, String)*
+    ) = {
+      val h = html(contents).trim
 
-      s"\n<$tag${attributes( attr )}>\n$h${if (h isEmpty) "" else "\n"}</$tag>\n"
+      s"\n<$tag${attributes(attr)}>\n$h${if (h isEmpty) "" else "\n"}</$tag>\n"
     }
 
-    def tag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) =
-      s"${nl(newline)}<$tag${attributes( attr )}>${html( contents )}</$tag>${nl(newline)}"
+    def tag(
+        tag: String,
+        contents: CommonMarkAST,
+        newline: Boolean,
+        attr: (String, String)*
+    ) =
+      s"${nl(newline)}<$tag${attributes(attr)}>${html(contents)}</$tag>${nl(newline)}"
 
-    def optionalTag( tag: String, contents: CommonMarkAST, newline: Boolean, attr: (String, String)* ) = {
-      val c = html( contents )
+    def optionalTag(
+        tag: String,
+        contents: CommonMarkAST,
+        newline: Boolean,
+        attr: (String, String)*
+    ) = {
+      val c = html(contents)
 
       if (c nonEmpty)
-        s"${nl(newline)}<$tag${attributes( attr )}>$c</$tag>${nl(newline)}"
+        s"${nl(newline)}<$tag${attributes(attr)}>$c</$tag>${nl(newline)}"
       else
         ""
     }
 
-    def leaf( tag: String, contents: String, attr: (String, String)* ) =
-      s"<$tag${attributes( attr )}>${escape( contents )}</$tag>"
+    def leaf(tag: String, contents: String, attr: (String, String)*) =
+      s"<$tag${attributes(attr)}>${escape(contents)}</$tag>"
 
-    def escape( s: String ) = {
+    def escape(s: String) = {
       val buf = new StringBuilder
 
       s foreach {
@@ -114,47 +136,54 @@ object Util {
       buf.toString
     }
 
-    def encode( s: String ) = {
+    def encode(s: String) = {
       val buf = new StringBuilder
 
       for (c <- s)
         if (urlchar(c))
           buf += c
         else
-          buf ++= (io.Codec.toUTF8( c.toString ) map (n => f"%%$n%02x".toUpperCase) mkString)
+          buf ++= (scala.io.Codec.toUTF8(c.toString) map (n =>
+            f"%%$n%02x".toUpperCase
+          ) mkString)
 
       buf.toString
     }
 
-    def html( doc: CommonMarkAST ): String =
+    def html(doc: CommonMarkAST): String =
       doc match {
-        case SeqAST( seq ) =>
+        case SeqAST(seq) =>
           val buf = new StringBuilder
 
           for (s <- seq map html)
-            buf ++= (if (buf.nonEmpty && buf.last == '\n' && s.startsWith("\n")) s drop 1 else s)
+            buf ++= (if (buf.nonEmpty && buf.last == '\n' && s.startsWith("\n"))
+                       s drop 1
+                     else s)
 
           buf.toString
-        case URIAutolinkAST( addr ) =>
-          val escaped = escape( addr )
-          val encoded = encode( escaped )
+        case URIAutolinkAST(addr) =>
+          val escaped = escape(addr)
+          val encoded = encode(escaped)
 
           s"""<a href="$encoded">$escaped</a>"""
-        case EmailAutolinkAST( addr ) =>
-          val escaped = escape( addr )
-          val encoded = encode( escaped )
+        case EmailAutolinkAST(addr) =>
+          val escaped = escape(addr)
+          val encoded = encode(escaped)
 
           s"""<a href="mailto:$encoded">$escaped</a>"""
-        case TextAST( t ) => escape( t )
-        case HTMLBlockAST( t ) => s"\n$t\n"
-        case RawHTMLAST( t ) => t
-        case ParagraphAST( contents ) => optionalTag( "p", contents, true )
-        case BlockquoteAST( contents ) => containerTag( "blockquote", contents, true )
-        case HeadingAST( level, contents, Some(id) ) => tag( s"h$level", contents, true, "id" -> id )
-        case HeadingAST( level, contents, None ) => tag( s"h$level", contents, true )
-        case CodeSpanAST( c ) => leaf( "code", c )
-        case CodeBlockAST( c, highlighted, caption ) =>
-          val escaped = escape( c ) + (if (c isEmpty) "" else "\n")
+        case TextAST(t)             => escape(t)
+        case HTMLBlockAST(t)        => s"\n$t\n"
+        case RawHTMLAST(t)          => t
+        case ParagraphAST(contents) => optionalTag("p", contents, true)
+        case BlockquoteAST(contents) =>
+          containerTag("blockquote", contents, true)
+        case HeadingAST(level, contents, Some(id)) =>
+          tag(s"h$level", contents, true, "id" -> id)
+        case HeadingAST(level, contents, None) =>
+          tag(s"h$level", contents, true)
+        case CodeSpanAST(c) => leaf("code", c)
+        case CodeBlockAST(c, highlighted, caption) =>
+          val escaped = escape(c) + (if (c isEmpty) "" else "\n")
 
           if (codeblock eq null)
             if (highlighted isDefined) {
@@ -164,31 +193,38 @@ object Util {
             } else
               s"\n<pre><code>$escaped</code></pre>\n"
           else
-            s"\n${codeblock( escaped, highlighted, caption )}\n"
-        case LinkAST( address, None, contents ) => tag( "a", contents, false, "href" -> address )
-        case LinkAST( address, Some(title), contents ) => tag( "a", contents, false, "href" -> address, "title" -> title )
-        case ListItemAST( contents ) => tag( "li", contents, true )
-        case BulletListAST( contents, tight ) => tag( "ul", contents, true )
-        case OrderedListAST( contents, tight, 1 ) => tag( "ol", contents, true )
-        case OrderedListAST( contents, tight, start ) => tag( "ol", contents, true, "start" -> start.toString )
-        case ImageAST( address, None, text ) => leaf( "img", text, "src" -> address )
-        case ImageAST( address, Some(title), text ) => leaf( "img", text, "src" -> address, "title" -> title )
-        case EmphasisAST( contents ) => tag( "em", contents, false )
-        case StrongAST( contents ) => tag( "strong", contents, false )
-        case StrikethroughAST( contents ) => tag( "del", contents, false )
-        case SoftBreakAST => "\n"
-        case HardBreakAST => "<br />\n"
-        case RuleAST => "\n<hr />\n"
-        case TableHeadCellAST( align, contents ) => tag( "th", contents, true, "align" -> align )
-        case TableBodyCellAST( align, contents ) => tag( "td", contents, false, "align" -> align )
-        case TableRowAST( contents ) => tag( "tr", contents, true )
-        case TableHeadAST( contents ) => tag( "thead", contents, true )
-        case TableBodyAST( contents ) => tag( "tbody", contents, true )
-        case TableAST( contents ) => tag( "table", contents, true )
-        case EntityAST( entity, _ ) => s"&$entity;"
+            s"\n${codeblock(escaped, highlighted, caption)}\n"
+        case LinkAST(address, None, contents) =>
+          tag("a", contents, false, "href" -> address)
+        case LinkAST(address, Some(title), contents) =>
+          tag("a", contents, false, "href" -> address, "title" -> title)
+        case ListItemAST(contents)              => tag("li", contents, true)
+        case BulletListAST(contents, tight)     => tag("ul", contents, true)
+        case OrderedListAST(contents, tight, 1) => tag("ol", contents, true)
+        case OrderedListAST(contents, tight, start) =>
+          tag("ol", contents, true, "start" -> start.toString)
+        case ImageAST(address, None, text) =>
+          leaf("img", text, "src" -> address)
+        case ImageAST(address, Some(title), text) =>
+          leaf("img", text, "src" -> address, "title" -> title)
+        case EmphasisAST(contents)      => tag("em", contents, false)
+        case StrongAST(contents)        => tag("strong", contents, false)
+        case StrikethroughAST(contents) => tag("del", contents, false)
+        case SoftBreakAST               => "\n"
+        case HardBreakAST               => "<br />\n"
+        case RuleAST                    => "\n<hr />\n"
+        case TableHeadCellAST(align, contents) =>
+          tag("th", contents, true, "align" -> align)
+        case TableBodyCellAST(align, contents) =>
+          tag("td", contents, false, "align" -> align)
+        case TableRowAST(contents)  => tag("tr", contents, true)
+        case TableHeadAST(contents) => tag("thead", contents, true)
+        case TableBodyAST(contents) => tag("tbody", contents, true)
+        case TableAST(contents)     => tag("table", contents, true)
+        case EntityAST(entity, _)   => s"&$entity;"
       }
 
-    val h = html( doc ) dropWhile (_ == '\n')
+    val h = html(doc) dropWhile (_ == '\n')
 
     if (h endsWith "\n")
       h
