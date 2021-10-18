@@ -67,7 +67,7 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
 
         def hasNext: Boolean = node ne endSentinel
 
-        def next: Node = {
+        def next(): Node = {
           if (isEmpty) throw new NoSuchElementException("no more elements")
 
           val res = node
@@ -125,7 +125,7 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
 
   private var count = 0
 
-  clear
+  clear()
 
   //
   // DLList operations
@@ -151,9 +151,9 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
     else if (n == count - 1)
       lastNode
     else if (n <= count / 2)
-      nodeIterator drop n next
+      (nodeIterator drop n).next()
     else
-      reverseNodeIterator drop (count - 1 - n) next
+      (reverseNodeIterator drop (count - 1 - n)).next()
   }
 
   def nodeIterator: Iterator[Node] = startSentinel.next.iterator
@@ -178,7 +178,7 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
 
   def apply(n: Int): T = node(n).v
 
-  def clear: Unit = {
+  def clear(): Unit = {
     startSentinel.next = endSentinel
     endSentinel.prev = startSentinel
     count = 0

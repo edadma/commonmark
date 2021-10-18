@@ -486,6 +486,23 @@ class CommonMarkParser {
         }
     }
 
+    def lookForLinkOrImage(): Unit = {
+      val it = stack.reverseNodeIterator
+
+      while (it.hasNext) {
+        val node = it.next()
+
+        node.element match {
+          case Delimiter("[" | "![", idx, n, opener, closer, active) =>
+            if (!active) {
+              node.unlink
+              return
+            }
+
+        }
+      }
+    }
+
     @tailrec
     def delimiters(idx: Int): Unit =
       if (idx < array.length) {
@@ -520,23 +537,6 @@ class CommonMarkParser {
 
     var stack_bottom: stack.Node = stack.startSentinel
     var current_position: stack.Node = null
-
-    def lookForLinkOrImage(): Unit = {
-      val it = stack.reverseNodeIterator
-
-      while (it.hasNext) {
-        val node = it.next()
-
-        node.element match {
-          case Delimiter("[" | "![", idx, n, opener, closer, active) =>
-            if (!active) {
-              node.unlink
-              return
-            }
-
-        }
-      }
-    }
 
     def processEmphsis(): Unit = {
       current_position = stack_bottom.following
