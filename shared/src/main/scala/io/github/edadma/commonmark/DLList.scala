@@ -83,7 +83,7 @@ class DLList[T] extends mutable.AbstractBuffer[T] {
 
         def hasNext: Boolean = node ne startSentinel
 
-        def next: Node = {
+        def next(): Node = {
           if (isEmpty) throw new NoSuchElementException("no more elements")
 
           val res = node

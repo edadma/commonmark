@@ -1,8 +1,10 @@
 package io.github.edadma.commonmark
 
+import scala.util.matching.Regex
+
 object BreakBlockType extends BlockType {
 
-  val breakRegex = """[ \ue000]{0,3}(?:[-_*][\s\ue000]*){3,}""".r
+  val breakRegex: Regex = """[ tab]{0,3}(?:[-_*][\stab]*){3,}""".t.r
 
   override def start(from: Int,
                      text: String,

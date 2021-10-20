@@ -1,9 +1,11 @@
 package io.github.edadma.commonmark
 
+import scala.util.matching.Regex
+
 object AHeadingBlockType extends BlockType {
 
-  val aHeadingRegex =
-    """[ \ue000]{0,3}(#{1,6})[\s\ue000]*?(?:([ \ue000][^#]+?)?(?:[\s\ue000]+#+)?[\s\ue000]*|[ \ue000](.*))""".r
+  val aHeadingRegex: Regex =
+    """[ tab]{0,3}(#{1,6})[\stab]*?(?:([ tab][^#]+?)?(?:[\stab]+#+)?[\stab]*|[ tab](.*))""".t.r
 
   override def start(from: Int,
                      text: String,

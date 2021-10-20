@@ -1,8 +1,10 @@
 package io.github.edadma.commonmark
 
+import scala.util.matching.Regex
+
 object ReferenceBlockType extends BlockType {
 
-  val linkRegex = """[ \ue000]{0,3}\[([^\]]+)\]:\s*(.+?)\s*(?:"(.*?)")?""".r
+  val linkRegex: Regex = """[ tab]{0,3}\[([^]]+)]:\s*(.+?)\s*(?:"(.*?)")?""".t.r
 
   override def start(from: Int,
                      text: String,
@@ -12,7 +14,7 @@ object ReferenceBlockType extends BlockType {
                      doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
       case linkRegex(ref, url, title) =>
-        doc.refs(ref) = doc.Link(url, if (title eq null) None else Some(title))
+        parser.refs(ref) = parser.LinkInfo(url, if (title eq null) None else Some(title))
         Some((ReferenceBlock, from, text))
       case _ => None
     }

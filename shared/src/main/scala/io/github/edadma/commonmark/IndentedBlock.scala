@@ -1,9 +1,11 @@
 //@
 package io.github.edadma.commonmark
 
+import scala.util.matching.Regex
+
 object IndentedBlockType extends BlockType {
 
-  val indentedRegex = """[ \ue000]{4}(.+)""".r
+  val indentedRegex: Regex = """[ tab]{4}(.+)""".t.r
 
   override def start(from: Int,
                      text: String,

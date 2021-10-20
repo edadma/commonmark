@@ -1,13 +1,15 @@
 //@
 package io.github.edadma.commonmark
 
+import scala.util.matching.Regex
+
 object ListItemBlockType extends BlockType {
 
-  val bulletListRegex = """([ \ue000]{0,3})([-+*])(?:([ \ue000]+)([^ ].*)|\s*)""".r
-  val orderedListRegex = """([ \ue000]{0,3})([0-9]{1,9})([.)])(?:([ \ue000]+)([^ ].*)|\s*)""".r
-  val listRegex = """([ \ue000]*)(.*)""".r
+  val bulletListRegex: Regex = """([ tab]{0,3})([-+*])(?:([ tab]+)([^ ].*)|\s*)""".t.r
+  val orderedListRegex: Regex = """([ tab]{0,3})([0-9]{1,9})([.)])(?:([ tab]+)([^ ].*)|\s*)""".t.r
+  val listRegex: Regex = """([ tab]*)(.*)""".t.r
 
-  def accept(list: ListItemBlock, from: Int, text: String) =
+  def accept(list: ListItemBlock, from: Int, text: String): Option[(Int, String)] =
     if (isBlank(text) && list.blocks.exists(_ != BlankBlock))
       Some((from, text))
     else

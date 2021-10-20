@@ -1,10 +1,11 @@
-//@
 package io.github.edadma.commonmark
+
+import scala.util.matching.Regex
 
 object FencedBlockType extends BlockType {
 
-  val startFenceRegex = """([ \ue000]{0,3})(`{3,}|~{3,})\s*([^\s]*)(.*)""".r
-  val endFenceRegex = """[ \ue000]{0,3}(`{3,}|~{3,})\s*""".r
+  val startFenceRegex: Regex = """([ tab]{0,3})(`{3,}|~{3,})\s*([^\s]*)(.*)""".t.r
+  val endFenceRegex: Regex = """[ tab]{0,3}(`{3,}|~{3,})\s*""".t.r
 
   override def start(from: Int,
                      text: String,
@@ -19,7 +20,7 @@ object FencedBlockType extends BlockType {
       case _ => None
     }
 
-  def end(startfence: String, text: String) =
+  def end(startfence: String, text: String): Boolean =
     text match {
       case endFenceRegex(fence) if fence(0) == startfence(0) && fence.length >= startfence.length => true
       case _                                                                                      => false

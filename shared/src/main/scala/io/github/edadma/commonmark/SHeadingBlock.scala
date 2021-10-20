@@ -1,8 +1,10 @@
 package io.github.edadma.commonmark
 
+import scala.util.matching.Regex
+
 object SHeadingBlockType extends BlockType {
 
-  val sHeadingRegex = """[ \ue000]{0,3}(-+|=+)\s*""".r
+  val sHeadingRegex: Regex = """[ tab]{0,3}(-+|=+)\s*""".t.r
 
   override def start(from: Int,
                      text: String,

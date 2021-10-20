@@ -39,6 +39,10 @@ object CommonMarkParser {
 
 class CommonMarkParser {
 
+  case class LinkInfo(url: String, title: Option[String])
+  case class Link(text: String, url: String, title: Option[String])
+  case class Image(text: String, url: String, title: Option[String])
+
   val blockTypes: mutable.Seq[BlockType] =
     new ArrayBuffer[BlockType] {
       append(HTMLBlockType)
@@ -53,6 +57,7 @@ class CommonMarkParser {
       append(ParagraphBlockType)
       append(BlankBlockType)
     }
+  val refs = new mutable.HashMap[String, LinkInfo]
 
   def parse(src: String): CommonMarkAST = parse(scala.io.Source.fromString(src))
 
@@ -179,9 +184,9 @@ class CommonMarkParser {
         case _    => '\u0000'
       }
 
-    def wrapper: CommonMarkAST = ???
+    def wrapped: CommonMarkAST = array(idx)
 
-    def next: CommonMarkArrayInput = ???
+    def next: CommonMarkArrayInput = new CommonMarkArrayInput(array, idx + 1)
   }
 
   def chars(l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer, col: Int = 0): List[CommonMarkAST] =
@@ -514,7 +519,7 @@ class CommonMarkParser {
               node.unlink
               return
             }
-
+          case _ =>
         }
       }
     }

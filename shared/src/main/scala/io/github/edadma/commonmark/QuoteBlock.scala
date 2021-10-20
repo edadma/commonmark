@@ -1,10 +1,12 @@
 package io.github.edadma.commonmark
 
+import scala.util.matching.Regex
+
 object QuoteBlockType extends BlockType {
 
-  val quoteRegex = """([ \ue000]{0,3}>[ \ue000]?)(.*)""".r
+  val quoteRegex: Regex = s"""([ $tab]{0,3}>[ $tab]?)(.*)""".r
 
-  def accept(from: Int, text: String) =
+  def accept(from: Int, text: String): Option[(Int, String)] =
     text match {
       case quoteRegex(marker, newtext) => Some((from + marker.length, newtext))
       case _                           => None
