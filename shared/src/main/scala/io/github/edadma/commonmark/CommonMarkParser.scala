@@ -1,6 +1,8 @@
 //@
 package io.github.edadma.commonmark
 
+import io.github.edadma.recognizer.Input
+
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -166,6 +168,20 @@ class CommonMarkParser {
     var rightFlanking = false
     var followedByPunct = false
     var precededByPunct = false
+  }
+
+  class CommonMarkArrayInput(array: collection.Seq[CommonMarkAST], idx: Int) extends Input[CommonMarkAST, Char] {
+    def eoi: Boolean = idx >= array.length
+
+    def elem: Char =
+      array(idx) match {
+        case C(c) => c.head
+        case _    => '\u0000'
+      }
+
+    def wrapper: CommonMarkAST = ???
+
+    def next: CommonMarkArrayInput = ???
   }
 
   def chars(l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer, col: Int = 0): List[CommonMarkAST] =
