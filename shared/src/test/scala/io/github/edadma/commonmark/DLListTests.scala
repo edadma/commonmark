@@ -40,7 +40,7 @@ class DLListTests extends AnyFreeSpec with Matchers {
     l.toList shouldBe List(3, 4, 6, 7, 8)
     l.remove(3) shouldBe 7
     l.toList shouldBe List(3, 4, 6, 8)
-    l.clear
+    l.clear()
     l.length shouldBe 0
     l.toList shouldBe Nil
   }

@@ -39,10 +39,6 @@ object CommonMarkParser {
 
 class CommonMarkParser {
 
-  case class LinkInfo(url: String, title: Option[String])
-  case class Link(text: String, url: String, title: Option[String])
-  case class Image(text: String, url: String, title: Option[String])
-
   val blockTypes: mutable.Seq[BlockType] =
     new ArrayBuffer[BlockType] {
       append(HTMLBlockType)
@@ -58,6 +54,7 @@ class CommonMarkParser {
       append(BlankBlockType)
     }
   val refs = new mutable.HashMap[String, LinkInfo]
+  val linksImagesParser = new LinksImagesParser(this)
 
   def parse(src: String): CommonMarkAST = parse(scala.io.Source.fromString(src))
 
@@ -507,7 +504,7 @@ class CommonMarkParser {
         }
     }
 
-    def lookForLinkOrImage(): Unit = {
+    def lookForLinkOrImage(idx: Int): Unit = {
       val it = stack.reverseNodeIterator
 
       while (it.hasNext) {
@@ -517,11 +514,14 @@ class CommonMarkParser {
           case Delimiter("[" | "![", idx, n, opener, closer, active) =>
             if (!active) {
               node.unlink
+              array(idx) = TextAST(array(idx).asInstanceOf[C].text)
               return
             }
           case _ =>
         }
       }
+
+      array(idx) = TextAST(array(idx).asInstanceOf[C].text)
     }
 
     @tailrec
@@ -548,7 +548,7 @@ class CommonMarkParser {
           case C("!") if idx + 1 < array.length && array(idx + 1) == C("[") =>
             stack += Delimiter("![", idx, 2, opener = false, closer = false)
             delimiters(idx + 2)
-          case C("]") => lookForLinkOrImage()
+          case C("]") => lookForLinkOrImage(idx)
           case _      => delimiters(idx + 1)
         }
       }
@@ -556,11 +556,10 @@ class CommonMarkParser {
     flanking(0)
     delimiters(0)
 
-    var stack_bottom: stack.Node = stack.startSentinel
-    var current_position: stack.Node = null
+//    var current_position: stack.Node = null
 
-    def processEmphsis(): Unit = {
-      current_position = stack_bottom.following
+    def processEmphsis(stack_bottom: stack.Node = stack.startSentinel): Unit = {
+      var current_position = stack_bottom.following
 
       case class Bottom(typ: String, closingLen: Int, closingCanBeOpener: Boolean)
 

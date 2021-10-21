@@ -14,7 +14,7 @@ object ReferenceBlockType extends BlockType {
                      doc: DocumentBlock): Option[(Block, Int, String)] =
     text match {
       case linkRegex(ref, url, title) =>
-        parser.refs(ref) = parser.LinkInfo(url, if (title eq null) None else Some(title))
+        parser.refs(ref) = LinkInfo(url, if (title eq null) None else Some(title))
         Some((ReferenceBlock, from, text))
       case _ => None
     }

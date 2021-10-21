@@ -6,4 +6,8 @@ package object commonmark {
 
   def nonBlank(s: String) = !isBlank(s)
 
+  case class LinkInfo(url: String, title: Option[String])
+  case class Link(text: String, url: String, title: Option[String])
+  case class Image(text: String, url: String, title: Option[String])
+
 }
