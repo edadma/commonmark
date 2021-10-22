@@ -1,19 +1,10 @@
 package io.github.edadma.commonmark
 
-import scala.jdk.CollectionConverters._
-
 object Main extends App {
 
   val p = new CommonMarkParser
-  //  val input = "__foo_ bar_" //407
-  //  val input = "*foo**bar**baz*" //410
-  //  val input = "*foo**bar*" //411
 
-  val input = "* a\n*\n\n* c\n"
-  //"<ul>\n<li>\n<p>a</p>\n</li>\n<li></li>\n<li>\n<p>c</p>\n</li>\n</ul>\n"
-
-  //  val input = "<table><tr><td>\n<pre>\n**Hello**,\n\n_world_.\n</pre>\n</td></tr></table>\n"
-  //"<table><tr><td>\n<pre>\n**Hello**,\n<p><em>world</em>.\n</pre></p>\n</td></tr></table>\n"
+  val input = "[link](/url)"
 
   val doc = p.parse(input)
 

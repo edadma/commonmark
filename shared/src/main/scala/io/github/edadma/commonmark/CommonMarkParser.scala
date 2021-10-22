@@ -504,7 +504,7 @@ class CommonMarkParser {
         }
     }
 
-    def lookForLinkOrImage(idx: Int): Unit = {
+    def lookForLinkOrImage(endidx: Int): Unit = {
       val it = stack.reverseNodeIterator
 
       while (it.hasNext) {
@@ -514,14 +514,26 @@ class CommonMarkParser {
           case Delimiter("[" | "![", idx, n, opener, closer, active) =>
             if (!active) {
               node.unlink
-              array(idx) = TextAST(array(idx).asInstanceOf[C].text)
+              array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
               return
+            }
+
+            val start = new CommonMarkArrayInput(array, idx)
+
+            println(start)
+            LinksImagesParser.run(start, linksImagesParser.pattern) match {
+              case Some((Some(Link(text, url, title)), rest, _)) =>
+                println(text, url, title)
+              case Some((Some(Image(text, url, title)), rest, _)) =>
+              case None =>
+                array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
+                return
             }
           case _ =>
         }
       }
 
-      array(idx) = TextAST(array(idx).asInstanceOf[C].text)
+      array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
     }
 
     @tailrec

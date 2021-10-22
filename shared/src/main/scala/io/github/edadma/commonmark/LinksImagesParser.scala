@@ -30,6 +30,8 @@ class LinksImagesParser(parser: CommonMarkParser) {
 
   import LinksImagesParser._
 
+  runlimit = 50
+
   val refLinkPattern: Pattern =
     '[' ~ string(balancedText) ~ ']' ~ '[' ~ string(rep1(noneOf('[', ']'))) ~
       test(
@@ -70,6 +72,6 @@ class LinksImagesParser(parser: CommonMarkParser) {
 
         Image(s, url, title)
       }
-  val testPattern: Pattern = linkPattern | refLinkPattern | imagePattern | refImagePattern
+  val pattern: Pattern = linkPattern | refLinkPattern | imagePattern | refImagePattern
 
 }
