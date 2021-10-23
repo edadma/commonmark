@@ -7,14 +7,7 @@ import scala.language.postfixOps
 
 object Util {
 
-  val urlchar = ('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9') ++ "-._~:/?#@!$&'()*+,;=" toSet
-
-  def text(n: CommonMarkAST): String = {
-    n match {
-      case leaf: LeafAST => leaf.text
-      case e             => e.elements map text mkString
-    }
-  }
+  val urlchar: Set[Char] = ('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9') ++ "-._~:/?#@!$&'()*+,;=" toSet
 
   def headingIds(ast: CommonMarkAST) = {
     val idmap = new mutable.HashMap[String, Int]

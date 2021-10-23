@@ -172,7 +172,7 @@ class CommonMarkParser {
     var precededByPunct = false
   }
 
-  class CommonMarkArrayInput(private val array: collection.Seq[CommonMarkAST], private val idx: Int)
+  class CommonMarkArrayInput(private val array: collection.Seq[CommonMarkAST], val idx: Int)
       extends Input[CommonMarkAST, Char] {
     def eoi: Boolean = idx >= array.length
 
@@ -527,8 +527,12 @@ class CommonMarkParser {
             val start = new CommonMarkArrayInput(array, idx)
 
             LinksImagesParser.run(start, linksImagesParser.pattern) match {
-              case Some((Some(Link(text, url, title)), rest, _)) =>
-                println(text, url, title)
+              case Some((Some(Link(text, url, title)), rest: CommonMarkArrayInput, _)) =>
+                array.remove(idx + 1, rest.idx - idx - 1)
+                array(idx) = LinkAST(url, title, inlineText(text))
+                // todo: set all [ delimiters before to inactive
+                node.unlink
+                return
               case Some((Some(Image(text, url, title)), rest, _)) =>
               case None =>
                 array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
@@ -720,12 +724,16 @@ class CommonMarkParser {
         textual(t, buf)
     }
 
-  def inlineText(s: String): CommonMarkAST =
-    textual(phase2(breaks(escapes(s)))) match {
+  def inlineText(l: List[CommonMarkAST]): CommonMarkAST = singleFromList(textual(phase2(l)))
+
+  def singleFromList(l: List[CommonMarkAST]): CommonMarkAST =
+    l match {
       case List(e) => e
       case Nil     => SeqAST(Nil)
       case l       => SeqAST(if (l.last == HardBreakAST) l dropRight 1 else l)
     }
+
+  def inlineText(s: String): CommonMarkAST = inlineText(breaks(escapes(s)))
 
   def trim(s: String): String = {
     val buf = new StringBuilder(s)
