@@ -4,7 +4,7 @@ object Main extends App {
 
   val p = new CommonMarkParser
 
-  val input = "[link](/url)"
+  val input = "![link](/url)"
 
   val doc = p.parse(input)
 

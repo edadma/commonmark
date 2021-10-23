@@ -533,7 +533,11 @@ class CommonMarkParser {
                 // todo: set all [ delimiters before to inactive
                 node.unlink
                 return
-              case Some((Some(Image(text, url, title)), rest, _)) =>
+              case Some((Some(Image(text, url, title)), rest: CommonMarkArrayInput, _)) =>
+                array.remove(idx + 1, rest.idx - idx - 1)
+                array(idx) = ImageAST(url, title, inlineText(text))
+                node.unlink
+                return
               case None =>
                 array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
                 return

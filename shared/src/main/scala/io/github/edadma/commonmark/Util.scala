@@ -179,27 +179,27 @@ object Util {
               s"\n<pre><code>$escaped</code></pre>\n"
           else
             "\n" + codeblock(escaped, highlighted, caption) + "\n"
-        case LinkAST(address, None, contents)        => tag("a", contents, false, "href" -> address)
-        case LinkAST(address, Some(title), contents) => tag("a", contents, false, "href" -> address, "title" -> title)
-        case ListItemAST(contents)                   => tag("li", contents, true)
-        case BulletListAST(contents, tight)          => tag("ul", contents, true)
-        case OrderedListAST(contents, tight, 1)      => tag("ol", contents, true)
-        case OrderedListAST(contents, tight, start)  => tag("ol", contents, true, "start" -> start.toString)
-        case ImageAST(address, None, text)           => leaf("img", text, "src" -> address)
-        case ImageAST(address, Some(title), text)    => leaf("img", text, "src" -> address, "title" -> title)
-        case EmphasisAST(contents)                   => tag("em", contents, false)
-        case StrongAST(contents)                     => tag("strong", contents, false)
-        case StrikethroughAST(contents)              => tag("del", contents, false)
-        case SoftBreakAST                            => "\n"
-        case HardBreakAST                            => "<br />\n"
-        case RuleAST                                 => "\n<hr />\n"
-        case TableHeadCellAST(align, contents)       => tag("th", contents, true, "align" -> align)
-        case TableBodyCellAST(align, contents)       => tag("td", contents, false, "align" -> align)
-        case TableRowAST(contents)                   => tag("tr", contents, true)
-        case TableHeadAST(contents)                  => tag("thead", contents, true)
-        case TableBodyAST(contents)                  => tag("tbody", contents, true)
-        case TableAST(contents)                      => tag("table", contents, true)
-        case EntityAST(entity, _)                    => s"&$entity;"
+        case LinkAST(address, None, contents)         => tag("a", contents, false, "href" -> address)
+        case ListItemAST(contents)                    => tag("li", contents, true)
+        case BulletListAST(contents, tight)           => tag("ul", contents, true)
+        case OrderedListAST(contents, tight, 1)       => tag("ol", contents, true)
+        case OrderedListAST(contents, tight, start)   => tag("ol", contents, true, "start" -> start.toString)
+        case LinkAST(address, Some(title), contents)  => tag("a", contents, false, "href" -> address, "title" -> title)
+        case ImageAST(address, None, contents)        => tag("img", contents, false, "src" -> address)
+        case ImageAST(address, Some(title), contents) => tag("img", contents, false, "src" -> address, "title" -> title)
+        case EmphasisAST(contents)                    => tag("em", contents, false)
+        case StrongAST(contents)                      => tag("strong", contents, false)
+        case StrikethroughAST(contents)               => tag("del", contents, false)
+        case SoftBreakAST                             => "\n"
+        case HardBreakAST                             => "<br />\n"
+        case RuleAST                                  => "\n<hr />\n"
+        case TableHeadCellAST(align, contents)        => tag("th", contents, true, "align" -> align)
+        case TableBodyCellAST(align, contents)        => tag("td", contents, false, "align" -> align)
+        case TableRowAST(contents)                    => tag("tr", contents, true)
+        case TableHeadAST(contents)                   => tag("thead", contents, true)
+        case TableBodyAST(contents)                   => tag("tbody", contents, true)
+        case TableAST(contents)                       => tag("table", contents, true)
+        case EntityAST(entity, _)                     => s"&$entity;"
       }
 
     val h = html(doc) dropWhile (_ == '\n')
