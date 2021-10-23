@@ -4,8 +4,6 @@ import io.github.edadma.recognizer.CharRecognizer
 
 object LinksImagesParser extends CharRecognizer[CommonMarkAST] {
 
-  val ws: Pattern = rep(whitespace)
-  val ws1: Pattern = rep1(whitespace)
   lazy val balancedDestination: Pattern = rep(noneOf('(', ')', ' ', '\n') | '(' ~ nonStrict(balancedDestination) ~ ')')
   lazy val balancedText: Pattern = rep(noneOf('[', ']') | '[' ~ nonStrict(balancedText) ~ ']')
   lazy val balancedText1: Pattern = rep1(noneOf('[', ']') | '[' ~ nonStrict(balancedText) ~ ']')
@@ -13,16 +11,16 @@ object LinksImagesParser extends CharRecognizer[CommonMarkAST] {
     '[' ~ string(balancedText) ~ ']' ~
       '(' ~ ws ~
       ('<' ~ string(rep(noneOf('>', '\n'))) ~ '>' | not('<') ~ string(balancedDestination)) ~
-      opt(ws1 ~ ('"' ~ string(rep(noneOf('"'))) ~ '"' | '\'' ~ string(rep(noneOf('\''))) ~ '\'' | '(' ~ string(
-            rep(noneOf(')'))) ~ ')'),
-          1)(_.head) ~ ws ~ ')' ~ action3(Link)
+      opti(
+        ws1 ~ ('"' ~ string(rep(noneOf('"'))) ~ '"' | '\'' ~ string(rep(noneOf('\''))) ~ '\'' | '(' ~ string(
+          rep(noneOf(')'))) ~ ')')) ~ ws ~ ')' ~ action3(Link)
   val imagePattern: Pattern =
     "![" ~ string(balancedText) ~ ']' ~
       '(' ~ ws ~
       ('<' ~ string(rep(noneOf('>', '\n'))) ~ '>' | not('<') ~ string(balancedDestination)) ~
-      opt(ws1 ~ ('"' ~ string(rep(noneOf('"'))) ~ '"' | '\'' ~ string(rep(noneOf('\''))) ~ '\'' | '(' ~ string(
-            rep(noneOf(')'))) ~ ')'),
-          1)(_.head) ~ ws ~ ')' ~ action3(Image)
+      opti(
+        ws1 ~ ('"' ~ string(rep(noneOf('"'))) ~ '"' | '\'' ~ string(rep(noneOf('\''))) ~ '\'' | '(' ~ string(
+          rep(noneOf(')'))) ~ ')')) ~ ws ~ ')' ~ action3(Image)
 
 }
 
