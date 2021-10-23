@@ -30,7 +30,7 @@ class LinksImagesParser(parser: CommonMarkParser) {
 
   import LinksImagesParser._
 
-  runlimit = 50
+//  runlimit = 50
 
   val refLinkPattern: Pattern =
     '[' ~ string(balancedText) ~ ']' ~ '[' ~ string(rep1(noneOf('[', ']'))) ~

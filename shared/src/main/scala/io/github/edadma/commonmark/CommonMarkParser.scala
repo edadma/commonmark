@@ -172,7 +172,7 @@ class CommonMarkParser {
     var precededByPunct = false
   }
 
-  class CommonMarkArrayInput(array: collection.Seq[CommonMarkAST], idx: Int) extends Input[CommonMarkAST, Char] {
+  case class CommonMarkArrayInput(array: collection.Seq[CommonMarkAST], idx: Int) extends Input[CommonMarkAST, Char] {
     def eoi: Boolean = idx >= array.length
 
     def elem: Char =
@@ -183,7 +183,7 @@ class CommonMarkParser {
 
     def wrapped: CommonMarkAST = array(idx)
 
-    def next: CommonMarkArrayInput = new CommonMarkArrayInput(array, idx + 1)
+    def next: CommonMarkArrayInput = CommonMarkArrayInput(array, idx + 1)
   }
 
   def chars(l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer, col: Int = 0): List[CommonMarkAST] =
@@ -518,9 +518,8 @@ class CommonMarkParser {
               return
             }
 
-            val start = new CommonMarkArrayInput(array, idx)
+            val start = CommonMarkArrayInput(array, idx)
 
-            println(start)
             LinksImagesParser.run(start, linksImagesParser.pattern) match {
               case Some((Some(Link(text, url, title)), rest, _)) =>
                 println(text, url, title)
