@@ -6,7 +6,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 
-case class Heading(elem: HeadingAST, sub: List[Heading])
+case class Heading(elem: HeadingAST, subs: List[Heading])
 case class TOC(headings: List[Heading])
 
 object Util {
@@ -36,13 +36,19 @@ object Util {
     }
 
     val buf = new ListBuffer[HeadingAST]
+    case class HeadingBuffer(heading: HeadingAST, subs: ListBuffer[HeadingBuffer])
+    val stack = new mutable.Stack[HeadingBuffer]
 
     def headingIds(ast: CommonMarkAST): Unit = {
       ast match {
         case SeqAST(s) => s foreach headingIds
-        case h @ HeadingAST(_, contents, _) =>
+        case h @ HeadingAST(level, contents, _) =>
           h.id = Some(id(text(contents)))
-          buf += h
+
+          if (level > stack.length) {
+            stack.push(HeadingBuffer(h, new ListBuffer))
+          }
+//          buf += h
         case b: BranchAST => headingIds(b.contents)
         case _            =>
       }
