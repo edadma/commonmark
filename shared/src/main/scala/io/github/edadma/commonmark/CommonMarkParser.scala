@@ -532,13 +532,20 @@ class CommonMarkParser {
               case Some((Some(Link(text, url, title)), rest: CommonMarkArrayInput, _)) =>
                 array.remove(idx + 1, rest.idx - idx - 1)
                 array(idx) = LinkAST(url, title, inlineText(text))
-                node.following.iterator
+                node.following.iterator foreach { n =>
+                  if (n.element.idx < rest.idx)
+                    n.unlink
+                }
                 // todo: set all [ delimiters before to inactive
                 node.unlink
                 return
               case Some((Some(Image(text, url, title)), rest: CommonMarkArrayInput, _)) =>
                 array.remove(idx + 1, rest.idx - idx - 1)
                 array(idx) = ImageAST(url, title, inlineText(text))
+                node.following.iterator foreach { n =>
+                  if (n.element.idx < rest.idx)
+                    n.unlink
+                }
                 node.unlink
                 return
               case None =>
