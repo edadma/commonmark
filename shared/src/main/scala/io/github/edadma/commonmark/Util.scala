@@ -1,61 +1,59 @@
 //@
 package io.github.edadma.commonmark
 
-import java.net.URLEncoder
+import java.util.regex.Matcher
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
+
+case class Heading(elem: HeadingAST, sub: List[Heading])
+case class TOC(headings: List[Heading])
 
 object Util {
 
-  val urlchar: Set[Char] = ('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9') ++ "-._~:/?#@!$&'()*+,;=" toSet
+  private val urlchar: Set[Char] = ('A' to 'Z') ++ ('a' to 'z') ++ ('0' to '9') ++ "-._~:/?#@!$&'()*+,;=" toSet
+  private val blanksRegex = """\s+""".r
+  private val blanksReplacement = Matcher.quoteReplacement("_")
 
-  def headingIds(ast: CommonMarkAST) = {
-    val idmap = new mutable.HashMap[String, Int]
-    val idset = new mutable.HashSet[String]
+  def toc(ast: CommonMarkAST): TOC = {
+    val idmap = new mutable.LinkedHashMap[String, Int]
 
     def id(s: String) = {
       val ids =
-        if (s isEmpty)
-          "_"
-        else
-          s.replace(' ', '_').replace('\t', '_').replace('\r', '_').replace('\n', '_')
+        if (s.isEmpty) "_"
+        else blanksRegex.replaceAllIn(s, blanksReplacement)
 
-      if (idset(ids))
-        idmap get ids match {
-          case None =>
-            val rid = s"$ids-1"
+      idmap get ids match {
+        case None =>
+          idmap(ids) = 1
+          ids
+        case Some(count) =>
+          val rid = s"$ids-$count"
 
-            idset += rid
-            idmap(ids) = 2
-            rid
-          case Some(count) =>
-            val rid = s"$ids-$count"
-
-            idset += rid
-            idmap(ids) = count + 1
-            rid
-        } else {
-        idset += ids
-        idmap(ids) = 1
-        ids
+          idmap(ids) = count + 1
+          rid
       }
     }
 
+    val buf = new ListBuffer[HeadingAST]
+
     def headingIds(ast: CommonMarkAST): Unit = {
       ast match {
-        case SeqAST(s)                      => s foreach headingIds
-        case h @ HeadingAST(_, contents, _) => h.id = Some(id(text(contents)))
-        case b: BranchAST                   => headingIds(b.contents)
-        case _                              =>
+        case SeqAST(s) => s foreach headingIds
+        case h @ HeadingAST(_, contents, _) =>
+          h.id = Some(id(text(contents)))
+          buf += h
+        case b: BranchAST => headingIds(b.contents)
+        case _            =>
       }
     }
 
     headingIds(ast)
   }
 
-  def html(doc: CommonMarkAST, tab: Int, codeblock: (String, Option[String], Option[String]) => String = null) = {
-    val buf = new StringBuilder
-
+  def html(doc: CommonMarkAST,
+           tab: Int,
+           codeblock: (String, Option[String], Option[String]) => String = null): String = {
     def attributes(attr: Seq[(String, String)]) =
       attr
         .filter { case ("align", "left") => false; case _ => true }
