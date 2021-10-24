@@ -667,10 +667,10 @@ class CommonMarkParser {
               textual(array.slice(opener.element.idx + opener.element.n, current_position.element.idx) toList))
             val tagged = current_position.element.idx - (opener.element.idx + opener.element.n)
             //            println("seq", body)
-            println("array", array)
-            println("opener.element.idx", opener.element.idx)
-            println("opener.element.n", opener.element.n)
-            println("current_position.element.idx", current_position.element.idx)
+//            println("array", array)
+//            println("opener.element.idx", opener.element.idx)
+//            println("opener.element.n", opener.element.n)
+//            println("current_position.element.idx", current_position.element.idx)
 
             array.remove(opener.element.idx + opener.element.n + 1,
                          current_position.element.idx - (opener.element.idx + opener.element.n + 1))

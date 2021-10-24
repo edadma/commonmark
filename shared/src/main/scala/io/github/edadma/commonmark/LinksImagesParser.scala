@@ -32,7 +32,7 @@ class LinksImagesParser(parser: CommonMarkParser) {
 
   val refLinkPattern: Pattern =
     '[' ~ captureWrapped(balancedText) ~ ']' ~ '[' ~ captureWrapped(rep1(noneOf('[', ']'))) ~
-      test(
+      testValues(
         values =>
           values.nonEmpty && values.head.toString.exists(!_.isWhitespace) && parser.refs.contains(
             values.head.toString.toLowerCase)) ~ ']' ~ action2[List[CommonMarkAST], String] { (t, l) =>
@@ -40,19 +40,16 @@ class LinksImagesParser(parser: CommonMarkParser) {
 
       Link(t, url, title)
     } |
-      '[' ~ captureWrapped(balancedText1) ~
-        test(
-          values =>
-            values.nonEmpty && values.head.toString.exists(!_.isWhitespace) && parser.refs.contains(
-              values.head.toString.toLowerCase)) ~ ']' ~
-        opt("[]") ~ action[List[CommonMarkAST]] { s =>
-        val LinkInfo(url, title) = parser.refs(text(s).toLowerCase)
+      '[' ~ captureWrapped(balancedText1) ~ action[List[CommonMarkAST]](l => (l, text(l).toLowerCase)) ~
+        test[(List[CommonMarkAST], String)](t => t._2.exists(!_.isWhitespace) && parser.refs.contains(t._2)) ~ ']' ~
+        opt("[]") ~ action[(List[CommonMarkAST], String)] { t =>
+        val LinkInfo(url, title) = parser.refs(t._2)
 
-        Link(s, url, title)
+        Link(t._1, url, title)
       }
   val refImagePattern: Pattern =
     "![" ~ captureWrapped(balancedText) ~ ']' ~ '[' ~ string(rep1(noneOf('[', ']'))) ~
-      test(
+      testValues(
         values =>
           values.nonEmpty && values.head.toString.exists(!_.isWhitespace) && parser.refs.contains(
             values.head.toString.toLowerCase)) ~ ']' ~ action2[List[CommonMarkAST], String] { (t, l) =>
@@ -60,15 +57,12 @@ class LinksImagesParser(parser: CommonMarkParser) {
 
       Image(t, url, title)
     } |
-      "![" ~ captureWrapped(balancedText1) ~
-        test(
-          values =>
-            values.nonEmpty && values.head.toString.exists(!_.isWhitespace) && parser.refs.contains(
-              values.head.toString.toLowerCase)) ~ ']' ~
-        opt("[]") ~ action[List[CommonMarkAST]] { s =>
-        val LinkInfo(url, title) = parser.refs(text(s).toLowerCase)
+      "![" ~ captureWrapped(balancedText1) ~ action[List[CommonMarkAST]](l => (l, text(l).toLowerCase)) ~
+        test[(List[CommonMarkAST], String)](t => t._2.exists(!_.isWhitespace) && parser.refs.contains(t._2)) ~ ']' ~
+        opt("[]") ~ action[(List[CommonMarkAST], String)] { t =>
+        val LinkInfo(url, title) = parser.refs(t._2)
 
-        Image(s, url, title)
+        Image(t._1, url, title)
       }
   val pattern: Pattern = linkPattern | refLinkPattern | imagePattern | refImagePattern
 
