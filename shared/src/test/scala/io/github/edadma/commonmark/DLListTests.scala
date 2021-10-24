@@ -1,5 +1,7 @@
 package io.github.edadma.commonmark
 
+import io.github.edadma.dllist._
+
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 

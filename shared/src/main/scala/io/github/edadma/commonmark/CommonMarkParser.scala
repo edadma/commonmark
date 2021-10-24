@@ -3,6 +3,8 @@ package io.github.edadma.commonmark
 
 import io.github.edadma.recognizer.Input
 
+import io.github.edadma.dllist._
+
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -530,6 +532,7 @@ class CommonMarkParser {
               case Some((Some(Link(text, url, title)), rest: CommonMarkArrayInput, _)) =>
                 array.remove(idx + 1, rest.idx - idx - 1)
                 array(idx) = LinkAST(url, title, inlineText(text))
+                node.following.iterator
                 // todo: set all [ delimiters before to inactive
                 node.unlink
                 return
@@ -657,7 +660,10 @@ class CommonMarkParser {
               textual(array.slice(opener.element.idx + opener.element.n, current_position.element.idx) toList))
             val tagged = current_position.element.idx - (opener.element.idx + opener.element.n)
             //            println("seq", body)
-            //            println("array", array)
+            println("array", array)
+            println("opener.element.idx", opener.element.idx)
+            println("opener.element.n", opener.element.n)
+            println("current_position.element.idx", current_position.element.idx)
 
             array.remove(opener.element.idx + opener.element.n + 1,
                          current_position.element.idx - (opener.element.idx + opener.element.n + 1))
