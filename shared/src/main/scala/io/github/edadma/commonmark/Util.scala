@@ -6,7 +6,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 
-case class Heading(elem: HeadingAST, subs: List[Heading])
+case class Heading(heading: HeadingAST, sub: TOC)
 case class TOC(headings: List[Heading])
 
 object Util {
@@ -35,9 +35,15 @@ object Util {
       }
     }
 
-    val buf = new ListBuffer[HeadingAST]
-    case class HeadingBuffer(heading: HeadingAST, subs: ListBuffer[HeadingBuffer])
-    val stack = new mutable.Stack[HeadingBuffer]
+    val stack = new mutable.Stack[ListBuffer[Heading]]
+
+    def unnest(level: Int): Unit = {
+      while (level < stack.top.last.heading.level && stack.length > 1) {
+        val subs = stack.pop().toList
+
+        stack.top(stack.top.length - 1) = stack.top.last.copy(sub = TOC(subs))
+      }
+    }
 
     def headingIds(ast: CommonMarkAST): Unit = {
       ast match {
@@ -45,16 +51,24 @@ object Util {
         case h @ HeadingAST(level, contents, _) =>
           h.id = Some(id(text(contents)))
 
-          if (level > stack.length) {
-            stack.push(HeadingBuffer(h, new ListBuffer))
+          if (stack.isEmpty || level > stack.top.last.heading.level) {
+            stack push ListBuffer(Heading(h, TOC(Nil)))
+          } else {
+            unnest(level)
+            stack.top += Heading(h, TOC(Nil))
           }
-//          buf += h
         case b: BranchAST => headingIds(b.contents)
         case _            =>
       }
     }
 
     headingIds(ast)
+
+    if (stack.isEmpty) TOC(Nil)
+    else {
+      unnest(0)
+      TOC(stack.top.toList)
+    }
   }
 
   def html(doc: CommonMarkAST,

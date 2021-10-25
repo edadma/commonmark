@@ -1,29 +1,41 @@
 package io.github.edadma.commonmark
 
+import pprint.pprintln
+
 object Main extends App {
 
   val p = new CommonMarkParser
 
   val input =
     """
-      |H1
-      |==
+      |1
+      |=
       |
-      |after h1
+      |body 1
       |
-      |H2
-      |--
+      |1.1
+      |---
       |
-      |after h2
+      |body 1.1
       |
-      |### H3
+      |### 1.1.1
       |
-      |after h3""".stripMargin
+      |body 1.1.1
+      |
+      |1.2
+      |---
+      |
+      |body 1.2
+      |
+      |### 1.2.1
+      |
+      |body 1.2.1
+      |""".stripMargin
 
   val doc = p.parse(input)
 
   //  println(p.parseBlocks(input.lines.iterator.asScala.to(LazyList)))
   //  println(doc)
   println(Util.html(doc, 2))
-  println(Util.headingIds(doc))
+  pprintln(Util.toc(doc))
 }

@@ -4,7 +4,7 @@ ThisBuild / versionScheme := Some("semver-spec")
 lazy val commonmark = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file(".")).
   settings(
     name := "commonmark",
-    version := "0.1.0-pre.4",
+    version := "0.1.0-pre.5",
     scalaVersion := "2.13.6",
     scalacOptions ++=
       Seq(
@@ -25,7 +25,7 @@ lazy val commonmark = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
     ),
     libraryDependencies ++= Seq(
       "com.github.scopt" %%% "scopt" % "4.0.1",
-//      "org.ekrich" %%% "sconfig" % "1.4.4"
+      "com.lihaoyi" %%% "pprint" % "0.6.6" % "test",
     ),
     publishMavenStyle := true,
     Test / publishArtifact := false,
