@@ -21,7 +21,7 @@ object Util {
     def id(s: String) = {
       val ids =
         if (s.isEmpty) "_"
-        else blanksRegex.replaceAllIn(s, blanksReplacement)
+        else blanksRegex.replaceAllIn(s.toLowerCase, blanksReplacement)
 
       idmap get ids match {
         case None =>
