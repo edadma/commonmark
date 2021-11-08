@@ -73,7 +73,7 @@ object Util {
 
   def html(doc: CommonMarkAST,
            tab: Int,
-           codeblock: (String, Option[String], Option[String]) => String = null): String = {
+           codeblock: (String, Option[String], Option[String]) => String = null, link: String => String = identity): String = {
     def attributes(attr: Seq[(String, String)]) =
       attr
         .filter { case ("align", "left") => false; case _ => true }
@@ -197,14 +197,14 @@ object Util {
               s"\n<pre><code>$escaped</code></pre>\n"
           else
             "\n" + codeblock(escaped, highlighted, caption) + "\n"
-        case LinkAST(address, None, contents)         => tag("a", contents, false, "href" -> address)
         case ListItemAST(contents)                    => tag("li", contents, true)
         case BulletListAST(contents, tight)           => tag("ul", contents, true)
         case OrderedListAST(contents, tight, 1)       => tag("ol", contents, true)
         case OrderedListAST(contents, tight, start)   => tag("ol", contents, true, "start" -> start.toString)
-        case LinkAST(address, Some(title), contents)  => tag("a", contents, false, "href" -> address, "title" -> title)
-        case ImageAST(address, None, contents)        => tag("img", contents, false, "src" -> address)
-        case ImageAST(address, Some(title), contents) => tag("img", contents, false, "src" -> address, "title" -> title)
+        case LinkAST(address, None, contents)         => tag("a", contents, false, "href" -> link(address))
+        case LinkAST(address, Some(title), contents)  => tag("a", contents, false, "href" -> link(address), "title" -> title)
+        case ImageAST(address, None, contents)        => tag("img", contents, false, "src" -> link(address))
+        case ImageAST(address, Some(title), contents) => tag("img", contents, false, "src" -> link(address), "title" -> title)
         case EmphasisAST(contents)                    => tag("em", contents, false)
         case StrongAST(contents)                      => tag("strong", contents, false)
         case StrikethroughAST(contents)               => tag("del", contents, false)
