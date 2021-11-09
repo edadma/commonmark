@@ -75,7 +75,10 @@ object Util {
 
   def html(doc: CommonMarkAST,
            tab: Int,
-           codeblock: (String, Option[String], Option[String]) => String = null, link: String => String = identity, emoji: Boolean = true): String = {
+           codeblock: (String, Option[String], Option[String]) => String = null,
+           link: String => String = identity,
+           emoji: Boolean = true,
+           noescape: Boolean = false): String = {
     def attributes(attr: Seq[(String, String)]) =
       attr
         .filter { case ("align", "left") => false; case _ => true }
@@ -105,48 +108,49 @@ object Util {
         ""
     }
 
+    // todo: escape() removed for leaf elements
     def leaf(tag: String, contents: String, attr: (String, String)*) =
-      s"<$tag${attributes(attr)}>${escape(contents)}</$tag>"
+      s"<$tag${attributes(attr)}>${/*escape(*/ contents /*)*/}</$tag>"
 
-    def escape(s: String) = {
-      val buf = new StringBuilder
+    def escape(s: String) =
+      if (!noescape) {
+        val buf = new StringBuilder
 
-      s foreach {
-        case '&' => buf ++= "&amp;"
-        case '<' => buf ++= "&lt;"
-        case '>' => buf ++= "&gt;"
-        case '"' => buf ++= "&quot;"
-        //        case '\\' => buf ++= "&bsol;"
-        //        case '{' => buf ++= "&lcub;"
-        //        case '}' => buf ++= "&rcub;"
-        //        case c if c > '\u007F' => buf ++= s"&#${c.toInt};"
-        case c =>
-          buf += c
-      }
+        s foreach {
+          case '&' => buf ++= "&amp;"
+          case '<' => buf ++= "&lt;"
+          case '>' => buf ++= "&gt;"
+          case '"' => buf ++= "&quot;"
+          //        case '\\' => buf ++= "&bsol;"
+          //        case '{' => buf ++= "&lcub;"
+          //        case '}' => buf ++= "&rcub;"
+          //        case c if c > '\u007F' => buf ++= s"&#${c.toInt};"
+          case c => buf += c
+        }
 
-      var i = 0
+        var i = 0
 
-      while (i < buf.length) {
-        if (buf(i) == '\ue000') {
-          var count = 1
+        while (i < buf.length) {
+          if (buf(i) == '\ue000') {
+            var count = 1
 
-          while (i + count < buf.length && buf(i + count) == '\ue000') count += 1
+            while (i + count < buf.length && buf(i + count) == '\ue000') count += 1
 
-          val tabs = count / 4 + (if (count % 4 > 0) 1 else 0)
+            val tabs = count / 4 + (if (count % 4 > 0) 1 else 0)
 
-          for (j <- i until i + tabs)
-            buf(j) = '\t'
+            for (j <- i until i + tabs)
+              buf(j) = '\t'
 
-          i += tabs
+            i += tabs
 
-          for (_ <- 1 to count - tabs)
-            buf.deleteCharAt(i)
-        } else
-          i += 1
-      }
+            for (_ <- 1 to count - tabs)
+              buf.deleteCharAt(i)
+          } else
+            i += 1
+        }
 
-      buf.toString
-    }
+        buf.toString
+      } else s
 
     def encode(s: String) = {
       val buf = new StringBuilder
@@ -179,14 +183,17 @@ object Util {
           val encoded = encode(escaped)
 
           s"""<a href="mailto:$encoded">$escaped</a>"""
-        case TextAST(t)                            => escape(if (emoji) Emoji(t) else t)
+        // todo: escape() removed for TextAST
+        case TextAST(t) =>
+          /*escape(*/
+          if (emoji) Emoji(t) else t /*)*/
         case HTMLBlockAST(t)                       => s"\n$t\n"
         case RawHTMLAST(t)                         => t
         case ParagraphAST(contents)                => optionalTag("p", contents, true)
         case BlockquoteAST(contents)               => containerTag("blockquote", contents, true)
         case HeadingAST(level, contents, Some(id)) => tag(s"h$level", contents, true, "id" -> id)
         case HeadingAST(level, contents, None)     => tag(s"h$level", contents, true)
-        case CodeSpanAST(c)                        => leaf("code", c)
+        case CodeSpanAST(c)                        => leaf("code", escape(c))
         case CodeBlockAST(c, highlighted, caption) =>
           val escaped = escape(c) + (if (c isEmpty) "" else "\n")
 
@@ -199,27 +206,29 @@ object Util {
               s"\n<pre><code>$escaped</code></pre>\n"
           else
             "\n" + codeblock(escaped, highlighted, caption) + "\n"
-        case ListItemAST(contents)                    => tag("li", contents, true)
-        case BulletListAST(contents, tight)           => tag("ul", contents, true)
-        case OrderedListAST(contents, tight, 1)       => tag("ol", contents, true)
-        case OrderedListAST(contents, tight, start)   => tag("ol", contents, true, "start" -> start.toString)
-        case LinkAST(address, None, contents)         => tag("a", contents, false, "href" -> link(address))
-        case LinkAST(address, Some(title), contents)  => tag("a", contents, false, "href" -> link(address), "title" -> title)
-        case ImageAST(address, None, contents)        => tag("img", contents, false, "src" -> link(address))
-        case ImageAST(address, Some(title), contents) => tag("img", contents, false, "src" -> link(address), "title" -> title)
-        case EmphasisAST(contents)                    => tag("em", contents, false)
-        case StrongAST(contents)                      => tag("strong", contents, false)
-        case StrikethroughAST(contents)               => tag("del", contents, false)
-        case SoftBreakAST                             => "\n"
-        case HardBreakAST                             => "<br />\n"
-        case RuleAST                                  => "\n<hr />\n"
-        case TableHeadCellAST(align, contents)        => tag("th", contents, true, "align" -> align)
-        case TableBodyCellAST(align, contents)        => tag("td", contents, false, "align" -> align)
-        case TableRowAST(contents)                    => tag("tr", contents, true)
-        case TableHeadAST(contents)                   => tag("thead", contents, true)
-        case TableBodyAST(contents)                   => tag("tbody", contents, true)
-        case TableAST(contents)                       => tag("table", contents, true)
-        case EntityAST(entity, _)                     => s"&$entity;"
+        case ListItemAST(contents)                  => tag("li", contents, true)
+        case BulletListAST(contents, tight)         => tag("ul", contents, true)
+        case OrderedListAST(contents, tight, 1)     => tag("ol", contents, true)
+        case OrderedListAST(contents, tight, start) => tag("ol", contents, true, "start" -> start.toString)
+        case LinkAST(address, None, contents)       => tag("a", contents, false, "href" -> link(address))
+        case LinkAST(address, Some(title), contents) =>
+          tag("a", contents, false, "href" -> link(address), "title" -> title)
+        case ImageAST(address, None, contents) => tag("img", contents, false, "src" -> link(address))
+        case ImageAST(address, Some(title), contents) =>
+          tag("img", contents, false, "src" -> link(address), "title" -> title)
+        case EmphasisAST(contents)             => tag("em", contents, false)
+        case StrongAST(contents)               => tag("strong", contents, false)
+        case StrikethroughAST(contents)        => tag("del", contents, false)
+        case SoftBreakAST                      => "\n"
+        case HardBreakAST                      => "<br />\n"
+        case RuleAST                           => "\n<hr />\n"
+        case TableHeadCellAST(align, contents) => tag("th", contents, true, "align" -> align)
+        case TableBodyCellAST(align, contents) => tag("td", contents, false, "align" -> align)
+        case TableRowAST(contents)             => tag("tr", contents, true)
+        case TableHeadAST(contents)            => tag("thead", contents, true)
+        case TableBodyAST(contents)            => tag("tbody", contents, true)
+        case TableAST(contents)                => tag("table", contents, true)
+        case EntityAST(entity, _)              => s"&$entity;"
       }
 
     val h = html(doc) dropWhile (_ == '\n')
