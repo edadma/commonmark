@@ -1,6 +1,8 @@
 //@
 package io.github.edadma.commonmark
 
+import io.github.edadma.emoji.Emoji
+
 import java.util.regex.Matcher
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -73,7 +75,7 @@ object Util {
 
   def html(doc: CommonMarkAST,
            tab: Int,
-           codeblock: (String, Option[String], Option[String]) => String = null, link: String => String = identity): String = {
+           codeblock: (String, Option[String], Option[String]) => String = null, link: String => String = identity, emoji: Boolean = true): String = {
     def attributes(attr: Seq[(String, String)]) =
       attr
         .filter { case ("align", "left") => false; case _ => true }
@@ -177,7 +179,7 @@ object Util {
           val encoded = encode(escaped)
 
           s"""<a href="mailto:$encoded">$escaped</a>"""
-        case TextAST(t)                            => escape(t)
+        case TextAST(t)                            => escape(if (emoji) Emoji(t) else t)
         case HTMLBlockAST(t)                       => s"\n$t\n"
         case RawHTMLAST(t)                         => t
         case ParagraphAST(contents)                => optionalTag("p", contents, true)

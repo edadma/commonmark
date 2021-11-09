@@ -4,7 +4,7 @@ ThisBuild / versionScheme := Some("semver-spec")
 lazy val commonmark = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file(".")).
   settings(
     name := "commonmark",
-    version := "0.1.0-pre.7",
+    version := "0.1.0-pre.8",
     scalaVersion := "2.13.6",
     scalacOptions ++=
       Seq(
@@ -22,6 +22,7 @@ lazy val commonmark = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
       "io.github.edadma" %%% "json" % "0.1.12",
       "io.github.edadma" %%% "recognizer" % "0.1.0-pre.11",
       "io.github.edadma" %%% "dllist" % "0.1.1",
+      "io.github.edadma" %%% "emoji" % "0.1.0",
     ),
     libraryDependencies ++= Seq(
       "com.github.scopt" %%% "scopt" % "4.0.1",
