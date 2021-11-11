@@ -118,18 +118,19 @@ class CommonMarkParser {
               prev.open match {
                 case Some(b) if b != block && !b.isInterruptible => (from, text)
                 case _ =>
+                  @tailrec
                   def starts(from: Int, text: String, prev: ContainerBlock): (Int, String) = {
                     start(from, text, prev) match {
                       case None => (from, text)
                       case Some((st, fr, tx)) =>
-                        def add: Unit = {
+                        def add(): Unit = {
                           prev.add(st)
                           trail += st
                         }
 
                         if (!(st.isInstanceOf[ParagraphBlock] && trail.last.isInstanceOf[ParagraphBlock]))
                           prev.open match {
-                            case None => add
+                            case None => add()
                             case Some(b) =>
                               if (!(st.isAppendable && b.isAppendable && st.getClass == b.getClass)) {
                                 trail.reverseIterator indexWhere (_ == b) match {
@@ -137,7 +138,7 @@ class CommonMarkParser {
                                   case idx => trail.remove(trail.length - 1 - idx, idx + 1)
                                 }
 
-                                add
+                                add()
                               }
                           }
 
@@ -194,7 +195,8 @@ class CommonMarkParser {
         .idx == idx
   }
 
-  def chars(l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer, col: Int = 0): List[CommonMarkAST] =
+  @tailrec
+  final def chars(l: List[Char], buf: ListBuffer[CommonMarkAST] = new ListBuffer, col: Int = 0): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
       case '\\' :: p :: t if "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" contains p =>
@@ -292,7 +294,11 @@ class CommonMarkParser {
         chars(t, buf)
     }
 
-  def entities(l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST], appends: CommonMarkAST*): List[CommonMarkAST] = {
+  @tailrec
+  final def entities(l: List[CommonMarkAST],
+                     buf: ListBuffer[CommonMarkAST],
+                     appends: CommonMarkAST*): List[CommonMarkAST] = {
+    @tailrec
     def parseName(l: List[CommonMarkAST],
                   buf: StringBuilder = new StringBuilder): Option[(String, List[CommonMarkAST])] =
       l match {
@@ -361,7 +367,8 @@ class CommonMarkParser {
 
   def chars2string(cs: List[CommonMarkAST]): String = cs map (_.asInstanceOf[Chr].text) mkString
 
-  def breaks(l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer): List[CommonMarkAST] =
+  @tailrec
+  final def breaks(l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
       case C(" ") :: C(" ") :: t if t.span(_ != C("\n"))._1 forall (_ == C(" ")) =>
@@ -728,7 +735,8 @@ class CommonMarkParser {
     array.toList
   }
 
-  def textual(l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer): List[CommonMarkAST] =
+  @tailrec
+  final def textual(l: List[CommonMarkAST], buf: ListBuffer[CommonMarkAST] = new ListBuffer): List[CommonMarkAST] =
     l match {
       case Nil => buf.toList
       case (_: Chr) :: _ =>
@@ -765,7 +773,7 @@ class CommonMarkParser {
     else buf.toString
   }
 
-  def transform(s: LazyList[Block], loose: Boolean = true): List[CommonMarkAST] = {
+  final def transform(s: LazyList[Block], loose: Boolean = true): List[CommonMarkAST] = {
     def blankAfter(s: collection.Seq[Block]) =
       if (s.length < 2)
         false
