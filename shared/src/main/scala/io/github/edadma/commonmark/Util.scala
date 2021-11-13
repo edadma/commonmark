@@ -1,7 +1,8 @@
-//@
 package io.github.edadma.commonmark
 
 import io.github.edadma.emoji.Emoji
+
+import io.github.edadma.highlighter.Highlighters
 
 import java.util.regex.Matcher
 import scala.collection.mutable
@@ -199,13 +200,19 @@ object Util {
 
           if (codeblock eq null)
             if (highlighted isDefined) {
-              val clas = '"' +: s"language-${highlighted.get}" :+ '"'
+              val pclas = "\"highlight\""
+              val cclas = '"' +: s"language-${highlighted.get}" :+ '"'
+              val code =
+                Highlighters.registered(highlighted.get) match {
+                  case None    => escaped
+                  case Some(h) => h.highlight(escaped)
+                }
 
-              s"\n<pre><code class=$clas>$escaped</code></pre>\n"
+              s"\n<pre class=$pclas><code class=$cclas>$code</code></pre>\n"
             } else
               s"\n<pre><code>$escaped</code></pre>\n"
           else
-            "\n" + codeblock(escaped, highlighted, caption) + "\n"
+            s"\n${codeblock(escaped, highlighted, caption)}\n"
         case ListItemAST(contents)                  => tag("li", contents, true)
         case BulletListAST(contents, tight)         => tag("ul", contents, true)
         case OrderedListAST(contents, tight, 1)     => tag("ol", contents, true)
