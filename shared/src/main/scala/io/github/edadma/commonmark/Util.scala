@@ -205,7 +205,7 @@ object Util {
               val code =
                 Highlighters.registered(highlighted.get) match {
                   case None    => escaped
-                  case Some(h) => h.highlight(escaped)
+                  case Some(h) => h.highlight(c)
                 }
 
               s"\n<pre class=$pclas><code class=$cclas>$code</code></pre>\n"
