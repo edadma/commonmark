@@ -6,7 +6,7 @@ lazy val commonmark = crossProject( /*JSPlatform,*/ JVMPlatform /*, NativePlatfo
   .settings(
     name := "commonmark",
     version := "0.1.0-pre.19",
-    scalaVersion := "2.13.6",
+    scalaVersion := "2.13.8",
     scalacOptions ++=
       Seq(
         "-deprecation",
@@ -22,7 +22,7 @@ lazy val commonmark = crossProject( /*JSPlatform,*/ JVMPlatform /*, NativePlatfo
     githubOwner := "edadma",
     githubRepository := name.value,
     mainClass := Some(s"${organization.value}.${name.value}.Main"),
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.9" % "test",
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.12" % "test",
     libraryDependencies ++= Seq(
       "io.github.edadma" %%% "cross-platform" % "0.1.1",
       "io.github.edadma" %%% "json" % "0.1.12",
@@ -33,7 +33,7 @@ lazy val commonmark = crossProject( /*JSPlatform,*/ JVMPlatform /*, NativePlatfo
     ),
     libraryDependencies ++= Seq(
       "com.github.scopt" %%% "scopt" % "4.0.1",
-      "com.lihaoyi" %%% "pprint" % "0.6.6" % "test",
+      "com.lihaoyi" %%% "pprint" % "0.7.3" % "test",
     ),
     publishMavenStyle := true,
     Test / publishArtifact := false,
