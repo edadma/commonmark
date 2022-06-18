@@ -8,28 +8,7 @@ object Main extends App {
 
   val input =
     """
-      |1
-      |=
-      |
-      |body 1
-      |
-      |1.1
-      |---
-      |
-      |body 1.1
-      |
-      |### 1.1.1
-      |
-      |body 1.1.1
-      |
-      |1.2
-      |---
-      |
-      |body 1.2
-      |
-      |### 1.2.1
-      |
-      |body 1.2.1
+      |asdf
       |""".stripMargin
 
   val doc = p.parse(input)
