@@ -8,7 +8,7 @@ object Main extends App {
 
   val input =
     """
-      |asdf
+      |[text1](/link1) | [text2](/link2) 
       |""".stripMargin
 
   val doc = p.parse(input)
@@ -16,5 +16,5 @@ object Main extends App {
   //  println(p.parseBlocks(input.lines.iterator.asScala.to(LazyList)))
   //  println(doc)
   println(Util.html(doc, 2))
-  pprintln(Util.toc(doc))
+//  pprintln(Util.toc(doc))
 }
