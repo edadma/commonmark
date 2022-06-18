@@ -519,7 +519,7 @@ class CommonMarkParser {
         }
     }
 
-    def lookForLinkOrImage(endidx: Int): Unit = {
+    def lookForLinkOrImage(endidx: Int): Option[Int] = {
       val it = stack.reverseNodeIterator
 
       while (it.hasNext) {
@@ -530,7 +530,7 @@ class CommonMarkParser {
             if (!active) {
               node.unlink
               array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
-              return
+              return None
             }
 
             val start = new CommonMarkArrayInput(array, idx)
@@ -545,7 +545,7 @@ class CommonMarkParser {
                 }
                 // todo: set all [ delimiters before to inactive
                 node.unlink
-                return
+                return Some(idx)
               case Some((Some(Image(text, url, title)), rest: CommonMarkArrayInput, _)) =>
                 array.remove(idx + 1, rest.idx - idx - 1)
                 array(idx) = ImageAST(url, title, inlineText(text))
@@ -554,16 +554,17 @@ class CommonMarkParser {
                     n.unlink
                 }
                 node.unlink
-                return
+                return Some(idx)
               case None =>
                 array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
-                return
+                return None
             }
           case _ =>
         }
       }
 
       array(endidx) = TextAST(array(endidx).asInstanceOf[C].text)
+      None
     }
 
     @tailrec
@@ -590,8 +591,12 @@ class CommonMarkParser {
           case C("!") if idx + 1 < array.length && array(idx + 1) == C("[") =>
             stack += Delimiter("![", idx, 2, opener = false, closer = false)
             delimiters(idx + 2)
-          case C("]") => lookForLinkOrImage(idx)
-          case _      => delimiters(idx + 1)
+          case C("]") =>
+            lookForLinkOrImage(idx) match {
+              case Some(rep) => delimiters(rep + 1)
+              case None      => delimiters(idx + 1)
+            }
+          case _ => delimiters(idx + 1)
         }
       }
 

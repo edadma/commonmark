@@ -5,7 +5,7 @@ lazy val commonmark = crossProject( /*JSPlatform,*/ JVMPlatform /*, NativePlatfo
   .in(file("."))
   .settings(
     name := "commonmark",
-    version := "0.1.0-pre.19",
+    version := "0.1.0-pre.20",
     scalaVersion := "2.13.8",
     scalacOptions ++=
       Seq(

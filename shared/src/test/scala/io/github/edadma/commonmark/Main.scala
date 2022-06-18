@@ -8,7 +8,7 @@ object Main extends App {
 
   val input =
     """
-      |[text1](/link1) | [text2](/link2) 
+      |[text1](/link1) | [text2](/link2)
       |""".stripMargin
 
   val doc = p.parse(input)
